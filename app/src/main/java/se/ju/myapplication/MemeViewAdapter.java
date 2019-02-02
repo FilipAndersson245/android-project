@@ -1,6 +1,11 @@
 package se.ju.myapplication;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,9 +14,8 @@ import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-
+import com.squareup.picasso.Picasso;
 import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 
 // https://www.journaldev.com/10416/android-listview-with-custom-adapter-example-tutorial
@@ -39,6 +43,7 @@ public class MemeViewAdapter extends ArrayAdapter<Meme> implements View.OnClickL
 
     private int lastPosition = -1;
 
+    @SuppressLint("SetTextI18n")
     @NotNull
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -55,6 +60,9 @@ public class MemeViewAdapter extends ArrayAdapter<Meme> implements View.OnClickL
             LayoutInflater inflater = LayoutInflater.from(getContext());
             convertView = inflater.inflate(R.layout.meme_list_item_activity, parent, false);
             viewHolder.txtName = (TextView) convertView.findViewById(R.id.name);
+            viewHolder.image = (ImageView) convertView.findViewById(R.id.memeImage);
+            viewHolder.votes = (TextView) convertView.findViewById(R.id.votes);
+            viewHolder.txtAuthor = (TextView) convertView.findViewById(R.id.author);
 
             result = convertView;
 
@@ -70,9 +78,16 @@ public class MemeViewAdapter extends ArrayAdapter<Meme> implements View.OnClickL
 
 
         viewHolder.txtName.setText(dataModel.getName());
+        viewHolder.txtAuthor.setText(dataModel.getUsername());
+        viewHolder.votes.setText(dataModel.getVotes().toString());
+
+        Picasso.get()
+                .load(dataModel.getImageSource())
+                .into(viewHolder.image);
 
         // Return the completed view to render on screen
         return convertView;
     }
 }
+
 

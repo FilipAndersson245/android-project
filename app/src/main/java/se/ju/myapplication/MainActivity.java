@@ -18,8 +18,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_meme_list);
 
         ArrayList<Meme> al=new ArrayList<>();
-        al.add(new Meme(1,1,"bob", "xX 360 MLG !Xx","wtf.com",360, new Timestamp(1549106319)));
-        al.add(new Meme(2,1,"bob2", "xX 360 MLG !Xx","wtf.com",360, new Timestamp(1549106319)));
+        al.add(new Meme(1,1,"bob", "PLG #mirror","https://schpoopstorage.s3.eu-central-1.amazonaws.com/memes/1895d1ff-f021-44a0-b814-02f4e951c4f0",5, new Timestamp(1549106319)));
+        al.add(new Meme(2,1,"bob2", "swag","https://schpoopstorage.s3.eu-central-1.amazonaws.com/memes/0a07f11c-602a-4b00-a6c3-b54da107a413",32, new Timestamp(1549106336)));
+        al.add(new Meme(2,1,"bob2", "Ow is dead","https://schpoopstorage.s3.eu-central-1.amazonaws.com/memes/807eccc2-16ce-4c77-9c25-6176421d8a0c",64, new Timestamp(1549106324)));
+
+
 
         ListView listView = findViewById(R.id.listView);
         listView.setAdapter(new MemeViewAdapter(al,this));
