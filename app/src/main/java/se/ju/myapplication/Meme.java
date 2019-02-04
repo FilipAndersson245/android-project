@@ -20,4 +20,8 @@ public class Meme
     private Integer votes;
     @JsonProperty("postDate")
     private String postDate;
+
+    public String getUsername() {
+        return username;
+    }
 }
