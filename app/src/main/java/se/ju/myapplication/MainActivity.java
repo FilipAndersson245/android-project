@@ -21,12 +21,14 @@ public class MainActivity extends AppCompatActivity {
             System.out.println("HEJSAN");
             List<Meme> memeList = new Connection().getMemes(null, null, "bobb", null, null);
             new Connection().getMemeTemplates(null, "bobb", null, null);
+            new Connection().createUser("testuser2", "1");
             for (Meme meme : memeList) {
                 System.out.println(meme.toString());
             }
             System.out.println("HEJSAN2");
         } catch (Exception e) {
             System.out.println("ERROR BIG OUCH");
+            e.printStackTrace();
         }
     }
 }
