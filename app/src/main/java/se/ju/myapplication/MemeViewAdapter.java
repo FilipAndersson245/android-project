@@ -32,7 +32,7 @@ public class MemeViewAdapter extends ArrayAdapter<Meme> implements View.OnClickL
     }
 
     public MemeViewAdapter(ArrayList<Meme> data, Context context) {
-        super(context, R.layout.meme_list_item_activity, data);
+        super(context, R.layout.meme_list_item, data);
         this.dataSet = data;
         this.mContext = context;
     }
@@ -58,7 +58,7 @@ public class MemeViewAdapter extends ArrayAdapter<Meme> implements View.OnClickL
 
             viewHolder = new ViewHolder();
             LayoutInflater inflater = LayoutInflater.from(getContext());
-            convertView = inflater.inflate(R.layout.meme_list_item_activity, parent, false);
+            convertView = inflater.inflate(R.layout.meme_list_item, parent, false);
             viewHolder.txtName = (TextView) convertView.findViewById(R.id.name);
             viewHolder.image = (ImageView) convertView.findViewById(R.id.memeImage);
             viewHolder.votes = (TextView) convertView.findViewById(R.id.votes);
