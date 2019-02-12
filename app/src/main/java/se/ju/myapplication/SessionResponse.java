@@ -4,12 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Vote
+public class SessionResponse
 {
-    @JsonProperty("memeId")
-    private Integer memeId;
-    @JsonProperty("username")
-    private String username;
-    @JsonProperty("vote")
-    private Integer vote;
+    @JsonProperty("accessToken")
+    private String accessToken;
+
+    public String getAccessToken() {
+        return accessToken;
+    }
 }

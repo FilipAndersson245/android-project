@@ -4,12 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Vote
+public class Error
 {
-    @JsonProperty("memeId")
-    private Integer memeId;
-    @JsonProperty("username")
-    private String username;
-    @JsonProperty("vote")
-    private Integer vote;
+    @JsonProperty("error")
+    private String error;
+
+    public String getError() {
+        return error;
+    }
 }

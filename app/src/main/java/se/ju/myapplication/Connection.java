@@ -1,185 +1,331 @@
 package se.ju.myapplication;
 
-import android.os.AsyncTask;
 import android.net.Uri.Builder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.json.JSONObject;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.File;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
+
+interface Callback {
+    void call(Object result);
+}
 
 public class Connection {
     private final Builder builder = new Builder();
     private final ObjectMapper mapper = new ObjectMapper();
+    private Callback callbackNotify;
+    private String JWT = null;
 
-    Connection()
-    {
+    Connection(Callback callback) {
         builder.scheme("http").authority("schpoop.eu-central-1.elasticbeanstalk.com");
+        this.callbackNotify = callback;
     }
 
-    public List<Meme> getMemes(String name, String templateId, String username, Integer pageSize, Integer page) throws MalformedURLException, ExecutionException, InterruptedException {
-        builder.appendPath("memes");
+    private void request(final String method, final Builder urlBuilder, final String body, final TypeReference returnType, final boolean authorization) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    URL url = new URL(urlBuilder.build().toString());
 
-        if(name != null) {
-            builder.appendQueryParameter("name", name);
-        }
-        if(templateId != null) {
-            builder.appendQueryParameter("templateId", templateId);
-        }
-        if(username != null) {
-            builder.appendQueryParameter("username", username);
-        }
-        if(pageSize != null) {
-            builder.appendQueryParameter("pageSize", pageSize.toString());
-        }
-        if(page != null) {
-            builder.appendQueryParameter("page", page.toString());
-        }
-        String reqUrl = builder.build().toString();
-        List<Meme> response = (List<Meme>) new GetRequest(new URL(reqUrl), new TypeReference<List<Meme>>() {}).execute().get();
-        return response;
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+                    conn.setRequestMethod(method);
+
+                    if (authorization) {
+                        conn.setRequestProperty("Authorization", JWT);
+                    }
+
+                    if (body != null) {
+                        OutputStream os = conn.getOutputStream();
+                        os.write(body.getBytes("UTF-8"));
+                        os.close();
+                    }
+
+                    int resultRange = (conn.getResponseCode() / 100) * 100;
+
+                    if (resultRange == 200) {
+                        callbackNotify.call(mapper.readValue(conn.getInputStream(), returnType));
+                    } else {
+                        if (resultRange == 400) {
+                            throw new Exception(mapper.readValue(conn.getErrorStream(), Error.class).getError());
+                        }
+                        throw new Exception("Error making request.");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
-    public List<MemeTemplate> getMemeTemplates(String name, String username, Integer pageSize, Integer page) throws MalformedURLException, ExecutionException, InterruptedException {
-        builder.appendPath("memeTemplates");
+    // ============================== USER ==============================
+    // ==================================================================
 
-        if(name != null) {
-            builder.appendQueryParameter("name", name);
-        }
-        if(username != null) {
-            builder.appendQueryParameter("username", username);
-        }
-        if(pageSize != null) {
-            builder.appendQueryParameter("pageSize", pageSize.toString());
-        }
-        if(page != null) {
-            builder.appendQueryParameter("page", page.toString());
-        }
-        String reqUrl = builder.build().toString();
-        List<MemeTemplate> response = (List<MemeTemplate>) new GetRequest(new URL(reqUrl), new TypeReference<List<MemeTemplate>>() {}).execute().get();
-        return response;
+    public void createUser(String username, String password) throws JsonProcessingException {
+        builder.appendPath("users");
+        User user = new User(username, password);
+
+        request("POST", builder, mapper.writeValueAsString(user), new TypeReference<Void>() {
+        });
     }
 
-    public boolean createUser(String username, String password) throws JsonProcessingException, MalformedURLException, ExecutionException, InterruptedException {
+    public void getUsers(String username, Integer pageSize, Integer page) {
         builder.appendPath("users");
 
-        HashMap<String, String> user = new HashMap<String, String>();
-        user.put("username", username);
-        user.put("password", password);
-
-        String reqUrl = builder.build().toString();
-        new PostRequest(new URL(reqUrl), mapper.writeValueAsString(user)).execute().get();
-        return true;
-    }
-}
-
-class GetRequest extends AsyncTask {
-    private final ObjectMapper mapper = new ObjectMapper();
-
-    GetRequest(URL url, TypeReference type)
-    {
-        this.url = url;
-        this.type = type;
-    }
-    private URL url;
-    private TypeReference type;
-
-    @Override
-    protected Object doInBackground(Object... objects) {
-        try {
-            Object result = mapper.readValue(this.url, this.type);
-            return result;
-        } catch (Exception e) {
-            return null;
+        if (username != null) {
+            builder.appendQueryParameter("username", username);
         }
+        if (pageSize != null) {
+            builder.appendQueryParameter("pageSize", pageSize.toString());
+        }
+        if (page != null) {
+            builder.appendQueryParameter("page", page.toString());
+        }
+
+        request("GET", builder, null, new TypeReference<String>() {
+        }, false);
     }
-}
 
-class PostRequest extends AsyncTask {
-    private final ObjectMapper mapper = new ObjectMapper();
+    public void updateUserPassword(String username, final String newPassword) throws JsonProcessingException {
+        builder.appendPath("users");
+        builder.appendPath(username);
 
-    PostRequest(URL url, String jsonData) {
-        this.url = url;
-        this.jsonData = jsonData;
+        HashMap<String, String> body = new HashMap<String, String>() {{
+            put("password", newPassword);
+        }};
+
+        request("PATCH", builder, mapper.writeValueAsString(body), new TypeReference<Void>() {
+        }, );
     }
 
-    private URL url;
-    private String jsonData;
+    public void deleteUser(String username) throws JsonProcessingException {
+        builder.appendPath("users");
+        builder.appendPath(username);
 
-    @Override
-    protected Object doInBackground(Object... objects) {
-        try {
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setConnectTimeout(5000);
-            conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-            conn.setDoOutput(true);
-            conn.setDoInput(true);
-            conn.setRequestMethod("POST");
+        request("DELETE", builder, null, new TypeReference<Void>() {
+        }, true);
+    }
 
-            OutputStream os = conn.getOutputStream();
-            os.write(jsonData.getBytes("UTF-8"));
-            os.close();
+    public void signInUser(String username, String password) throws JsonProcessingException {
+        builder.appendPath("sessions");
+
+        final Session session = new Session("password", username, password);
 
 
-/*            // read the response
-            InputStream in = new BufferedInputStream(conn.getInputStream());
-            String result = "";
-            String line = "";
-            while ((line = new BufferedReader(new InputStreamReader(in)).readLine()) != null)
-            {
-                System.out.println(line);
-                result.concat(line).concat("\n");
-            }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    URL url = new URL(builder.build().toString());
 
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+                    conn.setRequestMethod("POST");
 
-            in.close();
-            conn.disconnect();*/
+                    OutputStream os = conn.getOutputStream();
+                    os.write(mapper.writeValueAsString(session).getBytes("UTF-8"));
+                    os.close();
 
-            System.out.println("KUUUK");
+                    StringBuilder sb = new StringBuilder();
+                    int resultRange = (conn.getResponseCode() / 100) * 100;
 
-            StringBuilder sb = new StringBuilder();
-            int HttpResult = conn.getResponseCode();
-            System.out.println(HttpResult);
-/*            if (HttpResult == HttpURLConnection.HTTP_OK) {*/
-                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                String line = null;
-                while ((line = br.readLine()) != null) {
-                    System.out.println("a");
-                    sb.append(line + "\n");
+                    if (resultRange == 200) {
+                        JWT = mapper.readValue(conn.getInputStream(), SessionResponse.class).getAccessToken();
+                        callbackNotify.call(mapper.readValue(conn.getInputStream(), Void.class));
+                    } else {
+                        JWT = null;
+                        if (resultRange == 400) {
+                            throw new Exception(mapper.readValue(conn.getErrorStream(), Error.class).getError());
+                        }
+                        throw new Exception("Error making request.");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-                br.close();
-                System.out.println("" + sb.toString());
-/*            }*/
+            }
+        }).start();
+    }
 
+    // ============================== MEMES =============================
+    // ==================================================================
 
+    public void createMeme(Integer templateId, String username, String name, String imageSource, String topText, String bottomText) throws JsonProcessingException {
+        builder.appendPath("memes");
 
+        NewMeme newMeme = new NewMeme(templateId, username, imageSource);
 
-            /*System.out.println(conn.getcont);*/
-            System.out.println("KUUUK");
-
-            return true;
+        if (name != null) {
+            newMeme.setName(name);
         }
-        catch (Exception e) {
-            System.out.println("INTE KUK");
-            e.printStackTrace();
-            System.out.println("INTE KUK");
-            return null;
+        if (topText != null) {
+            newMeme.setTopText(topText);
         }
+        if (bottomText != null) {
+            newMeme.setBottomText(bottomText);
+        }
+
+        request("POST", builder, mapper.writeValueAsString(newMeme), new TypeReference<Void>() {
+        }, true);
+    }
+
+    public void getMemes(String name, Integer templateId, String username, Integer pageSize, Integer page) {
+        builder.appendPath("memes");
+
+        if (name != null) {
+            builder.appendQueryParameter("name", name);
+        }
+        if (templateId != null) {
+            builder.appendQueryParameter("templateId", templateId.toString());
+        }
+        if (username != null) {
+            builder.appendQueryParameter("username", username);
+        }
+        if (pageSize != null) {
+            builder.appendQueryParameter("pageSize", pageSize.toString());
+        }
+        if (page != null) {
+            builder.appendQueryParameter("page", page.toString());
+        }
+
+        request("GET", builder, null, new TypeReference<List<Meme>>() {
+        }, false);
+    }
+
+    public void getMeme(Integer memeId) {
+        builder.appendPath("memes");
+        builder.appendPath(memeId.toString());
+
+        request("GET", builder, null, new TypeReference<Meme>() {
+        }, false);
+    }
+
+    public void deleteMeme(Integer memeId) {
+        builder.appendPath("memes");
+        builder.appendPath(memeId.toString());
+
+        request("DELETE", builder, null, new TypeReference<Void>() {
+        }, true);
+    }
+
+    // ========================== MEMETEMPLATES =========================
+    // ==================================================================
+
+    public void createMemeTemplate(final String name, final String username, Integer pageSize, Integer page) throws MalformedURLException, ExecutionException, InterruptedException {
+        builder.appendPath("memetemplates");
+
+        if (name != null) {
+            builder.appendQueryParameter("name", name);
+        }
+        if (username != null) {
+            builder.appendQueryParameter("username", username);
+        }
+        if (pageSize != null) {
+            builder.appendQueryParameter("pageSize", pageSize.toString());
+        }
+        if (page != null) {
+            builder.appendQueryParameter("page", page.toString());
+        }
+
+        request("GET", builder, null, new TypeReference<List<MemeTemplate>>() {
+        }, false);
+
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    MultipartUtility multipart = new MultipartUtility(builder.build().toString(), "UTF-8", callbackNotify);
+                    multipart.addFormField("username", username);
+                    if (name != null) {
+                        multipart.addFormField("name", name);
+                    }
+                    multipart.addFilePart("image", new File("https://i.imgur.com/zNU9fe8.png"));
+                    multipart.addHeaderField("Authorization", JWT);
+
+                    multipart.finish();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    public void getMemeTemplates(String name, String username, Integer pageSize, Integer page) throws MalformedURLException, ExecutionException, InterruptedException {
+        builder.appendPath("memetemplates");
+
+        if (name != null) {
+            builder.appendQueryParameter("name", name);
+        }
+        if (username != null) {
+            builder.appendQueryParameter("username", username);
+        }
+        if (pageSize != null) {
+            builder.appendQueryParameter("pageSize", pageSize.toString());
+        }
+        if (page != null) {
+            builder.appendQueryParameter("page", page.toString());
+        }
+
+        request("GET", builder, null, new TypeReference<List<MemeTemplate>>() {
+        }, false);
+    }
+
+    public void getMemeTemplate(Integer templateId) {
+        builder.appendPath("memetemplates");
+        builder.appendPath(templateId.toString());
+
+        request("GET", builder, null, new TypeReference<MemeTemplate>() {
+        }, false);
+    }
+
+    public void deleteMemeTemplate(Integer templateId) {
+        builder.appendPath("memetemplates");
+        builder.appendPath(templateId.toString());
+
+        request("DELETE", builder, null, new TypeReference<Void>() {
+        }, true);
+    }
+
+    // ============================== VOTES =============================
+    // ==================================================================
+
+    public void vote(Integer memeId, String username, Integer vote) throws JsonProcessingException {
+        builder.appendPath("votes");
+        builder.appendPath(memeId.toString());
+
+        NewVote newVote = new NewVote(username, vote);
+
+        request("PUT", builder, mapper.writeValueAsString(newVote), new TypeReference<Vote>() {
+        }, true);
+    }
+
+    public void getVote(Integer memeId, final String username) throws JsonProcessingException {
+        builder.appendPath("votes");
+        builder.appendPath(memeId.toString());
+
+        HashMap<String, String> body = new HashMap<String, String>() {{ put("username", username); }};
+
+        request("GET", builder, mapper.writeValueAsString(body), new TypeReference<Vote>() {
+        }, false);
+    }
+
+    public void removeVote(Integer memeId, String username) throws JsonProcessingException {
+        builder.appendPath("votes");
+        builder.appendPath(memeId.toString());
+
+        HashMap<String, String> body = new HashMap<String, String>() {{ put("username", username); }};
+
+        request("GET", builder, mapper.writeValueAsString(body), new TypeReference<Vote>() {
+        }, true);
     }
 }
