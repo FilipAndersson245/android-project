@@ -15,7 +15,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_meme_list);
+        setContentView(R.layout.activity_create_meme);
 
         ArrayList<Meme> al=new ArrayList<>();
         al.add(new Meme(1,1,"bob", "PLG #mirror","https://schpoopstorage.s3.eu-central-1.amazonaws.com/memes/1895d1ff-f021-44a0-b814-02f4e951c4f0",5, new Timestamp(1549106319)));
