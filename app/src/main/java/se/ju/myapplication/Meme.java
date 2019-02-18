@@ -1,29 +1,66 @@
 package se.ju.myapplication;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import android.support.annotation.NonNull;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class Meme
-{
+import java.sql.Timestamp;
+
+public class Meme {
     @JsonProperty("id")
-    private Integer id;
+    private final Integer id;
     @JsonProperty("templateId")
-    private Integer templateId;
+    private final Integer templateId;
     @JsonProperty("username")
-    private String username;
-    @JsonProperty("imageSource")
-    private String imageSource;
+    private final String username;
     @JsonProperty("name")
-    private String name;
+    private final String name;
+    @JsonProperty("imageSource")
+    private final String imageSource;
     @JsonProperty("votes")
-    private Integer votes;
+    private final Integer votes;
     @JsonProperty("postDate")
-    private String postDate;
+    private final Timestamp postDate;
 
+    public Meme(@NonNull Integer id,
+                @NonNull Integer templateId,
+                @NonNull String username,
+                String name,
+                @NonNull String imageSource,
+                @NonNull Integer votes,
+                @NonNull Timestamp postDate) {
+        this.id = id;
+        this.templateId = templateId;
+        this.username = username;
+        this.name = name;
+        this.imageSource = imageSource;
+        this.votes = votes;
+        this.postDate = postDate;
+    }
+
+    public Timestamp getPostDate() {
+        return postDate;
+    }
+
+    public Integer getVotes() {
+        return votes;
+    }
+
+    public String getImageSource() {
+        return imageSource;
+    }
+
+    public String getName() {
+        return name;
+    }
 
     public String getUsername() {
         return username;
     }
-}
 
+    public Integer getTemplateId() {
+        return templateId;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+}
