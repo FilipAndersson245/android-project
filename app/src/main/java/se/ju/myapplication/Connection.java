@@ -1,6 +1,7 @@
 package se.ju.myapplication;
 
 import android.net.Uri.Builder;
+import android.support.v4.util.Consumer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -14,6 +15,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
 
 interface Callback {
     void call(Object result);
@@ -31,7 +33,7 @@ public class Connection {
         this.callbackNotify = callback;
     }
 
-    private void request(final String method, final Builder urlBuilder, final String body, final TypeReference returnType, final boolean authorization) {
+    private void request(final String method, final Builder urlBuilder, final String body, final TypeReference returnType, final boolean authorization, final Consumer<Object> callback) {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -55,7 +57,8 @@ public class Connection {
                     int resultRange = (conn.getResponseCode() / 100) * 100;
 
                     if (resultRange == 200) {
-                        callbackNotify.call(mapper.readValue(conn.getInputStream(), returnType));
+//                        callbackNotify.call(mapper.readValue(conn.getInputStream(), returnType));
+                        callback.accept(mapper.readValue(conn.getInputStream(), returnType));
                     } else {
                         if (resultRange == 400) {
                             throw new Exception(mapper.readValue(conn.getErrorStream(), Error.class).getError());
@@ -72,15 +75,15 @@ public class Connection {
     // ============================== USER ==============================
     // ==================================================================
 
-    public void createUser(String username, String password) throws JsonProcessingException {
+    public void createUser(String username, String password, Consumer<Object> callback) throws JsonProcessingException {
         builder.appendPath("users");
         User user = new User(username, password);
 
         request("POST", builder, mapper.writeValueAsString(user), new TypeReference<Void>() {
-        }, false);
+        }, false, callback);
     }
 
-    public void getUsers(String username, Integer pageSize, Integer page) {
+    public void getUsers(String username, Integer pageSize, Integer page, Consumer<Object> callback) {
         builder.appendPath("users");
 
         if (username != null) {
@@ -94,10 +97,10 @@ public class Connection {
         }
 
         request("GET", builder, null, new TypeReference<String>() {
-        }, false);
+        }, false, callback);
     }
 
-    public void updateUserPassword(String username, final String newPassword) throws JsonProcessingException {
+    public void updateUserPassword(String username, final String newPassword, Consumer<Object> callback) throws JsonProcessingException {
         builder.appendPath("users");
         builder.appendPath(username);
 
@@ -106,18 +109,18 @@ public class Connection {
         }};
 
         request("PATCH", builder, mapper.writeValueAsString(body), new TypeReference<Void>() {
-        }, true);
+        }, true, callback);
     }
 
-    public void deleteUser(String username) throws JsonProcessingException {
+    public void deleteUser(String username, Consumer<Object> callback) throws JsonProcessingException {
         builder.appendPath("users");
         builder.appendPath(username);
 
         request("DELETE", builder, null, new TypeReference<Void>() {
-        }, true);
+        }, true, callback);
     }
 
-    public void signInUser(final String username, String password) throws JsonProcessingException {
+    public void signInUser(final String username, String password, Consumer<Object> callback) throws JsonProcessingException {
         builder.appendPath("sessions");
 
         final Session session = new Session("password", username, password);
@@ -143,7 +146,7 @@ public class Connection {
                     if (resultRange == 200) {
                         JWT = mapper.readValue(conn.getInputStream(), SessionResponse.class).getAccessToken();
                         signedInUsername = username;
-                        callbackNotify.call(mapper.readValue(conn.getInputStream(), Void.class));
+                        callback.accept(mapper.readValue(conn.getInputStream(), Void.class));
                     } else {
                         JWT = null;
                         if (resultRange == 400) {
@@ -161,7 +164,7 @@ public class Connection {
     // ============================== MEMES =============================
     // ==================================================================
 
-    public void createMeme(Integer templateId, String username, String name, String imageSource, String topText, String bottomText) throws JsonProcessingException {
+    public void createMeme(Integer templateId, String username, String name, String imageSource, String topText, String bottomText, Consumer<Object> callback) throws JsonProcessingException {
         builder.appendPath("memes");
 
         NewMeme newMeme = new NewMeme(templateId, username, imageSource);
@@ -177,10 +180,10 @@ public class Connection {
         }
 
         request("POST", builder, mapper.writeValueAsString(newMeme), new TypeReference<Void>() {
-        }, true);
+        }, true, callback);
     }
 
-    public void getMemes(String name, Integer templateId, String username, Integer pageSize, Integer page) {
+    public void getMemes(String name, Integer templateId, String username, Integer pageSize, Integer page, Consumer<Object> callback) {
         builder.appendPath("memes");
 
         if (name != null) {
@@ -200,29 +203,29 @@ public class Connection {
         }
 
         request("GET", builder, null, new TypeReference<List<Meme>>() {
-        }, false);
+        }, false, callback);
     }
 
-    public void getMeme(Integer memeId) {
+    public void getMeme(Integer memeId, Consumer<Object> callback) {
         builder.appendPath("memes");
         builder.appendPath(memeId.toString());
 
         request("GET", builder, null, new TypeReference<Meme>() {
-        }, false);
+        }, false, callback);
     }
 
-    public void deleteMeme(Integer memeId) {
+    public void deleteMeme(Integer memeId, Consumer<Object> callback) {
         builder.appendPath("memes");
         builder.appendPath(memeId.toString());
 
         request("DELETE", builder, null, new TypeReference<Void>() {
-        }, true);
+        }, true, callback);
     }
 
     // ========================== MEMETEMPLATES =========================
     // ==================================================================
 
-    public void createMemeTemplate(final String name, final String username, Integer pageSize, Integer page) throws MalformedURLException, ExecutionException, InterruptedException {
+    public void createMemeTemplate(final String name, final String username, Integer pageSize, Integer page, final Consumer<Object> callback) throws MalformedURLException, ExecutionException, InterruptedException {
         builder.appendPath("memetemplates");
 
         if (name != null) {
@@ -238,15 +241,15 @@ public class Connection {
             builder.appendQueryParameter("page", page.toString());
         }
 
-        request("GET", builder, null, new TypeReference<List<MemeTemplate>>() {
-        }, false);
+//        request("GET", builder, null, new TypeReference<List<MemeTemplate>>() {
+//        }, false);
 
 
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    MultipartUtility multipart = new MultipartUtility(builder.build().toString(), "UTF-8", callbackNotify);
+                    MultipartUtility multipart = new MultipartUtility(builder.build().toString(), "UTF-8", callback);
                     multipart.addFormField("username", username);
                     if (name != null) {
                         multipart.addFormField("name", name);
@@ -262,7 +265,7 @@ public class Connection {
         }).start();
     }
 
-    public void getMemeTemplates(String name, String username, Integer pageSize, Integer page) throws MalformedURLException, ExecutionException, InterruptedException {
+    public void getMemeTemplates(String name, String username, Integer pageSize, Integer page, Consumer<Object> callback) throws MalformedURLException, ExecutionException, InterruptedException {
         builder.appendPath("memetemplates");
 
         if (name != null) {
@@ -279,39 +282,51 @@ public class Connection {
         }
 
         request("GET", builder, null, new TypeReference<List<MemeTemplate>>() {
-        }, false);
+        }, false, callback);
     }
 
-    public void getMemeTemplate(Integer templateId) {
+    public void getMemeTemplate(Integer templateId, Consumer<Object> callback) {
         builder.appendPath("memetemplates");
         builder.appendPath(templateId.toString());
 
         request("GET", builder, null, new TypeReference<MemeTemplate>() {
-        }, false);
+        }, false, callback);
     }
 
-    public void deleteMemeTemplate(Integer templateId) {
+    public void deleteMemeTemplate(Integer templateId, Consumer<Object> callback) {
         builder.appendPath("memetemplates");
         builder.appendPath(templateId.toString());
 
         request("DELETE", builder, null, new TypeReference<Void>() {
-        }, true);
+        }, true, callback);
     }
 
     // ============================== VOTES =============================
     // ==================================================================
 
-    public void vote(Integer memeId, String username, Integer vote) throws JsonProcessingException {
+    public void vote(Integer memeId, String username, Integer vote, Consumer<Object> callback) throws JsonProcessingException {
         builder.appendPath("votes");
         builder.appendPath(memeId.toString());
 
         NewVote newVote = new NewVote(username, vote);
 
         request("PUT", builder, mapper.writeValueAsString(newVote), new TypeReference<Vote>() {
-        }, true);
+        }, true, callback);
     }
 
-    public void getVote(Integer memeId, final String username) throws JsonProcessingException {
+    public void getVote(Integer memeId, final String username, Consumer<Object> callback) throws JsonProcessingException {
+        builder.appendPath("votes");
+        builder.appendPath(memeId.toString());
+
+        HashMap<String, String> body = new HashMap<String, String>() {{
+            put("username", username);
+        }};
+
+        request("GET", builder, null, new TypeReference<Vote>() {
+        }, false, callback);
+    }
+
+    public void removeVote(Integer memeId, final String username, Consumer<Object> callback) throws JsonProcessingException {
         builder.appendPath("votes");
         builder.appendPath(memeId.toString());
 
@@ -320,19 +335,7 @@ public class Connection {
         }};
 
         request("GET", builder, mapper.writeValueAsString(body), new TypeReference<Vote>() {
-        }, false);
-    }
-
-    public void removeVote(Integer memeId, final String username) throws JsonProcessingException {
-        builder.appendPath("votes");
-        builder.appendPath(memeId.toString());
-
-        HashMap<String, String> body = new HashMap<String, String>() {{
-            put("username", username);
-        }};
-
-        request("GET", builder, mapper.writeValueAsString(body), new TypeReference<Vote>() {
-        }, true);
+        }, true, callback);
     }
 
     public String getSignedInUsername() {

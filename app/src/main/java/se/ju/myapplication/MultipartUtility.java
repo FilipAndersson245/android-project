@@ -5,6 +5,8 @@ package se.ju.myapplication;
 // Credit to Stackoverflow user KDeogharkar
 // https://stackoverflow.com/a/34409142
 
+import android.support.v4.util.Consumer;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
@@ -26,7 +28,7 @@ public class MultipartUtility {
     private String charset;
     private OutputStream outputStream;
     private PrintWriter writer;
-    private Callback callbackNotify;
+    private Consumer<Object> callback;
     private final ObjectMapper mapper = new ObjectMapper();
 
     /**
@@ -37,9 +39,9 @@ public class MultipartUtility {
      * @param charset
      * @throws IOException
      */
-    public MultipartUtility(String requestURL, String charset, Callback callback)
+    public MultipartUtility(String requestURL, String charset, Consumer<Object> callback)
             throws IOException {
-        this.callbackNotify = callback;
+        this.callback = callback;
 
         this.charset = charset;
 
@@ -138,7 +140,7 @@ public class MultipartUtility {
         // checks server's status code first
         int resultRange = (httpConn.getResponseCode() / 100) * 100;
         if (resultRange == 200) {
-            callbackNotify.call(new ObjectMapper().readValue(httpConn.getInputStream(), MemeTemplate.class));
+            callback.accept(new ObjectMapper().readValue(httpConn.getInputStream(), MemeTemplate.class));
         } else {
             if (resultRange == 400) {
                 throw new Exception(mapper.readValue(httpConn.getErrorStream(), Error.class).getError());

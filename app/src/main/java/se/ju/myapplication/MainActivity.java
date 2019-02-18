@@ -2,6 +2,7 @@ package se.ju.myapplication;
 
 import android.app.Activity;
 import android.os.Handler;
+import android.support.v4.util.Consumer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
@@ -34,7 +35,21 @@ public class MainActivity extends AppCompatActivity implements Callback {
 //        } catch (JsonProcessingException e) {
 //            e.printStackTrace();
 //        }
-        connection.getMemes(null, null, null, null, null);
+        connection.getMemes(null, null, null, null, null, (memesResult) -> {
+            List<Meme> memes = (List<Meme>) memesResult;
+
+            for(Meme meme : memes)
+            {
+                try {
+                    connection.getVote(meme.getId(), connection.getSignedInUsername(), (voteResult) -> {
+                        Vote vote = (Vote) voteResult;
+                        meme.setVote(vote.getVote());
+                    });
+                } catch (JsonProcessingException e) {
+                    continue;
+                }
+            }
+        });
     }
 
     @Override

@@ -12,4 +12,8 @@ public class Vote
     private String username;
     @JsonProperty("vote")
     private Integer vote;
+
+    public Integer getVote() {
+        return vote;
+    }
 }
