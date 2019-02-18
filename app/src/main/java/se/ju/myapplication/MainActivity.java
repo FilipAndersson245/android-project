@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.support.v4.util.Consumer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -21,22 +22,25 @@ import java.net.URL;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-public class MainActivity extends AppCompatActivity implements Callback {
-    ArrayList<Meme> al = new ArrayList<>();
-    Connection connection = new Connection(this);
+public class MainActivity extends AppCompatActivity {
+    Connection connection = new Connection();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_meme_list);
 
-//        try {
-//            connection.signInUser("bobb", "abcd1234");
-//        } catch (JsonProcessingException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            Connection.getInstance().signInUser("bobb2", "abcd1234", (voidObject) -> {});
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
         connection.getMemes(null, null, null, null, null, (memesResult) -> {
-            List<Meme> memes = (List<Meme>) memesResult;
+            ArrayList<Meme> memes = (ArrayList<Meme>) memesResult;
+            Handler mainHandler = new Handler(getBaseContext().getMainLooper());
+
+            System.out.println("2");
 
             for(Meme meme : memes)
             {
@@ -49,30 +53,18 @@ public class MainActivity extends AppCompatActivity implements Callback {
                     continue;
                 }
             }
+
+            final ListView listView = findViewById(R.id.listView);
+
+            Runnable myRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    listView.setAdapter(new MemeViewAdapter(memes, getApplicationContext()));
+                }
+            };
+
+            mainHandler.post(myRunnable);
         });
     }
 
-    @Override
-    public void call(Object result) {
-        if(result.getClass() == Void.class)
-        {
-            return;
-        }
-
-        Handler mainHandler = new Handler(getApplicationContext().getMainLooper());
-
-        al = (ArrayList<Meme>) result;
-
-        final ListView listView = findViewById(R.id.listView);
-
-        Runnable myRunnable = new Runnable() {
-            @Override
-            public void run() {
-                listView.setAdapter(new MemeViewAdapter(al, getApplicationContext()));
-            }
-        };
-
-        mainHandler.post(myRunnable);
-
-    }
 }

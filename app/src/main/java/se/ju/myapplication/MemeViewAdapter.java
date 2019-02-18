@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,9 +16,12 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.squareup.picasso.Picasso;
 import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
+import java.util.function.Consumer;
 
 // https://www.journaldev.com/10416/android-listview-with-custom-adapter-example-tutorial
 
@@ -33,6 +37,7 @@ public class MemeViewAdapter extends ArrayAdapter<Meme> implements View.OnClickL
         ImageView image;
         Button downVote;
         Button upVote;
+        Integer position;
     }
 
     public MemeViewAdapter(ArrayList<Meme> data, Context context) {
@@ -76,6 +81,7 @@ public class MemeViewAdapter extends ArrayAdapter<Meme> implements View.OnClickL
             viewHolder.txtAuthor = (TextView) convertView.findViewById(R.id.author);
             viewHolder.downVote = (Button) convertView.findViewById(R.id.downVote);
             viewHolder.upVote = (Button) convertView.findViewById(R.id.upVote);
+            viewHolder.position = position;
 
             result = convertView;
 
@@ -92,7 +98,14 @@ public class MemeViewAdapter extends ArrayAdapter<Meme> implements View.OnClickL
         viewHolder.downVote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println("-1");
+                try {
+                    Connection.getInstance().vote(dataSet.get(position).getId(), Connection.getInstance().getSignedInUsername(), -1, (Vote) -> {
+                        System.out.println("-1");
+                        viewHolder.downVote.setBackgroundColor(Color.BLUE);
+                    });
+                } catch (JsonProcessingException e) {
+                    // Voting failed
+                }
             }
         });
 
