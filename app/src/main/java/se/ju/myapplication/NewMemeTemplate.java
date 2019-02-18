@@ -10,6 +10,10 @@ public class NewMemeTemplate
     private String name;
     @JsonProperty("imageSource")
     private String imageSource;
+    @JsonProperty("topText")
+    private String topText;
+    @JsonProperty("bottomText")
+    private String bottomText;
 
     public void setName(String name) {
         this.name = name;

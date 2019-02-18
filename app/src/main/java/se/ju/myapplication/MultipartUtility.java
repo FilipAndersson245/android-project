@@ -27,6 +27,7 @@ public class MultipartUtility {
     private OutputStream outputStream;
     private PrintWriter writer;
     private Callback callbackNotify;
+    private final ObjectMapper mapper = new ObjectMapper();
 
     /**
      * This constructor initializes a new HTTP POST request with content type
@@ -131,6 +132,8 @@ public class MultipartUtility {
         writer.append(LINE_FEED).flush();
         writer.append("--" + boundary + "--").append(LINE_FEED);
         writer.close();
+
+
 
         // checks server's status code first
         int resultRange = (httpConn.getResponseCode() / 100) * 100;

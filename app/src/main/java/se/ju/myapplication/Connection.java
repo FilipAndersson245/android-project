@@ -76,7 +76,7 @@ public class Connection {
         User user = new User(username, password);
 
         request("POST", builder, mapper.writeValueAsString(user), new TypeReference<Void>() {
-        });
+        }, false);
     }
 
     public void getUsers(String username, Integer pageSize, Integer page) {
@@ -105,7 +105,7 @@ public class Connection {
         }};
 
         request("PATCH", builder, mapper.writeValueAsString(body), new TypeReference<Void>() {
-        }, );
+        }, true);
     }
 
     public void deleteUser(String username) throws JsonProcessingException {
@@ -313,17 +313,21 @@ public class Connection {
         builder.appendPath("votes");
         builder.appendPath(memeId.toString());
 
-        HashMap<String, String> body = new HashMap<String, String>() {{ put("username", username); }};
+        HashMap<String, String> body = new HashMap<String, String>() {{
+            put("username", username);
+        }};
 
         request("GET", builder, mapper.writeValueAsString(body), new TypeReference<Vote>() {
         }, false);
     }
 
-    public void removeVote(Integer memeId, String username) throws JsonProcessingException {
+    public void removeVote(Integer memeId, final String username) throws JsonProcessingException {
         builder.appendPath("votes");
         builder.appendPath(memeId.toString());
 
-        HashMap<String, String> body = new HashMap<String, String>() {{ put("username", username); }};
+        HashMap<String, String> body = new HashMap<String, String>() {{
+            put("username", username);
+        }};
 
         request("GET", builder, mapper.writeValueAsString(body), new TypeReference<Vote>() {
         }, true);
