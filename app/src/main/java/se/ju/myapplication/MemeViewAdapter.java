@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.squareup.picasso.Picasso;
@@ -23,12 +24,15 @@ import java.util.ArrayList;
 public class MemeViewAdapter extends ArrayAdapter<Meme> implements View.OnClickListener {
     private ArrayList<Meme> dataSet;
     Context mContext;
+    private Integer vote;
 
     private static class ViewHolder {
         TextView txtName;
         TextView txtAuthor;
         TextView votes;
         ImageView image;
+        Button downVote;
+        Button upVote;
     }
 
     public MemeViewAdapter(ArrayList<Meme> data, Context context) {
@@ -39,6 +43,13 @@ public class MemeViewAdapter extends ArrayAdapter<Meme> implements View.OnClickL
 
     @Override
     public void onClick(View v) {
+        System.out.println(v.getId());
+/*        switch (v.getId()) {
+            case R.id.: // doStuff
+                break;
+            case R.id.mytextviewone: // doStuff
+                break;
+        }*/
     }
 
     private int lastPosition = -1;
@@ -63,6 +74,8 @@ public class MemeViewAdapter extends ArrayAdapter<Meme> implements View.OnClickL
             viewHolder.image = (ImageView) convertView.findViewById(R.id.memeImage);
             viewHolder.votes = (TextView) convertView.findViewById(R.id.votes);
             viewHolder.txtAuthor = (TextView) convertView.findViewById(R.id.author);
+            viewHolder.downVote = (Button) convertView.findViewById(R.id.downVote);
+            viewHolder.upVote = (Button) convertView.findViewById(R.id.upVote);
 
             result = convertView;
 
@@ -76,6 +89,19 @@ public class MemeViewAdapter extends ArrayAdapter<Meme> implements View.OnClickL
         // result.startAnimation(animation);
         lastPosition = position;
 
+        viewHolder.downVote.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                System.out.println("-1");
+            }
+        });
+
+        viewHolder.upVote.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                System.out.println("+1");
+            }
+        });
 
         viewHolder.txtName.setText(dataModel.getName());
         viewHolder.txtAuthor.setText(dataModel.getUsername());

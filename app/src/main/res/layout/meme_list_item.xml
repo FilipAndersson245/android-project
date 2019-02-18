@@ -35,38 +35,41 @@
         android:layout_alignStart="@+id/name"
         android:layout_marginStart="0dp"
         android:layout_marginTop="2dp"
-        android:text="Author" />
+        android:text="Author"
+        android:textColor="@android:color/black" />
 
     <TextView
         android:id="@+id/votes"
-        android:textSize="24dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/memeImage"
+        android:layout_alignBottom="@id/downVote"
         android:layout_centerHorizontal="true"
-        android:layout_alignBottom="@id/down_vote"
         android:gravity="center"
+        android:text="Votes"
 
-        android:text="Votes" />
+        android:textColor="@android:color/black"
+        android:textSize="24dp" />
 
-    <android.support.v7.widget.AppCompatButton
+    <Button
+        android:id="@+id/upVote"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:minHeight="0dp"
-        android:minWidth="0dp"
-        android:textSize="20dp"
         android:layout_below="@id/memeImage"
         android:layout_toRightOf="@id/votes"
+        android:minWidth="0dp"
+        android:minHeight="0dp"
         android:text="↑"
-        android:id="@+id/up_vote"/>
-    <android.support.v7.widget.AppCompatButton
+        android:textSize="20dp" />
+
+    <Button
+        android:id="@+id/downVote"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:minHeight="0dp"
-        android:minWidth="0dp"
-        android:textSize="20dp"
         android:layout_below="@id/memeImage"
         android:layout_toLeftOf="@id/votes"
+        android:minWidth="0dp"
+        android:minHeight="0dp"
         android:text="↓"
-        android:id="@+id/down_vote"/>
+        android:textSize="20dp" />
 </RelativeLayout>

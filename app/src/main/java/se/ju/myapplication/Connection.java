@@ -24,6 +24,7 @@ public class Connection {
     private final ObjectMapper mapper = new ObjectMapper();
     private Callback callbackNotify;
     private String JWT = null;
+    private String signedInUsername = null;
 
     Connection(Callback callback) {
         builder.scheme("http").authority("schpoop.eu-central-1.elasticbeanstalk.com");
@@ -116,7 +117,7 @@ public class Connection {
         }, true);
     }
 
-    public void signInUser(String username, String password) throws JsonProcessingException {
+    public void signInUser(final String username, String password) throws JsonProcessingException {
         builder.appendPath("sessions");
 
         final Session session = new Session("password", username, password);
@@ -141,6 +142,7 @@ public class Connection {
 
                     if (resultRange == 200) {
                         JWT = mapper.readValue(conn.getInputStream(), SessionResponse.class).getAccessToken();
+                        signedInUsername = username;
                         callbackNotify.call(mapper.readValue(conn.getInputStream(), Void.class));
                     } else {
                         JWT = null;
@@ -331,5 +333,9 @@ public class Connection {
 
         request("GET", builder, mapper.writeValueAsString(body), new TypeReference<Vote>() {
         }, true);
+    }
+
+    public String getSignedInUsername() {
+        return signedInUsername;
     }
 }
