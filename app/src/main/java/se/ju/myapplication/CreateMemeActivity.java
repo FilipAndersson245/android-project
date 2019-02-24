@@ -1,11 +1,12 @@
 package se.ju.myapplication;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-public class CreateMeme extends Activity {
+public class CreateMemeActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -15,7 +16,7 @@ public class CreateMeme extends Activity {
         final Button button = findViewById(R.id.selectTemplateButton);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                System.out.println("Heeeyy it works!");
+                startActivity(new Intent(CreateMemeActivity.this, ListMemeActivity.class));
             }
         });
     }

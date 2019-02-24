@@ -14,4 +14,18 @@ public class MemeTemplate
     private String imageSource;
     @JsonProperty("name")
     private String name;
+
+    public MemeTemplate(String name, String username) {
+        this.name = name;
+        this.username = username;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getUsername()
+    {
+        return username;
+    }
 }

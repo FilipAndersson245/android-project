@@ -8,7 +8,7 @@
     android:padding="8dp">
 
     <ImageView
-        android:id="@+id/imageView2"
+        android:id="@+id/templateImage"
         android:layout_width="493dp"
         android:layout_height="177dp"
         android:layout_weight="1"
@@ -29,7 +29,7 @@
             android:text="Template Name" />
 
         <TextView
-            android:id="@+id/username"
+            android:id="@+id/templateUsername"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
