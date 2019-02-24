@@ -21,7 +21,7 @@ public class Meme {
     private Integer votes;
     @JsonProperty("postDate")
     private Timestamp postDate;
-    private Integer vote = null;
+    private Integer vote = 0;
 
     public Meme(){};
 

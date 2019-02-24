@@ -23,34 +23,47 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
-    Connection connection = new Connection();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_meme_list);
 
         try {
-            Connection.getInstance().signInUser("bobb2", "abcd1234", (voidObject) -> {});
+            Connection.getInstance().signInUser("bob123", "bigboybanana1337", (voidObject) -> {
+                System.out.println(" ============================ HURRAY, LOGGED IN");
+                loadMemes();
+            });
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
+    }
 
-        connection.getMemes(null, null, null, null, null, (memesResult) -> {
+    void testGetVote() {
+        try {
+            Connection.getInstance().getVote(1, Connection.getInstance().getSignedInUsername(), (returnVote) -> {
+                Vote vote = (Vote) returnVote;
+                System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA the vote is:");
+                System.out.println(vote.getVote());
+            });
+        } catch (JsonProcessingException e) {
+            System.out.println("BBBBBBBBBBBBBBBBBBBBB står bög");
+            e.printStackTrace();
+        }
+    }
+
+    void loadMemes() {
+        Connection.getInstance().getMemes(null, null, null, null, null, (memesResult) -> {
             ArrayList<Meme> memes = (ArrayList<Meme>) memesResult;
             Handler mainHandler = new Handler(getBaseContext().getMainLooper());
 
-            System.out.println("2");
-
-            for(Meme meme : memes)
-            {
+            for (Meme meme : memes) {
                 try {
-                    connection.getVote(meme.getId(), connection.getSignedInUsername(), (voteResult) -> {
+                    Connection.getInstance().getVote(meme.getId(), Connection.getInstance().getSignedInUsername(), (voteResult) -> {
                         Vote vote = (Vote) voteResult;
                         meme.setVote(vote.getVote());
                     });
                 } catch (JsonProcessingException e) {
-                    continue;
+                    meme.setVote(0);
                 }
             }
 

@@ -1,5 +1,6 @@
 package se.ju.myapplication;
 
+import android.net.Uri;
 import android.net.Uri.Builder;
 import android.support.v4.util.Consumer;
 
@@ -8,6 +9,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -24,17 +26,14 @@ public class Connection {
         return ourInstance;
     }
 
-    private Builder builder;
     private final ObjectMapper mapper = new ObjectMapper();
     private String JWT = null;
     private String signedInUsername = null;
 
-    Connection() {
-        this.resetBuilder();
-    }
+    Connection() {}
 
-    private void resetBuilder() {
-        builder = new Builder().scheme("http").authority("schpoop.eu-central-1.elasticbeanstalk.com");
+    private Builder newBuilder() {
+        return new Builder().scheme("http").authority("192.168.0.100"); //.authority("schpoop.eu-central-1.elasticbeanstalk.com");
     }
 
     private void request(final String method, final Builder urlBuilder, final String body, final TypeReference returnType, final boolean authorization, final Consumer<Object> callback) {
@@ -50,7 +49,6 @@ public class Connection {
 
                     if (authorization) {
                         String a = "Bearer " + JWT;
-                        System.out.println(a);
                         conn.setRequestProperty("Authorization", a);
                     }
 
@@ -63,8 +61,13 @@ public class Connection {
                     int resultRange = (conn.getResponseCode() / 100) * 100;
 
                     if (resultRange == 200) {
-//                        callbackNotify.call(mapper.readValue(conn.getInputStream(), returnType));
-                        callback.accept(mapper.readValue(conn.getInputStream(), returnType));
+                        if(returnType.getType() == Void.class)
+                        {
+                            callback.accept(null);
+                        }
+                        else {
+                            callback.accept(mapper.readValue(conn.getInputStream(), returnType));
+                        }
                     } else {
                         if (resultRange == 400) {
                             throw new Exception(mapper.readValue(conn.getErrorStream(), Error.class).getError());
@@ -72,6 +75,7 @@ public class Connection {
                         throw new Exception("Error making request.");
                     }
                 } catch (Exception e) {
+                    System.out.println(" XXXXXXXXXXXXXXXX Failed while doing a " + method + " request on "+ urlBuilder.build().toString());
                     e.printStackTrace();
                 }
             }
@@ -82,17 +86,15 @@ public class Connection {
     // ==================================================================
 
     public void createUser(String username, String password, Consumer<Object> callback) throws JsonProcessingException {
-        builder.appendPath("users");
+        Builder builder = newBuilder().appendPath("users");
         User user = new User(username, password);
 
         request("POST", builder, mapper.writeValueAsString(user), new TypeReference<Void>() {
         }, false, callback);
-
-        resetBuilder();
     }
 
     public void getUsers(String username, Integer pageSize, Integer page, Consumer<Object> callback) {
-        builder.appendPath("users");
+        Builder builder = newBuilder().appendPath("users");
 
         if (username != null) {
             builder.appendQueryParameter("username", username);
@@ -106,12 +108,10 @@ public class Connection {
 
         request("GET", builder, null, new TypeReference<String>() {
         }, false, callback);
-
-        resetBuilder();
     }
 
     public void updateUserPassword(String username, final String newPassword, Consumer<Object> callback) throws JsonProcessingException {
-        builder.appendPath("users");
+        Builder builder = newBuilder().appendPath("users");
         builder.appendPath(username);
 
         HashMap<String, String> body = new HashMap<String, String>() {{
@@ -120,22 +120,18 @@ public class Connection {
 
         request("PATCH", builder, mapper.writeValueAsString(body), new TypeReference<Void>() {
         }, true, callback);
-
-        resetBuilder();
     }
 
     public void deleteUser(String username, Consumer<Object> callback) throws JsonProcessingException {
-        builder.appendPath("users");
+        Builder builder = newBuilder().appendPath("users");
         builder.appendPath(username);
 
         request("DELETE", builder, null, new TypeReference<Void>() {
         }, true, callback);
-
-        resetBuilder();
     }
 
     public void signInUser(final String username, String password, Consumer<Object> callback) throws JsonProcessingException {
-        builder.appendPath("sessions");
+        Builder builder = newBuilder().appendPath("sessions");
 
         final Session session = new Session("password", username, password);
 
@@ -144,6 +140,8 @@ public class Connection {
             @Override
             public void run() {
                 try {
+                    System.out.println("START");
+                    System.out.println(builder.build().toString());
                     URL url = new URL(builder.build().toString());
 
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -158,12 +156,12 @@ public class Connection {
                     int resultRange = (conn.getResponseCode() / 100) * 100;
 
                     if (resultRange == 200) {
-                        System.out.println("YES");
                         JWT = mapper.readValue(conn.getInputStream(), SessionResponse.class).getAccessToken();
                         signedInUsername = username;
-                        callback.accept(mapper.readValue(conn.getInputStream(), Void.class));
+                        callback.accept(null);
                     } else {
                         System.out.println("NO");
+                        System.out.println(convertStreamToString(conn.getErrorStream()));
                         JWT = null;
                         if (resultRange == 400) {
                             throw new Exception(mapper.readValue(conn.getErrorStream(), Error.class).getError());
@@ -171,19 +169,18 @@ public class Connection {
                         throw new Exception("Error making request.");
                     }
                 } catch (Exception e) {
+                    System.out.println("Failed to Sign in user.");
                     e.printStackTrace();
                 }
             }
         }).start();
-
-        resetBuilder();
     }
 
     // ============================== MEMES =============================
     // ==================================================================
 
     public void createMeme(Integer templateId, String username, String name, String imageSource, String topText, String bottomText, Consumer<Object> callback) throws JsonProcessingException {
-        builder.appendPath("memes");
+        Builder builder = newBuilder().appendPath("memes");
 
         NewMeme newMeme = new NewMeme(templateId, username, imageSource);
 
@@ -199,12 +196,10 @@ public class Connection {
 
         request("POST", builder, mapper.writeValueAsString(newMeme), new TypeReference<Void>() {
         }, true, callback);
-
-        resetBuilder();
     }
 
     public void getMemes(String name, Integer templateId, String username, Integer pageSize, Integer page, Consumer<Object> callback) {
-        builder.appendPath("memes");
+        Builder builder = newBuilder().appendPath("memes");
 
         if (name != null) {
             builder.appendQueryParameter("name", name);
@@ -224,35 +219,29 @@ public class Connection {
 
         request("GET", builder, null, new TypeReference<List<Meme>>() {
         }, false, callback);
-
-        resetBuilder();
     }
 
     public void getMeme(Integer memeId, Consumer<Object> callback) {
-        builder.appendPath("memes");
+        Builder builder = newBuilder().appendPath("memes");
         builder.appendPath(memeId.toString());
 
         request("GET", builder, null, new TypeReference<Meme>() {
         }, false, callback);
-
-        resetBuilder();
     }
 
     public void deleteMeme(Integer memeId, Consumer<Object> callback) {
-        builder.appendPath("memes");
+        Builder builder = newBuilder().appendPath("memes");
         builder.appendPath(memeId.toString());
 
         request("DELETE", builder, null, new TypeReference<Void>() {
         }, true, callback);
-
-        resetBuilder();
     }
 
     // ========================== MEMETEMPLATES =========================
     // ==================================================================
 
     public void createMemeTemplate(final String name, final String username, Integer pageSize, Integer page, final Consumer<Object> callback) throws MalformedURLException, ExecutionException, InterruptedException {
-        builder.appendPath("memetemplates");
+        Builder builder = newBuilder().appendPath("memetemplates");
 
         if (name != null) {
             builder.appendQueryParameter("name", name);
@@ -289,12 +278,10 @@ public class Connection {
                 }
             }
         }).start();
-
-        resetBuilder();
     }
 
     public void getMemeTemplates(String name, String username, Integer pageSize, Integer page, Consumer<Object> callback) throws MalformedURLException, ExecutionException, InterruptedException {
-        builder.appendPath("memetemplates");
+        Builder builder = newBuilder().appendPath("memetemplates");
 
         if (name != null) {
             builder.appendQueryParameter("name", name);
@@ -311,35 +298,29 @@ public class Connection {
 
         request("GET", builder, null, new TypeReference<List<MemeTemplate>>() {
         }, false, callback);
-
-        resetBuilder();
     }
 
     public void getMemeTemplate(Integer templateId, Consumer<Object> callback) {
-        builder.appendPath("memetemplates");
+        Builder builder = newBuilder().appendPath("memetemplates");
         builder.appendPath(templateId.toString());
 
         request("GET", builder, null, new TypeReference<MemeTemplate>() {
         }, false, callback);
-
-        resetBuilder();
     }
 
     public void deleteMemeTemplate(Integer templateId, Consumer<Object> callback) {
-        builder.appendPath("memetemplates");
+        Builder builder = newBuilder().appendPath("memetemplates");
         builder.appendPath(templateId.toString());
 
         request("DELETE", builder, null, new TypeReference<Void>() {
         }, true, callback);
-
-        resetBuilder();
     }
 
     // ============================== VOTES =============================
     // ==================================================================
 
     public void vote(Integer memeId, String username, Integer vote, Consumer<Object> callback) throws JsonProcessingException {
-        builder.appendPath("votes");
+        Builder builder = newBuilder().appendPath("votes");
         builder.appendPath(memeId.toString());
 
         NewVote newVote = new NewVote(username, vote);
@@ -348,39 +329,38 @@ public class Connection {
 
         request("PUT", builder, mapper.writeValueAsString(newVote), new TypeReference<Vote>() {
         }, true, callback);
-
-        resetBuilder();
     }
 
     public void getVote(Integer memeId, final String username, Consumer<Object> callback) throws JsonProcessingException {
-        builder.appendPath("votes");
+        Builder builder = newBuilder().appendPath("votes");
         builder.appendPath(memeId.toString());
-
-        HashMap<String, String> body = new HashMap<String, String>() {{
-            put("username", username);
-        }};
+        builder.appendQueryParameter("username", username);
 
         request("GET", builder, null, new TypeReference<Vote>() {
         }, false, callback);
-
-        resetBuilder();
     }
 
     public void removeVote(Integer memeId, final String username, Consumer<Object> callback) throws JsonProcessingException {
-        builder.appendPath("votes");
+        Builder builder = newBuilder().appendPath("votes");
         builder.appendPath(memeId.toString());
 
         HashMap<String, String> body = new HashMap<String, String>() {{
             put("username", username);
         }};
 
-        request("GET", builder, mapper.writeValueAsString(body), new TypeReference<Vote>() {
+        request("DELETE", builder, mapper.writeValueAsString(body), new TypeReference<Void>() {
         }, true, callback);
-
-        resetBuilder();
     }
 
     public String getSignedInUsername() {
         return signedInUsername;
+    }
+
+
+
+
+    static String convertStreamToString(java.io.InputStream is) {
+        java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+        return s.hasNext() ? s.next() : "";
     }
 }
