@@ -1,4 +1,4 @@
-package se.ju.myapplication;
+package se.ju.myapplication.Create.MemeTemplate;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -9,6 +9,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
+
+import se.ju.myapplication.MemeTemplate;
+import se.ju.myapplication.R;
 
 public class ListMemeTemplateAdapter extends RecyclerView.Adapter<ListMemeTemplateAdapter.ListMemeTemplateViewHolder> {
     private List<MemeTemplate> mtDataset;
