@@ -21,10 +21,9 @@ import java.util.ArrayList;
 
 // https://www.journaldev.com/10416/android-listview-with-custom-adapter-example-tutorial
 
-public class MemeViewAdapter extends ArrayAdapter<Meme> implements View.OnClickListener {
+public class MemeViewAdapter extends ArrayAdapter<Meme> {
     private ArrayList<Meme> dataSet;
     Context mContext;
-    private Integer vote;
 
     private static class ViewHolder {
         TextView txtName;
@@ -44,19 +43,6 @@ public class MemeViewAdapter extends ArrayAdapter<Meme> implements View.OnClickL
         this.mContext = context;
     }
 
-    @Override
-    public void onClick(View v) {
-        System.out.println(v.getId());
-/*        switch (v.getId()) {
-            case R.id.: // doStuff
-                break;
-            case R.id.mytextviewone: // doStuff
-                break;
-        }*/
-    }
-
-    private int lastPosition = -1;
-
     private void updateButtonsAndVotes(ViewHolder viewHolder)
     {
         viewHolder.votesLabel.setText(String.valueOf(viewHolder.votesWithoutUserVote + viewHolder.userVote));
@@ -74,14 +60,15 @@ public class MemeViewAdapter extends ArrayAdapter<Meme> implements View.OnClickL
         }
     }
 
-    @SuppressLint("SetTextI18n")
     @NotNull
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         // Get the data item for this position
-        Meme dataModel = getItem(position);
+        Meme dataModel = dataSet.get(position);
         // Check if an existing view is being reused, otherwise inflate the view
         ViewHolder viewHolder; // view lookup cache stored in tag
+
+        System.out.println("POS: " + position + " --- ID: " + dataModel.getId());
 
         final View result;
 
@@ -107,16 +94,13 @@ public class MemeViewAdapter extends ArrayAdapter<Meme> implements View.OnClickL
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
+            viewHolder.votesWithoutUserVote = dataModel.getVotes() + viewHolder.userVote;
 
             viewHolder.userVote = dataModel.getVote();
             updateButtonsAndVotes(viewHolder);
 
             result = convertView;
         }
-
-        // Animation animation = AnimationUtils.loadAnimation(mContext, (position > lastPosition) ? R.anim.up_from_bottom : R.anim.down_from_top);
-        // result.startAnimation(animation);
-        lastPosition = position;
 
         viewHolder.downVote.setOnClickListener(new View.OnClickListener() {
             @Override

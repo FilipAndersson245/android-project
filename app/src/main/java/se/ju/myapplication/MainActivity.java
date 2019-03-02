@@ -59,14 +59,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         actionbar.setDisplayHomeAsUpEnabled(true);
         actionbar.setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp);
 
-        try {
-            Connection.getInstance().signInUser("bob123", "bigboybanana1337", (voidObject) -> {
-                System.out.println(" ============================ HURRAY, LOGGED IN");
-                loadMemes();
-            });
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+        loadMemes();
+
+//        try {
+//            Connection.getInstance().signInUser("bob123", "bigboybanana1337", (voidObject) -> {
+//                System.out.println(" ============================ HURRAY, LOGGED IN");
+//                loadMemes();
+//            });
+//        } catch (JsonProcessingException e) {
+//            e.printStackTrace();
+//        }
 
 
         mDrawer = findViewById(R.id.drawer_layout);
@@ -112,14 +114,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             ArrayList<Meme> memes = (ArrayList<Meme>) memesResult;
             Handler mainHandler = new Handler(getBaseContext().getMainLooper());
 
-            for (Meme meme : memes) {
-                try {
-                    Connection.getInstance().getVote(meme.getId(), Connection.getInstance().getSignedInUsername(), (voteResult) -> {
-                        Vote vote = (Vote) voteResult;
-                        meme.setVote(vote.getVote());
-                    });
-                } catch (JsonProcessingException e) {
-                    meme.setVote(0);
+            // Add votes if user is signed in
+            if(Connection.getInstance().getSignedInUsername() != null) {
+                for (Meme meme : memes) {
+                    try {
+                        Connection.getInstance().getVote(meme.getId(), Connection.getInstance().getSignedInUsername(), (voteResult) -> {
+                            Vote vote = (Vote) voteResult;
+                            meme.setVote(vote.getVote());
+                        });
+                    } catch (JsonProcessingException e) {
+                        meme.setVote(0);
+                    }
                 }
             }
 
