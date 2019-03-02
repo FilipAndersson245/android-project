@@ -33,7 +33,7 @@ public class Connection {
     Connection() {}
 
     private Builder newBuilder() {
-        return new Builder().scheme("http").authority("192.168.0.100"); //.authority("schpoop.eu-central-1.elasticbeanstalk.com");
+        return new Builder().scheme("http").authority("schpoop.eu-central-1.elasticbeanstalk.com");
     }
 
     private void request(final String method, final Builder urlBuilder, final String body, final TypeReference returnType, final boolean authorization, final Consumer<Object> callback) {
