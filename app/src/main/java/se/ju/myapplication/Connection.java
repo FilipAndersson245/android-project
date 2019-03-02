@@ -30,7 +30,8 @@ public class Connection {
     private String JWT = null;
     private String signedInUsername = null;
 
-    Connection() {}
+    Connection() {
+    }
 
     private Builder newBuilder() {
         return new Builder().scheme("http").authority("schpoop.eu-central-1.elasticbeanstalk.com");
@@ -61,11 +62,9 @@ public class Connection {
                     int resultRange = (conn.getResponseCode() / 100) * 100;
 
                     if (resultRange == 200) {
-                        if(returnType.getType() == Void.class)
-                        {
+                        if (returnType.getType() == Void.class) {
                             callback.accept(null);
-                        }
-                        else {
+                        } else {
                             callback.accept(mapper.readValue(conn.getInputStream(), returnType));
                         }
                     } else {
@@ -75,7 +74,7 @@ public class Connection {
                         throw new Exception("Error making request.");
                     }
                 } catch (Exception e) {
-                    System.out.println(" XXXXXXXXXXXXXXXX Failed while doing a " + method + " request on "+ urlBuilder.build().toString());
+                    System.out.println(" XXXXXXXXXXXXXXXX Failed while doing a " + method + " request on " + urlBuilder.build().toString());
                     e.printStackTrace();
                 }
             }
@@ -130,7 +129,7 @@ public class Connection {
         }, true, callback);
     }
 
-    public void signInUser(final String username, String password, Consumer<Object> callback) throws JsonProcessingException {
+    public void signInUser(final String username, String password, Consumer<Object> callback) {
         Builder builder = newBuilder().appendPath("sessions");
 
         final Session session = new Session("password", username, password);
@@ -169,7 +168,6 @@ public class Connection {
                         throw new Exception("Error making request.");
                     }
                 } catch (Exception e) {
-                    System.out.println("Failed to Sign in user.");
                     e.printStackTrace();
                 }
             }
@@ -352,11 +350,14 @@ public class Connection {
         }, true, callback);
     }
 
+
     public String getSignedInUsername() {
         return signedInUsername;
     }
 
-
+    public Boolean isSignedIn() {
+        return signedInUsername != null;
+    }
 
 
     static String convertStreamToString(java.io.InputStream is) {

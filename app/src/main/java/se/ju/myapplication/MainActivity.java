@@ -62,14 +62,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         loadMemes();
 
-//        try {
-//            Connection.getInstance().signInUser("bob123", "bigboybanana1337", (voidObject) -> {
-//                System.out.println(" ============================ HURRAY, LOGGED IN");
-//                loadMemes();
-//            });
-//        } catch (JsonProcessingException e) {
-//            e.printStackTrace();
-//        }
+        if(savedInstanceState == null) {
+            Fragment fragment;
+            fragment = SignInFragment.newInstance();
+
+            getSupportFragmentManager().beginTransaction().replace(R.id.flContent, fragment).commit();
+
+        }
 
 
         mDrawer = findViewById(R.id.drawer_layout);
@@ -103,6 +102,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Intent k = new Intent(MainActivity.this, CreateMemeActivity.class);
                 startActivity(k);
                 return true;
+            case R.id.nav_sign_in:
+                Fragment fragment;
+                fragment = SignInFragment.newInstance();
+
+                getSupportFragmentManager().beginTransaction().replace(R.id.flContent, fragment).commit();
+
+                break;
             default:
                 System.out.println("No handler was found for drawer item!");
         }
@@ -115,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Handler mainHandler = new Handler(getBaseContext().getMainLooper());
 
             // Add votes if user is signed in
-            if(Connection.getInstance().getSignedInUsername() != null) {
+            if (Connection.getInstance().isSignedIn()) {
                 for (Meme meme : memes) {
                     try {
                         Connection.getInstance().getVote(meme.getId(), Connection.getInstance().getSignedInUsername(), (voteResult) -> {

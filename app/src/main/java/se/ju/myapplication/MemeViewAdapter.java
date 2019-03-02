@@ -102,86 +102,76 @@ public class MemeViewAdapter extends ArrayAdapter<Meme> {
             result = convertView;
         }
 
-        viewHolder.downVote.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (viewHolder.userVote == -1) {
-                    try {
-                        Connection.getInstance().removeVote(dataSet.get(position).getId(), Connection.getInstance().getSignedInUsername(), (nothing) -> {
-                            v.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    viewHolder.userVote = 0;
-                                    dataSet.get(position).setVote(0);
-                                    updateButtonsAndVotes(viewHolder);
-                                }
-                            });
+        viewHolder.downVote.setOnClickListener(v -> {
+            if(!Connection.getInstance().isSignedIn()) {
+                return;
+            }
 
+            if (viewHolder.userVote == -1) {
+                try {
+                    Connection.getInstance().removeVote(dataSet.get(position).getId(), Connection.getInstance().getSignedInUsername(), (nothing) -> {
+                        v.post(() -> {
+                            viewHolder.userVote = 0;
+                            dataSet.get(position).setVote(0);
+                            updateButtonsAndVotes(viewHolder);
                         });
-                    } catch (JsonProcessingException e) {
-                        // Voting failed
-                    }
-                } else {
-                    try {
-                        Connection.getInstance().vote(dataSet.get(position).getId(), Connection.getInstance().getSignedInUsername(), -1, (vote) -> {
-                            System.out.println("-1");
 
-                            v.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    viewHolder.userVote = -1;
-                                    dataSet.get(position).setVote(-1);
-                                    updateButtonsAndVotes(viewHolder);
-                                }
-                            });
+                    });
+                } catch (JsonProcessingException e) {
+                    // Voting failed
+                }
+            } else {
+                try {
+                    Connection.getInstance().vote(dataSet.get(position).getId(), Connection.getInstance().getSignedInUsername(), -1, (vote) -> {
+                        System.out.println("-1");
 
+                        v.post(() -> {
+                            viewHolder.userVote = -1;
+                            dataSet.get(position).setVote(-1);
+                            updateButtonsAndVotes(viewHolder);
                         });
-                    } catch (JsonProcessingException e) {
-                        // Voting failed
-                    }
+
+                    });
+                } catch (JsonProcessingException e) {
+                    // Voting failed
                 }
             }
         });
 
-        viewHolder.upVote.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (viewHolder.userVote == 1) {
-                    try {
-                        Connection.getInstance().removeVote(dataSet.get(position).getId(), Connection.getInstance().getSignedInUsername(), (nothing) -> {
-                            v.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    viewHolder.userVote = 0;
-                                    dataSet.get(position).setVote(0);
-                                    updateButtonsAndVotes(viewHolder);
-                                }
-                            });
-
-                        });
-                    } catch (JsonProcessingException e) {
-                        // Voting failed
-                    }
-                } else {
-                    try {
-                        Connection.getInstance().vote(dataSet.get(position).getId(), Connection.getInstance().getSignedInUsername(), 1, (vote) -> {
-                            System.out.println("+1");
-                            v.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    viewHolder.userVote = 1;
-                                    dataSet.get(position).setVote(1);
-                                    updateButtonsAndVotes(viewHolder);
-                                }
-                            });
-
-                        });
-                    } catch (JsonProcessingException e) {
-                        // Voting failed
-                    }
-                }
-
+        viewHolder.upVote.setOnClickListener(v -> {
+            if(!Connection.getInstance().isSignedIn()) {
+                return;
             }
+
+            if (viewHolder.userVote == 1) {
+                try {
+                    Connection.getInstance().removeVote(dataSet.get(position).getId(), Connection.getInstance().getSignedInUsername(), (nothing) -> {
+                        v.post(() -> {
+                            viewHolder.userVote = 0;
+                            dataSet.get(position).setVote(0);
+                            updateButtonsAndVotes(viewHolder);
+                        });
+
+                    });
+                } catch (JsonProcessingException e) {
+                    // Voting failed
+                }
+            } else {
+                try {
+                    Connection.getInstance().vote(dataSet.get(position).getId(), Connection.getInstance().getSignedInUsername(), 1, (vote) -> {
+                        System.out.println("+1");
+                        v.post(() -> {
+                            viewHolder.userVote = 1;
+                            dataSet.get(position).setVote(1);
+                            updateButtonsAndVotes(viewHolder);
+                        });
+
+                    });
+                } catch (JsonProcessingException e) {
+                    // Voting failed
+                }
+            }
+
         });
 
         viewHolder.txtName.setText(dataModel.getName());
