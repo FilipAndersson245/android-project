@@ -88,19 +88,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return false;
     }
 
-    void testGetVote() {
-        try {
-            Connection.getInstance().getVote(1, Connection.getInstance().getSignedInUsername(), (returnVote) -> {
-                Vote vote = (Vote) returnVote;
-                System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA the vote is:");
-                System.out.println(vote.getVote());
-            });
-        } catch (JsonProcessingException e) {
-            System.out.println("BBBBBBBBBBBBBBBBBBBBB står bög");
-            e.printStackTrace();
-        }
-    }
-
     void loadMemes() {
         Connection.getInstance().getMemes(null, null, null, null, null, (memesResult) -> {
             ArrayList<Meme> memes = (ArrayList<Meme>) memesResult;
