@@ -2,17 +2,28 @@ package se.ju.myapplication;
 
 import android.support.annotation.NonNull;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.sql.Timestamp;
 
 public class Meme {
-    public static final String basePath = "";
-    private final Integer id;
-    private final Integer templateId;
-    private final String username;
-    private final String name;
-    private final String imageSource;
-    private final Integer votes;
-    private final Timestamp postDate;
+    @JsonProperty("id")
+    private Integer id;
+    @JsonProperty("templateId")
+    private Integer templateId;
+    @JsonProperty("username")
+    private String username;
+    @JsonProperty("name")
+    private String name;
+    @JsonProperty("imageSource")
+    private String imageSource;
+    @JsonProperty("votes")
+    private Integer votes;
+    @JsonProperty("postDate")
+    private Timestamp postDate;
+    private Integer vote = 0;
+
+    public Meme(){};
 
     public Meme(@NonNull Integer id,
                 @NonNull Integer templateId,
@@ -56,5 +67,13 @@ public class Meme {
 
     public Integer getId() {
         return id;
+    }
+
+    public void setVote(Integer vote) {
+        this.vote = vote;
+    }
+
+    public Integer getVote() {
+        return vote;
     }
 }

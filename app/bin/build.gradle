@@ -35,6 +35,12 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.5.3'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.5.3'
     implementation 'com.squareup.picasso:picasso:2.71828'
+<<<<<<< HEAD
+
     implementation 'com.android.support:design:28.0.0'
+
+
+=======
+>>>>>>> @{-1}
 }
 
