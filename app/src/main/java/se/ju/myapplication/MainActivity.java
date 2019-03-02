@@ -29,8 +29,10 @@ import java.lang.reflect.Array;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.ExecutionException;
@@ -48,7 +50,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.drawer);
-
 
 
         toolbar = findViewById(R.id.toolbar);
@@ -94,18 +95,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         System.out.println(menuItem.getTitle());
 
         switch (menuItem.getItemId()) {
+            case R.id.close_drawer_button:
+                mDrawer.closeDrawer(GravityCompat.START);
             case R.id.nav_home:
                 break;
             case R.id.nav_create_meme:
-                try {
-                    Intent k = new Intent(MainActivity.this, CreateMemeActivity.class);
-                    startActivity(k);
-                } catch(Exception e) {
-                    e.printStackTrace();
-                }
-                break;
+                Intent k = new Intent(MainActivity.this, CreateMemeActivity.class);
+                startActivity(k);
+                return true;
+            default:
+                System.out.println("No handler was found for drawer item!");
         }
-
         return false;
     }
 
@@ -130,12 +130,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             final ListView listView = findViewById(R.id.listView);
 
-            Runnable myRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    listView.setAdapter(new MemeViewAdapter(memes, getApplicationContext()));
-                }
-            };
+            Runnable myRunnable = () -> listView.setAdapter(new MemeViewAdapter(memes, getApplicationContext()));
 
             mainHandler.post(myRunnable);
         });
