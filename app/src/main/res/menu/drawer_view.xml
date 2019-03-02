@@ -14,6 +14,9 @@
             android:id="@+id/nav_templates"
             android:title="Template" />
         <item
+            android:id="@+id/nav_create_meme"
+            android:title="Create meme" />
+        <item
             android:id="@+id/nav_profile"
             android:title="Profile" />
     </group>

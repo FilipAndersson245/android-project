@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="8dp">
+
+    <ImageView
+        android:id="@+id/templateImage"
+        android:layout_width="493dp"
+        android:layout_height="177dp"
+        android:layout_weight="1"
+        tools:srcCompat="@tools:sample/backgrounds/scenic[19]" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="101dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:padding="4dp">
+
+        <TextView
+            android:id="@+id/templateName"
+            android:layout_width="wrap_content"
+            android:layout_height="23dp"
+            android:layout_weight="1"
+            android:text="Template Name" />
+
+        <TextView
+            android:id="@+id/templateUsername"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Username" />
+    </LinearLayout>
+
+</LinearLayout>

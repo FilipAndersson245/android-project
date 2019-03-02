@@ -19,7 +19,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ListMemeActivity" />
+
+        <activity android:name=".Create.MemeTemplate.ListMemeTemplateActivity" />
+        <activity android:name=".Create.Meme.CreateMemeActivity" />
+
+
+
     </application>
 
 </manifest>

@@ -1,6 +1,7 @@
 package se.ju.myapplication;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -22,6 +23,8 @@ import android.support.v4.util.Consumer;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Switch;
+
 import java.lang.reflect.Array;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -31,6 +34,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.ExecutionException;
+
+import se.ju.myapplication.Create.Meme.CreateMemeActivity;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -85,6 +90,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         System.out.println(menuItem.getTitle());
+
+        switch (menuItem.getItemId()) {
+            case R.id.nav_home:
+                break;
+            case R.id.nav_create_meme:
+                try {
+                    Intent k = new Intent(MainActivity.this, CreateMemeActivity.class);
+                    startActivity(k);
+                } catch(Exception e) {
+                    e.printStackTrace();
+                }
+                break;
+        }
+
         return false;
     }
 
