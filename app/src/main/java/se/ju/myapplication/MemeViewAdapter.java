@@ -1,19 +1,12 @@
 package se.ju.myapplication;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.ColorStateList;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.os.AsyncTask;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -25,7 +18,6 @@ import com.squareup.picasso.Picasso;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.function.Consumer;
 
 // https://www.journaldev.com/10416/android-listview-with-custom-adapter-example-tutorial
 
@@ -37,10 +29,11 @@ public class MemeViewAdapter extends ArrayAdapter<Meme> implements View.OnClickL
     private static class ViewHolder {
         TextView txtName;
         TextView txtAuthor;
-        TextView votes;
+        TextView votesLabel;
         ImageView image;
         Button downVote;
         Button upVote;
+        Integer votesWithoutUserVote;
         Integer position;
         Integer userVote;
     }
@@ -64,8 +57,10 @@ public class MemeViewAdapter extends ArrayAdapter<Meme> implements View.OnClickL
 
     private int lastPosition = -1;
 
-    private void updateButtons(ViewHolder viewHolder)
+    private void updateButtonsAndVotes(ViewHolder viewHolder)
     {
+        viewHolder.votesLabel.setText(String.valueOf(viewHolder.votesWithoutUserVote + viewHolder.userVote));
+
         viewHolder.upVote.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
         viewHolder.downVote.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
 
@@ -97,14 +92,15 @@ public class MemeViewAdapter extends ArrayAdapter<Meme> implements View.OnClickL
             convertView = inflater.inflate(R.layout.meme_list_item, parent, false);
             viewHolder.txtName = (TextView) convertView.findViewById(R.id.name);
             viewHolder.image = (ImageView) convertView.findViewById(R.id.memeImage);
-            viewHolder.votes = (TextView) convertView.findViewById(R.id.votes);
+            viewHolder.votesLabel = (TextView) convertView.findViewById(R.id.votesLabel);
             viewHolder.txtAuthor = (TextView) convertView.findViewById(R.id.author);
             viewHolder.downVote = (Button) convertView.findViewById(R.id.downVote);
             viewHolder.upVote = (Button) convertView.findViewById(R.id.upVote);
             viewHolder.position = position;
             viewHolder.userVote = dataModel.getVote();
+            viewHolder.votesWithoutUserVote = dataModel.getVotes() + viewHolder.userVote;
 
-            updateButtons(viewHolder);
+            updateButtonsAndVotes(viewHolder);
 
             result = convertView;
 
@@ -113,7 +109,7 @@ public class MemeViewAdapter extends ArrayAdapter<Meme> implements View.OnClickL
             viewHolder = (ViewHolder) convertView.getTag();
 
             viewHolder.userVote = dataModel.getVote();
-            updateButtons(viewHolder);
+            updateButtonsAndVotes(viewHolder);
 
             result = convertView;
         }
@@ -133,8 +129,7 @@ public class MemeViewAdapter extends ArrayAdapter<Meme> implements View.OnClickL
                                 public void run() {
                                     viewHolder.userVote = 0;
                                     dataSet.get(position).setVote(0);
-                                    viewHolder.votes.setText(String.valueOf(Integer.parseInt(viewHolder.votes.getText().toString(), 10) + 1));
-                                    updateButtons(viewHolder);
+                                    updateButtonsAndVotes(viewHolder);
                                 }
                             });
 
@@ -152,8 +147,7 @@ public class MemeViewAdapter extends ArrayAdapter<Meme> implements View.OnClickL
                                 public void run() {
                                     viewHolder.userVote = -1;
                                     dataSet.get(position).setVote(-1);
-                                    viewHolder.votes.setText(String.valueOf(Integer.parseInt(viewHolder.votes.getText().toString(), 10) - (viewHolder.userVote == 1 ? 2 : 1)));
-                                    updateButtons(viewHolder);
+                                    updateButtonsAndVotes(viewHolder);
                                 }
                             });
 
@@ -176,8 +170,7 @@ public class MemeViewAdapter extends ArrayAdapter<Meme> implements View.OnClickL
                                 public void run() {
                                     viewHolder.userVote = 0;
                                     dataSet.get(position).setVote(0);
-                                    viewHolder.votes.setText(String.valueOf(Integer.parseInt(viewHolder.votes.getText().toString(), 10) - 1));
-                                    updateButtons(viewHolder);
+                                    updateButtonsAndVotes(viewHolder);
                                 }
                             });
 
@@ -194,8 +187,7 @@ public class MemeViewAdapter extends ArrayAdapter<Meme> implements View.OnClickL
                                 public void run() {
                                     viewHolder.userVote = 1;
                                     dataSet.get(position).setVote(1);
-                                    viewHolder.votes.setText(String.valueOf(Integer.parseInt(viewHolder.votes.getText().toString(), 10) + (viewHolder.userVote == -1 ? 2 : 1)));
-                                    updateButtons(viewHolder);
+                                    updateButtonsAndVotes(viewHolder);
                                 }
                             });
 
@@ -204,12 +196,12 @@ public class MemeViewAdapter extends ArrayAdapter<Meme> implements View.OnClickL
                         // Voting failed
                     }
                 }
+
             }
         });
 
         viewHolder.txtName.setText(dataModel.getName());
         viewHolder.txtAuthor.setText(dataModel.getUsername());
-        viewHolder.votes.setText(dataModel.getVotes().toString());
 
         Picasso.get()
                 .load(dataModel.getImageSource())
