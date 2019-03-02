@@ -1,6 +1,7 @@
 package se.ju.myapplication;
 
 import android.annotation.SuppressLint;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -23,7 +24,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private DrawerLayout mDrawer;
     private Toolbar toolbar;
@@ -34,6 +35,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.drawer);
+
+
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -46,19 +49,8 @@ public class MainActivity extends AppCompatActivity {
 
         mDrawer = findViewById(R.id.drawer_layout);
         nvDrawer = findViewById(R.id.nvView);
+        nvDrawer.setNavigationItemSelectedListener(this);
     }
-
-    private void setupDrawerContent(NavigationView navigationView) {
-        navigationView.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(MenuItem menuItem) {
-                        //selectDrawerItem(menuItem);
-                        return true;
-                    }
-                });
-    }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -72,6 +64,10 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void burger_clicked(View view) {
+    // This code is used to select which item is clicked in the drawer. Done switch case style.
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        System.out.println(menuItem.getTitle());
+        return false;
     }
 }
