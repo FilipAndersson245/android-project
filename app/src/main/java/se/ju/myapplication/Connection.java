@@ -30,6 +30,8 @@ public class Connection {
     private String JWT = null;
     private String signedInUsername = null;
 
+    public String signInError = null;
+
     Connection() {
     }
 
@@ -129,7 +131,7 @@ public class Connection {
         }, true, callback);
     }
 
-    public void signInUser(final String username, String password, Consumer<Object> callback) {
+    public void signInUser(final String username, String password, Consumer<Boolean> callback) {
         Builder builder = newBuilder().appendPath("sessions");
 
         final Session session = new Session("password", username, password);
@@ -157,10 +159,9 @@ public class Connection {
                     if (resultRange == 200) {
                         JWT = mapper.readValue(conn.getInputStream(), SessionResponse.class).getAccessToken();
                         signedInUsername = username;
-                        callback.accept(null);
+                        callback.accept(true);
                     } else {
                         System.out.println("NO");
-                        System.out.println(convertStreamToString(conn.getErrorStream()));
                         JWT = null;
                         if (resultRange == 400) {
                             throw new Exception(mapper.readValue(conn.getErrorStream(), Error.class).getError());
@@ -169,6 +170,10 @@ public class Connection {
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
+
+                    signInError = e.getMessage();
+
+                    callback.accept(false);
                 }
             }
         }).start();

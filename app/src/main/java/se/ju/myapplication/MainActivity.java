@@ -52,6 +52,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.drawer);
 
 
+        if (savedInstanceState == null) {
+            Fragment fragment;
+            fragment = MainFeedFragment.newInstance();
+
+            getSupportFragmentManager().beginTransaction().replace(R.id.flContent, fragment).commit();
+
+        }
+
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionbar = getSupportActionBar();
@@ -59,17 +67,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         actionbar.setDisplayShowTitleEnabled(false);
         actionbar.setDisplayHomeAsUpEnabled(true);
         actionbar.setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp);
-
-        loadMemes();
-
-        if(savedInstanceState == null) {
-            Fragment fragment;
-            fragment = SignInFragment.newInstance();
-
-            getSupportFragmentManager().beginTransaction().replace(R.id.flContent, fragment).commit();
-
-        }
-
 
         mDrawer = findViewById(R.id.drawer_layout);
         nvDrawer = findViewById(R.id.nvView);
@@ -93,52 +90,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         System.out.println(menuItem.getTitle());
 
-        switch (menuItem.getItemId()) {
-            case R.id.close_drawer_button:
-                mDrawer.closeDrawer(GravityCompat.START);
-            case R.id.nav_home:
-                break;
-            case R.id.nav_create_meme:
-                Intent k = new Intent(MainActivity.this, CreateMemeActivity.class);
-                startActivity(k);
-                return true;
-            case R.id.nav_sign_in:
-                Fragment fragment;
-                fragment = SignInFragment.newInstance();
+        if(menuItem.getItemId() != R.id.close_drawer_button) {
+            Fragment fragment;
 
-                getSupportFragmentManager().beginTransaction().replace(R.id.flContent, fragment).commit();
-
-                break;
-            default:
-                System.out.println("No handler was found for drawer item!");
-        }
-        return false;
-    }
-
-    void loadMemes() {
-        Connection.getInstance().getMemes(null, null, null, null, null, (memesResult) -> {
-            ArrayList<Meme> memes = (ArrayList<Meme>) memesResult;
-            Handler mainHandler = new Handler(getBaseContext().getMainLooper());
-
-            // Add votes if user is signed in
-            if (Connection.getInstance().isSignedIn()) {
-                for (Meme meme : memes) {
-                    try {
-                        Connection.getInstance().getVote(meme.getId(), Connection.getInstance().getSignedInUsername(), (voteResult) -> {
-                            Vote vote = (Vote) voteResult;
-                            meme.setVote(vote.getVote());
-                        });
-                    } catch (JsonProcessingException e) {
-                        meme.setVote(0);
-                    }
-                }
+            switch (menuItem.getItemId()) {
+                case R.id.nav_home:
+                    fragment = MainFeedFragment.newInstance();
+                    break;
+                // Remake this to a fragment pls!!
+                //            case R.id.nav_create_meme:
+                //                Intent k = new Intent(MainActivity.this, CreateMemeActivity.class);
+                //                startActivity(k);
+                //                return true;
+                case R.id.nav_sign_in:
+                    fragment = SignInFragment.newInstance();
+                    break;
+                default:
+                    System.out.println("No handler was found for drawer item!");
+                    return false;
             }
 
-            final ListView listView = findViewById(R.id.listView);
+            getSupportFragmentManager().beginTransaction().replace(R.id.flContent, fragment).addToBackStack(null).commit();
+        }
 
-            Runnable myRunnable = () -> listView.setAdapter(new MemeViewAdapter(memes, getApplicationContext()));
-
-            mainHandler.post(myRunnable);
-        });
+        mDrawer.closeDrawer(GravityCompat.START);
+        return false;
     }
 }
