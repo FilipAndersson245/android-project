@@ -19,14 +19,6 @@ public class NewMemeTemplate
         this.name = name;
     }
 
-    public void setTopText(String topText) {
-        this.topText = topText;
-    }
-
-    public void setBottomText(String bottomText) {
-        this.bottomText = bottomText;
-    }
-
     public NewMemeTemplate(Integer templateId, String username, String imageSource) {
         this.username = username;
         this.imageSource = imageSource;

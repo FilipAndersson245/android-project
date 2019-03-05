@@ -14,6 +14,7 @@ import se.ju.myapplication.MemeTemplate;
 import se.ju.myapplication.R;
 
 public class ListMemeTemplateAdapter extends RecyclerView.Adapter<ListMemeTemplateAdapter.ListMemeTemplateViewHolder> {
+
     private List<MemeTemplate> mtDataset;
 
     public static class ListMemeTemplateViewHolder extends RecyclerView.ViewHolder {

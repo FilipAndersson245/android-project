@@ -2,8 +2,12 @@ package se.ju.myapplication.Create.MemeTemplate;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.widget.ListView;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,8 +15,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+import se.ju.myapplication.Connection;
+import se.ju.myapplication.Meme;
 import se.ju.myapplication.MemeTemplate;
+import se.ju.myapplication.MemeViewAdapter;
 import se.ju.myapplication.R;
+import se.ju.myapplication.Vote;
 
 public class ListMemeTemplateActivity extends Activity {
 
@@ -31,7 +39,7 @@ public class ListMemeTemplateActivity extends Activity {
 
         for (int i = 0; i < 10; i++)
         {
-            mtDataset.add(new MemeTemplate("Foo " + i, "Bar " + i));
+            mtDataset.add(new MemeTemplate(1 , "Foo " + i, "abc", "Bar " + i));
         }
         // ---------------------------------------------
 
@@ -47,7 +55,26 @@ public class ListMemeTemplateActivity extends Activity {
 
         mtAdapter = new ListMemeTemplateAdapter(mtDataset);
         mtRecyclerView.setAdapter(mtAdapter);
+
+        loadMemeTemplates();
     }
+
+    void loadMemeTemplates() {
+        Connection.getInstance().getMemeTemplates(null, null, null, null, (memeTemplateResults) -> {
+
+            List<MemeTemplate> memeTemplates = (List<MemeTemplate>) memeTemplateResults;
+            Handler mainHandler = new Handler(getBaseContext().getMainLooper());
+
+            // fortsätt här sen
+
+//            final ListView listView = findViewById(R.id.listView);
+//
+//            Runnable myRunnable = () -> listView.setAdapter(new MemeViewAdapter(memes, getApplicationContext()));
+//
+//            mainHandler.post(myRunnable);
+        });
+    }
+
 
     @Override
     protected void onDestroy() {

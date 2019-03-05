@@ -22,7 +22,7 @@ import java.util.function.Function;
 public class Connection {
     private static final Connection ourInstance = new Connection();
 
-    static Connection getInstance() {
+    public static Connection getInstance() {
         return ourInstance;
     }
 

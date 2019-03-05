@@ -17,14 +17,14 @@ public class CreateMemeActivity extends Activity {
         setContentView(R.layout.activity_create_meme);
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
     public void selectTemplateButtonClicked(View view) {
         Intent intent = new Intent(this, ListMemeTemplateActivity.class);
         startActivity(intent);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 
 }
