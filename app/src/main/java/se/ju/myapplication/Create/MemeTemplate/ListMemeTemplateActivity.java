@@ -25,24 +25,13 @@ import se.ju.myapplication.Vote;
 public class ListMemeTemplateActivity extends Activity {
 
     private RecyclerView mtRecyclerView;
-    private RecyclerView.Adapter mtAdapter;
+    private ListMemeTemplateAdapter mtAdapter;
     private RecyclerView.LayoutManager mtLayoutManager;
 
-    public List<MemeTemplate> mtDataset;
+    private int pageNumber = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-        // -------------------------------------------
-        // Ta bort sen
-        mtDataset = new ArrayList<MemeTemplate>();
-
-        for (int i = 0; i < 10; i++)
-        {
-            mtDataset.add(new MemeTemplate(1 , "Foo " + i, "abc", "Bar " + i));
-        }
-        // ---------------------------------------------
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_meme_template_list);
 
@@ -52,27 +41,34 @@ public class ListMemeTemplateActivity extends Activity {
         mtRecyclerView.setLayoutManager(mtLayoutManager);
         mtRecyclerView.setHasFixedSize(true);
 
+        Connection.getInstance().getMemeTemplates(null, null, null, pageNumber, (memeTemplateResults) -> {
 
-        mtAdapter = new ListMemeTemplateAdapter(mtDataset);
-        mtRecyclerView.setAdapter(mtAdapter);
+            ArrayList<MemeTemplate> memeTemplates = (ArrayList<MemeTemplate>) memeTemplateResults;
 
-        loadMemeTemplates();
+            Handler mainHandler = new Handler(getBaseContext().getMainLooper());
+
+            Runnable myRunnable = () -> mtRecyclerView.setAdapter(new ListMemeTemplateAdapter(memeTemplates));
+
+            mainHandler.post(myRunnable);
+        });
+
+        pageNumber++;
     }
 
     void loadMemeTemplates() {
-        Connection.getInstance().getMemeTemplates(null, null, null, null, (memeTemplateResults) -> {
+        Connection.getInstance().getMemeTemplates(null, null, null, pageNumber, (memeTemplateResults) -> {
 
-            List<MemeTemplate> memeTemplates = (List<MemeTemplate>) memeTemplateResults;
+            ArrayList<MemeTemplate> memeTemplates = (ArrayList<MemeTemplate>) memeTemplateResults;
+
             Handler mainHandler = new Handler(getBaseContext().getMainLooper());
 
-            // fortsätt här sen
+            Runnable myRunnable = () -> mtAdapter.addTemplatesToShow(memeTemplates);
 
-//            final ListView listView = findViewById(R.id.listView);
-//
-//            Runnable myRunnable = () -> listView.setAdapter(new MemeViewAdapter(memes, getApplicationContext()));
-//
-//            mainHandler.post(myRunnable);
+            mainHandler.post(myRunnable);
         });
+
+        pageNumber++;
+        mtAdapter.notifyDataSetChanged();
     }
 
 

@@ -280,7 +280,7 @@ public class Connection {
         }).start();
     }
 
-    public void getMemeTemplates(String name, String username, Integer pageSize, Integer page, Consumer<Object> callback) throws MalformedURLException, ExecutionException, InterruptedException {
+    public void getMemeTemplates(String name, String username, Integer pageSize, Integer page, Consumer<Object> callback) {
         Builder builder = newBuilder().appendPath("memetemplates");
 
         if (name != null) {

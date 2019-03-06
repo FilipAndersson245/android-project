@@ -8,7 +8,13 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 import se.ju.myapplication.MemeTemplate;
 import se.ju.myapplication.R;
@@ -30,20 +36,23 @@ public class ListMemeTemplateAdapter extends RecyclerView.Adapter<ListMemeTempla
         }
     }
 
-    public ListMemeTemplateAdapter(List<MemeTemplate> incomingDataset) {
-        mtDataset = incomingDataset;
+    public ListMemeTemplateAdapter(ArrayList<MemeTemplate> templates) {
+        mtDataset = templates;
+    }
+
+    public void addTemplatesToShow(List<MemeTemplate> newMemeTemplates){
+        mtDataset.addAll(newMemeTemplates);
     }
 
     @Override
     public ListMemeTemplateAdapter.ListMemeTemplateViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
 
         View templateListItem = inflater.inflate(R.layout.meme_template_list_item, parent, false);
 
-        ListMemeTemplateViewHolder viewholder = new ListMemeTemplateViewHolder(templateListItem);
-
-        return viewholder;
+        return new ListMemeTemplateViewHolder(templateListItem);
     }
 
     @Override
@@ -53,6 +62,10 @@ public class ListMemeTemplateAdapter extends RecyclerView.Adapter<ListMemeTempla
 
         holder.templateName.setText(mtDataset.get(position).getName());
         holder.templateUsername.setText(mtDataset.get(position).getUsername());
+        Picasso.get()
+                .load(mtDataset.get(position).getImageSource())
+                .fit()
+                .into(holder.templateImage);
     }
 
     @Override
