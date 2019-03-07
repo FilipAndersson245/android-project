@@ -28,8 +28,6 @@ public class ListMemeTemplateActivity extends Activity {
     private ListMemeTemplateAdapter mtAdapter;
     private RecyclerView.LayoutManager mtLayoutManager;
 
-    private int pageNumber = 0;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,35 +39,38 @@ public class ListMemeTemplateActivity extends Activity {
         mtRecyclerView.setLayoutManager(mtLayoutManager);
         mtRecyclerView.setHasFixedSize(true);
 
-        Connection.getInstance().getMemeTemplates(null, null, null, pageNumber, (memeTemplateResults) -> {
+        mtAdapter = new ListMemeTemplateAdapter();
 
-            ArrayList<MemeTemplate> memeTemplates = (ArrayList<MemeTemplate>) memeTemplateResults;
 
-            Handler mainHandler = new Handler(getBaseContext().getMainLooper());
 
-            Runnable myRunnable = () -> mtRecyclerView.setAdapter(new ListMemeTemplateAdapter(memeTemplates));
-
-            mainHandler.post(myRunnable);
-        });
-
-        pageNumber++;
+//        loadMemeTemplates();
     }
 
-    void loadMemeTemplates() {
-        Connection.getInstance().getMemeTemplates(null, null, null, pageNumber, (memeTemplateResults) -> {
 
-            ArrayList<MemeTemplate> memeTemplates = (ArrayList<MemeTemplate>) memeTemplateResults;
 
-            Handler mainHandler = new Handler(getBaseContext().getMainLooper());
 
-            Runnable myRunnable = () -> mtAdapter.addTemplatesToShow(memeTemplates);
 
-            mainHandler.post(myRunnable);
-        });
+//    private void loadMemeTemplates() {
+//        Connection.getInstance().getMemeTemplates(null, null, null, null, (memeTemplateResults) -> {
+//
+//            ArrayList<MemeTemplate> memeTemplates = (ArrayList<MemeTemplate>) memeTemplateResults;
+//
+//            Handler mainHandler = new Handler(getBaseContext().getMainLooper());
+//
+//            Runnable myRunnable;
+//
+//            if (mtAdapter != null) {
+//                myRunnable = () -> mtAdapter.addTemplatesToShow(memeTemplates);
+//            }
+//            else {
+//                myRunnable = () -> mtRecyclerView.setAdapter(new ListMemeTemplateAdapter(memeTemplates));
+//            }
+//
+//            mainHandler.post(myRunnable);
+////            mtAdapter.notifyDataSetChanged();
+//        });
+//    }
 
-        pageNumber++;
-        mtAdapter.notifyDataSetChanged();
-    }
 
 
     @Override
