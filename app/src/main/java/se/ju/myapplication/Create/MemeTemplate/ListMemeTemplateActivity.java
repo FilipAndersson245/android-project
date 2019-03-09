@@ -1,14 +1,21 @@
 package se.ju.myapplication.Create.MemeTemplate;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.widget.ImageView;
 import android.widget.ListView;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -47,12 +54,50 @@ public class ListMemeTemplateActivity extends Activity {
 
             Handler mainHandler = new Handler(getBaseContext().getMainLooper());
 
-            Runnable myRunnable = () -> mtRecyclerView.setAdapter(new ListMemeTemplateAdapter(memeTemplates));
+            Runnable myRunnable = () -> mtRecyclerView.setAdapter(new ListMemeTemplateAdapter(this.getApplicationContext(), memeTemplates));
 
             mainHandler.post(myRunnable);
 
             pageNumber++;
         });
+
+
+        BroadcastReceiver selectedTemplateReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent selectedTemplateIntent) {
+//                Bitmap selectedTemplate = null;
+//                String filename = getIntent().getStringExtra("image");
+//                try {
+//                    FileInputStream is = openFileInput(filename);
+//                    selectedTemplate = BitmapFactory.decodeStream(is);
+//                    is.close();
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+
+//                byte[] byteArray = selectedTemplateIntent.getByteArrayExtra("image");
+//                Bitmap bmp = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+
+
+                Intent returnIntent = new Intent(selectedTemplateIntent);
+//                returnIntent.putExtra("selectedTemplate",selectedTemplate);
+//                setResult(1, returnIntent);
+
+                finish();
+            }
+        };
+    }
+
+
+
+
+
+
+    public void templateSelected(Bitmap selectedTemplate){
+        Intent returnIntent = new Intent();
+        returnIntent.putExtra("selectedTemplate",selectedTemplate);
+        setResult(1,returnIntent);
+        finish();
     }
 
 

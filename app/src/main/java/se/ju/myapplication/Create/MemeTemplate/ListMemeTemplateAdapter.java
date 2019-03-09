@@ -1,6 +1,10 @@
 package se.ju.myapplication.Create.MemeTemplate;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,12 +14,15 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+import se.ju.myapplication.Create.Meme.CreateMemeActivity;
 import se.ju.myapplication.MemeTemplate;
 import se.ju.myapplication.R;
 
@@ -23,8 +30,12 @@ public class ListMemeTemplateAdapter extends RecyclerView.Adapter<ListMemeTempla
 
     private ArrayList<MemeTemplate> mtDataset;
 
-    public ListMemeTemplateAdapter(ArrayList<MemeTemplate> templates) {
+    private Context context;
+
+    public ListMemeTemplateAdapter(Context context, ArrayList<MemeTemplate> templates) {
         mtDataset = templates;
+
+        this.context = context;
     }
 
     public void addTemplatesToShow(ArrayList<MemeTemplate> newMemeTemplates){
@@ -53,6 +64,9 @@ public class ListMemeTemplateAdapter extends RecyclerView.Adapter<ListMemeTempla
 
         holder.templateItemView.setOnClickListener((view) -> {
             System.out.println("###### IT WORKS ON ITEM " + position);
+
+            itemClicked(holder.templateImage);
+
         });
 
         Picasso.get()
@@ -60,6 +74,41 @@ public class ListMemeTemplateAdapter extends RecyclerView.Adapter<ListMemeTempla
                 .fit()
                 .into(holder.templateImage);
     }
+
+    private void itemClicked(ImageView image) {
+
+        Bitmap bmp = ((BitmapDrawable) image.getDrawable()).getBitmap();
+
+        try {
+            //Write file
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            bmp.compress(Bitmap.CompressFormat.PNG, 100, stream);
+            byte[] byteArray = stream.toByteArray();
+
+            //Cleanup
+            stream.close();
+            bmp.recycle();
+
+            //Pop intent
+            Intent intent = new Intent();
+            intent.putExtra("image", byteArray);
+
+            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+//        Intent intent = new Intent();
+//        intent.putExtra("selectedTemplate",Integer.parseInt(quantity.getText().toString()));
+
+//        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+    }
+
+
+
+
+
 
     @Override
     public int getItemCount() {
