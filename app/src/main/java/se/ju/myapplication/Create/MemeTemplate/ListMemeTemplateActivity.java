@@ -10,7 +10,10 @@ import android.widget.ListView;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.util.ArrayList;
-
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 import se.ju.myapplication.Connection;
 import se.ju.myapplication.Meme;
@@ -23,9 +26,9 @@ public class ListMemeTemplateActivity extends Activity {
 
     private RecyclerView mtRecyclerView;
     private ListMemeTemplateAdapter mtAdapter;
+    private RecyclerView.LayoutManager mtLayoutManager;
 
-    private Integer pageNumber = 0;
-    private ArrayList<MemeTemplate> memeTemplates = new ArrayList<MemeTemplate>();
+    private int pageNumber = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,33 +36,43 @@ public class ListMemeTemplateActivity extends Activity {
         setContentView(R.layout.activity_meme_template_list);
 
         mtRecyclerView = (RecyclerView) findViewById(R.id.memeTemplateRecyclerView);
-        mtRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        mtLayoutManager = new LinearLayoutManager(this);
+        mtRecyclerView.setLayoutManager(mtLayoutManager);
         mtRecyclerView.setHasFixedSize(true);
 
-        fetchMemeTemplates();
+        Connection.getInstance().getMemeTemplates(null, null, null, pageNumber, (memeTemplateResults) -> {
 
-        System.out.println("######### after " + memeTemplates.size());
+            ArrayList<MemeTemplate> memeTemplates = (ArrayList<MemeTemplate>) memeTemplateResults;
 
-        mtAdapter = new ListMemeTemplateAdapter(memeTemplates);
-        mtRecyclerView.setAdapter(mtAdapter);
-    }
+            Handler mainHandler = new Handler(getBaseContext().getMainLooper());
 
-    // -------------------------------------------
-    // KOLLA UPP CALLBACK ELLER CONSUMER
-    // -------------------------------------------
+            Runnable myRunnable = () -> mtRecyclerView.setAdapter(new ListMemeTemplateAdapter(memeTemplates));
 
+            mainHandler.post(myRunnable);
 
-    private void fetchMemeTemplates() {
-        Connection.getInstance().getMemeTemplates(null, null, null, null, (memeTemplateResults) -> {
-
-            System.out.println("######### PRE " + ((ArrayList<MemeTemplate>) memeTemplateResults).size());
-
-            memeTemplates = ((ArrayList<MemeTemplate>) memeTemplateResults);
-
-            System.out.println("######### Before " + memeTemplates.size());
+            pageNumber++;
         });
-        pageNumber++;
     }
+
+
+
+//    void loadMemeTemplates() {
+//        Connection.getInstance().getMemeTemplates(null, null, null, pageNumber, (memeTemplateResults) -> {
+//
+//            ArrayList<MemeTemplate> memeTemplates = (ArrayList<MemeTemplate>) memeTemplateResults;
+//
+//            Handler mainHandler = new Handler(getBaseContext().getMainLooper());
+//
+//            Runnable myRunnable = () -> mtAdapter.addTemplatesToShow(memeTemplates);
+//
+//            mainHandler.post(myRunnable);
+//        });
+//
+//        pageNumber++;
+//        mtAdapter.notifyDataSetChanged();
+//    }
+
 
     @Override
     protected void onDestroy() {

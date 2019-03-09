@@ -27,9 +27,10 @@ public class ListMemeTemplateAdapter extends RecyclerView.Adapter<ListMemeTempla
         mtDataset = templates;
     }
 
-    public void addTemplatesToShow(List<MemeTemplate> newMemeTemplates){
+    public void addTemplatesToShow(ArrayList<MemeTemplate> newMemeTemplates){
         mtDataset.addAll(newMemeTemplates);
     }
+
 
     @Override
     public ListMemeTemplateViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -51,7 +52,7 @@ public class ListMemeTemplateAdapter extends RecyclerView.Adapter<ListMemeTempla
         holder.templateUsername.setText(mtDataset.get(position).getUsername());
 
         holder.templateItemView.setOnClickListener((view) -> {
-            System.out.print("###### IT WORKS ON ITEM " + position);
+            System.out.println("###### IT WORKS ON ITEM " + position);
         });
 
         Picasso.get()
