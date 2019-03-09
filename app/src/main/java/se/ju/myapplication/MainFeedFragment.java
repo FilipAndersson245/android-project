@@ -62,4 +62,10 @@ public class MainFeedFragment extends Fragment {
                     listView.setAdapter(new MemeViewAdapter(memes, getActivity())));
         });
     }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        System.out.println("SignInFragment.onDestroy");
+    }
 }

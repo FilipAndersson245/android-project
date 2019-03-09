@@ -259,9 +259,6 @@ public class Connection {
             builder.appendQueryParameter("page", page.toString());
         }
 
-//        request("GET", builder, null, new TypeReference<List<MemeTemplate>>() {
-//        }, false);
-
 
         new Thread(new Runnable() {
             @Override

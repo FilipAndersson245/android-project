@@ -2,6 +2,7 @@ package se.ju.myapplication;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -16,6 +17,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -44,6 +46,13 @@ public class SignInFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        if(Connection.getInstance().isSignedIn())
+        {
+            getView().post(() -> {
+                getFragmentManager().popBackStackImmediate();
+            });
+        }
+
         Button signInButton = getView().findViewById(R.id.signInButton);
         EditText usernameField = getView().findViewById(R.id.usernameField);
         EditText passwordField = getView().findViewById(R.id.passwordField);
@@ -54,9 +63,14 @@ public class SignInFragment extends Fragment {
 
                 if (didSignIn) {
                     getView().post(() -> {
+                        getView().findViewById(R.id.successText).setVisibility(View.VISIBLE);
+                        getView().findViewById(R.id.errorText).setVisibility(View.INVISIBLE);
+                    });
+
+                    getView().postDelayed(() -> {
                         dismissKeyboard(getActivity());
                         getFragmentManager().popBackStackImmediate();
-                    });
+                    }, 700);
                 } else {
                     getView().post(() -> {
                         ((TextView) getView().findViewById(R.id.errorText)).setText("Error: " + Connection.getInstance().signInError);
