@@ -30,7 +30,10 @@ public class Connection {
     private String JWT = null;
     private String signedInUsername = null;
 
-    Connection() {}
+    public String signInError = null;
+
+    Connection() {
+    }
 
     private Builder newBuilder() {
         return new Builder().scheme("http").authority("schpoop.eu-central-1.elasticbeanstalk.com");
@@ -61,11 +64,9 @@ public class Connection {
                     int resultRange = (conn.getResponseCode() / 100) * 100;
 
                     if (resultRange == 200) {
-                        if(returnType.getType() == Void.class)
-                        {
+                        if (returnType.getType() == Void.class) {
                             callback.accept(null);
-                        }
-                        else {
+                        } else {
                             callback.accept(mapper.readValue(conn.getInputStream(), returnType));
                         }
                     } else {
@@ -75,7 +76,7 @@ public class Connection {
                         throw new Exception("Error making request.");
                     }
                 } catch (Exception e) {
-                    System.out.println(" XXXXXXXXXXXXXXXX Failed while doing a " + method + " request on "+ urlBuilder.build().toString());
+                    System.out.println(" XXXXXXXXXXXXXXXX Failed while doing a " + method + " request on " + urlBuilder.build().toString());
                     e.printStackTrace();
                 }
             }
@@ -130,7 +131,7 @@ public class Connection {
         }, true, callback);
     }
 
-    public void signInUser(final String username, String password, Consumer<Object> callback) throws JsonProcessingException {
+    public void signInUser(final String username, String password, Consumer<Boolean> callback) {
         Builder builder = newBuilder().appendPath("sessions");
 
         final Session session = new Session("password", username, password);
@@ -158,10 +159,9 @@ public class Connection {
                     if (resultRange == 200) {
                         JWT = mapper.readValue(conn.getInputStream(), SessionResponse.class).getAccessToken();
                         signedInUsername = username;
-                        callback.accept(null);
+                        callback.accept(true);
                     } else {
                         System.out.println("NO");
-                        System.out.println(convertStreamToString(conn.getErrorStream()));
                         JWT = null;
                         if (resultRange == 400) {
                             throw new Exception(mapper.readValue(conn.getErrorStream(), Error.class).getError());
@@ -169,8 +169,11 @@ public class Connection {
                         throw new Exception("Error making request.");
                     }
                 } catch (Exception e) {
-                    System.out.println("Failed to Sign in user.");
                     e.printStackTrace();
+
+                    signInError = e.getMessage();
+
+                    callback.accept(false);
                 }
             }
         }).start();
@@ -255,9 +258,6 @@ public class Connection {
         if (page != null) {
             builder.appendQueryParameter("page", page.toString());
         }
-
-//        request("GET", builder, null, new TypeReference<List<MemeTemplate>>() {
-//        }, false);
 
 
         new Thread(new Runnable() {
@@ -352,11 +352,14 @@ public class Connection {
         }, true, callback);
     }
 
+
     public String getSignedInUsername() {
         return signedInUsername;
     }
 
-
+    public Boolean isSignedIn() {
+        return signedInUsername != null;
+    }
 
 
     static String convertStreamToString(java.io.InputStream is) {
