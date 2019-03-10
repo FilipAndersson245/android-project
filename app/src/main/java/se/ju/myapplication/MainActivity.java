@@ -18,11 +18,16 @@ import android.app.Activity;
 import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout mDrawer;
     private Toolbar toolbar;
     private NavigationView nvDrawer;
+
+    private ArrayList<Fragment> fragmentStack = new ArrayList<Fragment>();
 
     @SuppressLint("ResourceType")
     @Override
@@ -36,14 +41,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             Fragment fragment = fragmentFromItemId(R.id.nav_home);
 
-            String tag = fragment.getClass().getName();
-            int fragmentHolderLayoutId = R.id.flContent;
+            fragmentStack.add(fragment);
 
-            FragmentManager manager = getSupportFragmentManager();
-            FragmentTransaction ft = manager.beginTransaction ();
-
-            ft.add ( fragmentHolderLayoutId, fragment, tag );
-            ft.commit ();
+            getSupportFragmentManager().beginTransaction().add(R.id.flContent, fragment).commit();
         }
 
         toolbar = findViewById(R.id.toolbar);
@@ -80,7 +80,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Integer itemId = menuItem.getItemId();
 
         if(itemId != R.id.close_drawer_button) {
-            replaceFragment(fragmentFromItemId(itemId), this);
+            Fragment fragment = fragmentFromItemId(itemId);
+            if(fragment == null)
+                return false;
+            replaceFragment(fragment, false);
         }
 
         mDrawer.closeDrawer(GravityCompat.START);
@@ -88,10 +91,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     // This code is used to select which item is clicked in the drawer. Done switch case style.
-    private Fragment fragmentFromItemId(int itemId){
+    public static Fragment fragmentFromItemId(int itemId){
         switch (itemId) {
             case R.id.nav_home:
                 return MainFeedFragment.newInstance();
+            case R.id.nav_register:
+                return RegisterFragment.newInstance();
             // Remake this to a fragment pls!!
             //            case R.id.nav_create_meme:
             //                Intent k = new Intent(MainActivity.this, CreateMemeActivity.class);
@@ -105,22 +110,42 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    private void replaceFragment( Fragment fragment, Context context ) {
-        String tag = fragment.getClass().getName();
-        int fragmentHolderLayoutId = R.id.flContent;
+    private void replaceFragment( Fragment newFragment, boolean animate ) {
+        Integer fragmentIndex = null;
 
-        FragmentManager manager = ( (AppCompatActivity) context ).getSupportFragmentManager ();
-        manager.findFragmentByTag ( tag );
-        FragmentTransaction ft = manager.beginTransaction ();
+        for(int i = 0; i < fragmentStack.size(); i++) {
+            if(fragmentStack.get(i).getClass().getName() == newFragment.getClass().getName())
+            {
+                // Fragment is in stack
+                fragmentIndex = i;
+                break;
+            }
+        }
 
-        if (manager.findFragmentByTag ( tag ) == null) { // No fragment in backStack with same tag..
-            ft.replace ( fragmentHolderLayoutId, fragment, tag );
-            ft.addToBackStack ( tag );
-            ft.commit ();
+        if(fragmentIndex != null)
+        {
+            newFragment = fragmentStack.get(fragmentIndex);
+            fragmentStack.remove(fragmentIndex.intValue());
         }
-        else {
-            ft.replace(fragmentHolderLayoutId, manager.findFragmentByTag( tag )).commit();
-        }
+
+        fragmentStack.add(newFragment);
+        if(animate)
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .setCustomAnimations(android.R.anim.slide_out_right, android.R.anim.slide_in_left)
+                    .replace(R.id.flContent, newFragment)
+                    .commit();
+        else
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.flContent, newFragment)
+                    .commit();
+    }
+
+    public void removeAndReplaceWithFragment(int id)
+    {
+        fragmentStack.remove(fragmentStack.size()-1);
+        replaceFragment(fragmentFromItemId(id), true);
     }
 
     public void dismissKeyboard() {
@@ -136,18 +161,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
+            return;
         }
-        else {
-            FragmentManager manager = getSupportFragmentManager();
-            int fragments = manager.getBackStackEntryCount();
-            boolean isMainFragment = manager.findFragmentByTag(MainFeedFragment.class.getName()).isVisible();
-            if (isMainFragment) {
-                finish();
-            } else if (getFragmentManager().getBackStackEntryCount() > 1) {
-                getFragmentManager().popBackStack();
-            } else {
-                super.onBackPressed();
-            }
+
+        Fragment currentFragment = getCurrentFragment();
+        boolean isMainFragment = MainFeedFragment.class.getName() == currentFragment.getClass().getName();
+        if (isMainFragment) {
+            finish();
+        } else if (fragmentStack.size() > 1) {
+            fragmentStack.remove(fragmentStack.size()-1);
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+                    .replace(R.id.flContent, fragmentStack.get(fragmentStack.size()-1))
+                    .commit();
+        } else {
+            super.onBackPressed();
         }
+    }
+
+    private Fragment getCurrentFragment()
+    {
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.flContent);
+        return currentFragment;
     }
 }

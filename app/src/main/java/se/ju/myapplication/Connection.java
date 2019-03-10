@@ -31,6 +31,7 @@ public class Connection {
     private String signedInUsername = null;
 
     public String signInError = null;
+    public String registerError = null;
 
     Connection() {
     }
@@ -86,12 +87,44 @@ public class Connection {
     // ============================== USER ==============================
     // ==================================================================
 
-    public void createUser(String username, String password, Consumer<Object> callback) throws JsonProcessingException {
+    public void createUser(String username, String password, Consumer<Boolean> callback) {
         Builder builder = newBuilder().appendPath("users");
         User user = new User(username, password);
 
-        request("POST", builder, mapper.writeValueAsString(user), new TypeReference<Void>() {
-        }, false, callback);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    URL url = new URL(builder.build().toString());
+
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+                    conn.setRequestMethod("POST");
+
+                    OutputStream os = conn.getOutputStream();
+                    os.write(mapper.writeValueAsString(user).getBytes("UTF-8"));
+                    os.close();
+
+                    StringBuilder sb = new StringBuilder();
+                    int resultRange = (conn.getResponseCode() / 100) * 100;
+
+                    if (resultRange == 200) {
+                        callback.accept(true);
+                    } else {
+                        if (resultRange == 400) {
+                            throw new Exception(mapper.readValue(conn.getErrorStream(), Error.class).getError());
+                        }
+                        throw new Exception("Error making request.");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+
+                    registerError = e.getMessage();
+
+                    callback.accept(false);
+                }
+            }
+        }).start();
     }
 
     public void getUsers(String username, Integer pageSize, Integer page, Consumer<Object> callback) {
