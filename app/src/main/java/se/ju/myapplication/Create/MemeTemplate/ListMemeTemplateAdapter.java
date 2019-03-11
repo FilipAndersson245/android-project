@@ -74,14 +74,12 @@ public class ListMemeTemplateAdapter extends RecyclerView.Adapter<ListMemeTempla
         public TextView templateName;
         public TextView templateUsername;
         public ImageView templateImage;
-        public View templateItemView; // Remove later
 
         public ListMemeTemplateViewHolder(View itemView) {
             super(itemView);
             templateName = itemView.findViewById(R.id.templateName);
             templateUsername = itemView.findViewById(R.id.templateUsername);
             templateImage = itemView.findViewById(R.id.templateImage);
-            templateItemView = itemView.findViewById(R.id.templateItemView); // Remove later
             itemView.setOnClickListener(this);
         }
 

@@ -47,8 +47,6 @@ public class ListMemeTemplateActivity extends Activity {
                 this.mtAdapter.setOnItemClickListener(new ListMemeTemplateAdapter.ClickListener() {
                     @Override
                     public void onItemClick(int position, Drawable templateImage) {
-                        System.out.println("####### Does it work on pos: " + position);
-
                         Bitmap bitmap = ((BitmapDrawable)templateImage).getBitmap();
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
