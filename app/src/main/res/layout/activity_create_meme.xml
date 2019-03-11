@@ -37,11 +37,12 @@
                 android:hint="@string/meme_hint_top_text"
                 android:inputType="textPersonName" />
             <ImageView
-                android:id="@+id/memeTemplateImage"
+                android:id="@+id/createMemeTemplateImage"
                 android:layout_width="match_parent"
                 android:layout_height="284dp"
-                android:scaleType="centerInside"
-                tools:srcCompat="@tools:sample/backgrounds/scenic[1]" />
+                android:scaleType="fitCenter"
+                android:src="@drawable/question_mark" />
+
             <EditText
                 android:id="@+id/bottomTextEdit"
                 android:layout_width="match_parent"
