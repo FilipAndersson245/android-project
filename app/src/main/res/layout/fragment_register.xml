@@ -18,7 +18,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
             android:gravity="center_horizontal"
-            android:text="Registered!"
+            android:text="@string/sign_up_button"
             android:textColor="@android:color/holo_green_dark"
             android:textSize="18sp"
             android:visibility="invisible" />
@@ -35,7 +35,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ems="10"
-                android:hint="Username"
+                android:hint="@string/username_hint"
                 android:inputType="textPersonName" />
 
             <EditText
@@ -43,14 +43,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ems="10"
-                android:hint="Password"
+                android:hint="@string/password_hint"
                 android:inputType="textPassword" />
 
             <Button
                 android:id="@+id/registerButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Register" />
+                android:text="@string/sign_up_button" />
         </LinearLayout>
 
         <TextView
@@ -60,8 +60,6 @@
             android:layout_gravity="center_horizontal"
             android:gravity="center_horizontal"
             android:textColor="@android:color/holo_red_light" />
-
-
     </LinearLayout>
 
 </FrameLayout>

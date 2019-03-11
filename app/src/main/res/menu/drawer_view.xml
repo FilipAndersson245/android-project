@@ -9,21 +9,21 @@
             android:icon="@drawable/backbutton"/>
         <item
             android:id="@+id/nav_home"
-            android:title="Home" />
+            android:title="@string/nav_home" />
         <item
             android:id="@+id/nav_templates"
-            android:title="Template" />
+            android:title="@string/nav_template" />
         <item
             android:id="@+id/nav_create_meme"
-            android:title="Create meme" />
+            android:title="@string/nav_create_meme" />
         <item
             android:id="@+id/nav_profile"
-            android:title="Profile" />
+            android:title="@string/nav_profile" />
         <item
             android:id="@+id/nav_sign_in"
-            android:title="Sign in" />
+            android:title="@string/nav_sign_in" />
         <item
             android:id="@+id/nav_register"
-            android:title="Register" />
+            android:title="@string/nav_sign_up" />
     </group>
 </menu>
