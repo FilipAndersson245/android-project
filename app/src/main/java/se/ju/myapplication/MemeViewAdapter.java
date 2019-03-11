@@ -32,6 +32,7 @@ public class MemeViewAdapter extends ArrayAdapter<Meme> {
         ImageView image;
         Button downVote;
         Button upVote;
+        Integer votes;
         Integer votesWithoutUserVote;
         Integer position;
         Integer userVote;
@@ -43,20 +44,27 @@ public class MemeViewAdapter extends ArrayAdapter<Meme> {
         this.mContext = context;
     }
 
-    private void updateButtonsAndVotes(ViewHolder viewHolder)
-    {
-        viewHolder.votesLabel.setText(String.valueOf(viewHolder.votesWithoutUserVote + viewHolder.userVote));
+    private void updateButtonsAndVotes(ViewHolder viewHolder) {
+        boolean isSignedIn = Connection.getInstance().isSignedIn();
 
         viewHolder.upVote.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
         viewHolder.downVote.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
 
-        switch (viewHolder.userVote) {
-            case 1:
-                viewHolder.upVote.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
-                break;
-            case -1:
-                viewHolder.downVote.setBackgroundTintList(ColorStateList.valueOf(Color.BLUE));
-                break;
+        if (isSignedIn) {
+            viewHolder.votesLabel.setText(String.valueOf(viewHolder.votesWithoutUserVote + viewHolder.userVote));
+        } else {
+            viewHolder.votesLabel.setText(String.valueOf(viewHolder.votes));
+        }
+
+        if (isSignedIn) {
+            switch (viewHolder.userVote) {
+                case 1:
+                    viewHolder.upVote.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
+                    break;
+                case -1:
+                    viewHolder.downVote.setBackgroundTintList(ColorStateList.valueOf(Color.BLUE));
+                    break;
+            }
         }
     }
 
@@ -67,10 +75,6 @@ public class MemeViewAdapter extends ArrayAdapter<Meme> {
         Meme dataModel = dataSet.get(position);
         // Check if an existing view is being reused, otherwise inflate the view
         ViewHolder viewHolder; // view lookup cache stored in tag
-
-        System.out.println("POS: " + position + " --- ID: " + dataModel.getId());
-
-        final View result;
 
         if (convertView == null) {
 
@@ -85,25 +89,20 @@ public class MemeViewAdapter extends ArrayAdapter<Meme> {
             viewHolder.upVote = (Button) convertView.findViewById(R.id.upVote);
             viewHolder.position = position;
             viewHolder.userVote = dataModel.getVote();
-            viewHolder.votesWithoutUserVote = dataModel.getVotes() + viewHolder.userVote;
-
-            updateButtonsAndVotes(viewHolder);
-
-            result = convertView;
+            viewHolder.votes = dataModel.getVotes();
+            viewHolder.votesWithoutUserVote = dataModel.getVotes() - viewHolder.userVote;
 
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
-            viewHolder.votesWithoutUserVote = dataModel.getVotes() + viewHolder.userVote;
+            viewHolder.votes = dataModel.getVotes();
+            viewHolder.votesWithoutUserVote = dataModel.getVotes() - viewHolder.userVote;
 
             viewHolder.userVote = dataModel.getVote();
-            updateButtonsAndVotes(viewHolder);
-
-            result = convertView;
         }
 
         viewHolder.downVote.setOnClickListener(v -> {
-            if(!Connection.getInstance().isSignedIn()) {
+            if (!Connection.getInstance().isSignedIn()) {
                 return;
             }
 
@@ -139,7 +138,7 @@ public class MemeViewAdapter extends ArrayAdapter<Meme> {
         });
 
         viewHolder.upVote.setOnClickListener(v -> {
-            if(!Connection.getInstance().isSignedIn()) {
+            if (!Connection.getInstance().isSignedIn()) {
                 return;
             }
 
@@ -171,7 +170,6 @@ public class MemeViewAdapter extends ArrayAdapter<Meme> {
                     // Voting failed
                 }
             }
-
         });
 
         viewHolder.txtName.setText(dataModel.getName());
@@ -182,6 +180,9 @@ public class MemeViewAdapter extends ArrayAdapter<Meme> {
                 .into(viewHolder.image);
 
         // Return the completed view to render on screen
+
+        convertView.post(() -> updateButtonsAndVotes(viewHolder));
+
         return convertView;
     }
 }

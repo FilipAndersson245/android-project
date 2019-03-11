@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Schpoop</string>
-    <string name="select_template">Välj template</string>
+    <string name="select_template">Välj mall</string>
     <string name="meme_hint_top_text">övre text</string>
     <string name="meme_hint_bottom_text">undre text</string>
     <string name="meme_title">Titel</string>
-    <string name="meme_create">Skapa meme</string>
+    <string name="meme_create">Skapa mem</string>
     <string name="template_image_from_gallery">Bild från galleri</string>
     <string name="template_image_from_camera">Bild från kamera</string>
     <string name="template_title">Titel</string>
@@ -13,13 +13,14 @@
     <string name="sign_up_button">Registrera</string>
     <string name="sign_up_completion_message">Registrerad!</string>
     <string name="username_hint">Användarnamn</string>
-    <string name="password_hint">Lössenord</string>
-    <string name="signed_in_completion_text">Innloggad!</string>
+    <string name="password_hint">Lösenord</string>
+    <string name="signed_in_completion_text">Inloggad!</string>
     <string name="sign_in_button">Logga in</string>
     <string name="nav_home">Hem</string>
     <string name="nav_template">Mall</string>
-    <string name="nav_create_meme">Skapa meme</string>
-    <string name="nav_profile">Profile</string>
+    <string name="nav_create_meme">Skapa mem</string>
+    <string name="nav_profile">Profil</string>
     <string name="nav_sign_in">Logga in</string>
     <string name="nav_sign_up">Registrera dig</string>
+    <string name="nav_sign_out">Logga ut</string>
 </resources>

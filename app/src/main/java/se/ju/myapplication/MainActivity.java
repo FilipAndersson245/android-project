@@ -13,6 +13,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.app.Activity;
 import android.util.Log;
@@ -79,19 +80,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         Integer itemId = menuItem.getItemId();
 
-        if(itemId != R.id.close_drawer_button) {
-            Fragment fragment = fragmentFromItemId(itemId);
-            if(fragment == null)
-                return false;
-            replaceFragment(fragment, false);
+        switch (itemId) {
+            case R.id.close_drawer_button:
+                break;
+            case R.id.nav_sign_out:
+                Connection.getInstance().signOutUser();
+                updateUserSignedState();
+                break;
+            default:
+                Fragment fragment = fragmentFromItemId(itemId);
+                if (fragment == null)
+                    return false;
+                replaceFragment(fragment, false);
+                break;
         }
 
         mDrawer.closeDrawer(GravityCompat.START);
         return false;
     }
 
+    public void updateUserSignedState() {
+        MainFeedFragment mainFeedFragment = (MainFeedFragment) getStackFragmentFromClassName(MainFeedFragment.class.getName());
+        mainFeedFragment.updateList();
+        updateDrawerMenu();
+    }
+
     // This code is used to select which item is clicked in the drawer. Done switch case style.
-    public static Fragment fragmentFromItemId(int itemId){
+    public static Fragment fragmentFromItemId(int itemId) {
         switch (itemId) {
             case R.id.nav_home:
                 return MainFeedFragment.newInstance();
@@ -110,26 +125,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    private void replaceFragment( Fragment newFragment, boolean animate ) {
-        Integer fragmentIndex = null;
+    public Fragment getStackFragmentFromClassName(String fragmentClassName)
+    {
+        return fragmentStack.get(getFragmentStackIndexFromClassName(fragmentClassName));
+    }
 
-        for(int i = 0; i < fragmentStack.size(); i++) {
-            if(fragmentStack.get(i).getClass().getName() == newFragment.getClass().getName())
-            {
+    private Integer getFragmentStackIndexFromClassName(String fragmentClassName) {
+        for (int i = 0; i < fragmentStack.size(); i++) {
+            if (fragmentStack.get(i).getClass().getName() == fragmentClassName) {
                 // Fragment is in stack
-                fragmentIndex = i;
-                break;
+                return i;
             }
         }
+        return null;
+    }
 
-        if(fragmentIndex != null)
-        {
+    private void replaceFragment(Fragment newFragment, boolean animate) {
+        Integer fragmentIndex = null;
+
+        fragmentIndex = getFragmentStackIndexFromClassName(newFragment.getClass().getName());
+
+        if (fragmentIndex != null) {
             newFragment = fragmentStack.get(fragmentIndex);
             fragmentStack.remove(fragmentIndex.intValue());
         }
 
         fragmentStack.add(newFragment);
-        if(animate)
+        if (animate)
             getSupportFragmentManager()
                     .beginTransaction()
                     .setCustomAnimations(android.R.anim.slide_out_right, android.R.anim.slide_in_left)
@@ -142,9 +164,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     .commit();
     }
 
-    public void removeAndReplaceWithFragment(int id)
-    {
-        fragmentStack.remove(fragmentStack.size()-1);
+    public void removeAndReplaceWithFragment(int id) {
+        fragmentStack.remove(fragmentStack.size() - 1);
         replaceFragment(fragmentFromItemId(id), true);
     }
 
@@ -169,20 +190,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (isMainFragment) {
             finish();
         } else if (fragmentStack.size() > 1) {
-            fragmentStack.remove(fragmentStack.size()-1);
+            fragmentStack.remove(fragmentStack.size() - 1);
             getSupportFragmentManager()
                     .beginTransaction()
                     .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
-                    .replace(R.id.flContent, fragmentStack.get(fragmentStack.size()-1))
+                    .replace(R.id.flContent, fragmentStack.get(fragmentStack.size() - 1))
                     .commit();
         } else {
             super.onBackPressed();
         }
     }
 
-    private Fragment getCurrentFragment()
-    {
+    private Fragment getCurrentFragment() {
         Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.flContent);
         return currentFragment;
+    }
+
+    public void updateDrawerMenu() {
+        NavigationView navView = findViewById(R.id.nvView);
+        navView.getMenu().clear();
+        if (Connection.getInstance().isSignedIn()) {
+            navView.inflateMenu(R.menu.drawer_view_signed_in);
+        }
+        else
+        {
+            navView.inflateMenu(R.menu.drawer_view);
+        }
     }
 }
