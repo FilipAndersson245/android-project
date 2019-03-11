@@ -212,6 +212,11 @@ public class Connection {
         }).start();
     }
 
+    public void signOutUser() {
+        JWT = null;
+        signedInUsername = null;
+    }
+
     // ============================== MEMES =============================
     // ==================================================================
 

@@ -1,16 +1,15 @@
 package se.ju.myapplication;
 
-import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
 import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -18,7 +17,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.ArrayList;
 
 public class MainFeedFragment extends Fragment {
-
     public static MainFeedFragment newInstance() {
         MainFeedFragment fragment = new MainFeedFragment();
         Bundle args = new Bundle();
@@ -36,6 +34,14 @@ public class MainFeedFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
         loadMemes();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        MainActivity mainActivity = (MainActivity) getActivity();
+        mainActivity.updateDrawerMenu();
     }
 
     void loadMemes() {
@@ -58,14 +64,20 @@ public class MainFeedFragment extends Fragment {
 
             ListView listView = getView().findViewById(R.id.feedListView);
 
-            getView().post(() ->
-                    listView.setAdapter(new MemeViewAdapter(memes, getActivity())));
+            getView().post(() -> {
+                        listView.setAdapter(new MemeViewAdapter(memes, getActivity()));
+                        getView().postDelayed(() -> updateList(), 0);
+                    }
+            );
+
         });
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        System.out.println("SignInFragment.onDestroy");
+    public void updateList() {
+        ListView listView = getView().findViewById(R.id.feedListView);
+        ArrayAdapter<Meme> adapter = (ArrayAdapter<Meme>) listView.getAdapter();
+        getView().post(() -> {
+            adapter.notifyDataSetChanged();
+        });
     }
 }
