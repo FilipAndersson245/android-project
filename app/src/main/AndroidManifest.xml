@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="se.ju.myapplication" >
+    package="se.ju.myapplication">
+
     <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:allowBackup="true"
@@ -13,7 +14,9 @@
         android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".MainActivity" >
+        <activity
+            android:name=".MainActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -21,9 +24,12 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".Create.MemeTemplate.ListMemeTemplateActivity" />
-        <activity android:name=".Create.Meme.CreateMemeActivity" />
-
+        <activity
+            android:name=".Create.MemeTemplate.ListMemeTemplateActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Create.Meme.CreateMemeActivity"
+            android:screenOrientation="portrait" />
 
 
     </application>
