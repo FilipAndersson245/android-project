@@ -1,11 +1,15 @@
 package se.ju.myapplication.Create.MemeTemplate;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,6 +24,9 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.Objects;
 
 import se.ju.myapplication.R;
 
@@ -27,6 +34,7 @@ import static android.widget.Toast.makeText;
 
 public class CreateMemeTemplateActivity extends Activity {
     private static final int TAKE_PICTURE = 1;
+    private static final int PICK_PHOTO_FOR_TEMPLATE = 100;
     private static final int PERMISSION_REQUEST_CODE = 2;
 
 
@@ -89,6 +97,11 @@ public class CreateMemeTemplateActivity extends Activity {
         startActivityForResult(intent, TAKE_PICTURE);
     }
 
+    public void pickImage(View view) {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, PICK_PHOTO_FOR_TEMPLATE);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -100,10 +113,15 @@ public class CreateMemeTemplateActivity extends Activity {
                     File imgFile = new File(imageUri.getPath());
                     if (imgFile.exists()) {
                         Bitmap myBitmap = BitmapFactory.decodeFile(imageUri.getPath());
+
                         //Drawable d = new BitmapDrawable(getResources(), myBitmap);
                         try {
+                            myBitmap = rotateImageCorrectly(myBitmap,imageUri.getPath());
+
                             ImageView myImage = (ImageView) findViewById(R.id.template_image_view);
                             myImage.setImageBitmap(myBitmap);
+
+
                         } catch (Exception e) {
                             System.out.println("xxxxxxxxx: " + e.getCause().toString());
                         }
@@ -111,7 +129,65 @@ public class CreateMemeTemplateActivity extends Activity {
 
                     }
                 }
+                break;
+            case PICK_PHOTO_FOR_TEMPLATE:
+                if(resultCode == Activity.RESULT_OK) {
+                    Uri selectedImage = data.getData();
+                    String[] filePathColumn = { MediaStore.Images.Media.DATA };
+
+                    Cursor cursor = getContentResolver().query(selectedImage,
+                            filePathColumn, null, null, null);
+                    cursor.moveToFirst();
+
+                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                    String picturePath = cursor.getString(columnIndex);
+                    cursor.close();
+
+                    Bitmap bitmap = BitmapFactory.decodeFile(picturePath);
+
+                    ImageView myImage = (ImageView) findViewById(R.id.template_image_view);
+                    myImage.setImageBitmap(bitmap);
+                }
         }
+    }
+
+    private static Bitmap rotateImageCorrectly(Bitmap bitmap, String path) {
+        Bitmap myBitmap = bitmap;
+        try {
+            ExifInterface exif = new ExifInterface(path);
+            final int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+            switch (orientation) {
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    myBitmap = rotateImage(myBitmap, 90);
+                    break;
+
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    myBitmap = rotateImage(myBitmap, 180);
+                    break;
+
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    myBitmap = rotateImage(myBitmap, 270);
+                    break;
+
+                case ExifInterface.ORIENTATION_NORMAL:
+                default:
+                    break;
+            }
+            return myBitmap;
+        } catch (Exception e) {
+            return null;
+        }
+
+
+
+
+    }
+
+    private static Bitmap rotateImage(Bitmap source, float angle) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
+                matrix, true);
     }
 
     @Override
