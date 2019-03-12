@@ -5,6 +5,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -26,7 +27,11 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 import se.ju.myapplication.R;
@@ -42,7 +47,7 @@ public class CreateMemeTemplateActivity extends Activity {
     private static final int PERMISSION_FILES_CODE = 1;
     private static final int PERMISSION_CAMERA_CODE = 2;
 
-
+    private String currentPhotoPath;
     private Uri imageUri;
     private ImageView templateImage;
     private boolean validPicture;
@@ -91,6 +96,22 @@ public class CreateMemeTemplateActivity extends Activity {
         }
     }
 
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        currentPhotoPath = image.getAbsolutePath();
+
+        return image;
+    }
+
     public void takePhoto(View view) {
         if (Build.VERSION.SDK_INT < 23) {
             makeText(this, R.string.no_file_access, Toast.LENGTH_LONG).show();
@@ -102,12 +123,23 @@ public class CreateMemeTemplateActivity extends Activity {
             return;
         }
 
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        File photo = new File(new File(this.getFilesDir(), "images"), "Pic.jpg");
-        Uri imageUri = getUriForFile(this, "se.ju.myapplication.fileprovider", photo);
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-        startActivityForResult(intent, TAKE_PICTURE);
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+            }
+            if (photoFile != null) {
+                imageUri = FileProvider.getUriForFile(this,
+                        "se.ju.myapplication.fileprovider",
+                        photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                startActivityForResult(takePictureIntent, TAKE_PICTURE);
+            }
+        }
+
     }
 
     public void pickImage(View view) {
@@ -135,16 +167,16 @@ public class CreateMemeTemplateActivity extends Activity {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case TAKE_PICTURE:
-                if (resultCode == Activity.RESULT_OK) {
-                    Uri selectedImage = imageUri;
+                if (resultCode == RESULT_OK) {
 
-                    File imgFile = new File(imageUri.getPath());
+                    File imgFile = new File(currentPhotoPath);
+
+
                     if (imgFile.exists()) {
-                        Bitmap myBitmap = BitmapFactory.decodeFile(imageUri.getPath());
+                        Bitmap myBitmap = BitmapFactory.decodeFile(currentPhotoPath);
 
-                        //Drawable d = new BitmapDrawable(getResources(), myBitmap);
                         try {
-                            myBitmap = rotateImageCorrectly(myBitmap, imageUri.getPath());
+                            myBitmap = rotateImageCorrectly(myBitmap, currentPhotoPath);
 
                             ImageView myImage = (ImageView) findViewById(R.id.template_image_view);
                             myImage.setImageBitmap(myBitmap);
@@ -153,8 +185,6 @@ public class CreateMemeTemplateActivity extends Activity {
                         } catch (Exception e) {
                             System.out.println("xxxxxxxxx: " + e.getCause().toString());
                         }
-
-
                     }
                 }
                 break;
@@ -214,10 +244,5 @@ public class CreateMemeTemplateActivity extends Activity {
         matrix.postRotate(angle);
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
                 matrix, true);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
     }
 }

@@ -37,7 +37,9 @@
         <activity
             android:name=".Create.Meme.CreateMemeActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".Create.MemeTemplate.CreateMemeTemplateActivity" />
+        <activity android:name=".Create.MemeTemplate.CreateMemeTemplateActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
 
         <provider
             android:name="android.support.v4.content.FileProvider"
