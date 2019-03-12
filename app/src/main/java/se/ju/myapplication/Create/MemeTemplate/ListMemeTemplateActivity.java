@@ -46,7 +46,7 @@ public class ListMemeTemplateActivity extends Activity {
                 this.mtAdapter = new ListMemeTemplateAdapter(this, memeTemplates);
                 this.mtAdapter.setOnItemClickListener(new ListMemeTemplateAdapter.ClickListener() {
                     @Override
-                    public void onItemClick(int position, Drawable templateImage) {
+                    public void onItemClick(int templateId, String imageSource, Drawable templateImage) {
                         Bitmap bitmap = ((BitmapDrawable)templateImage).getBitmap();
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
@@ -54,6 +54,8 @@ public class ListMemeTemplateActivity extends Activity {
 
                         Intent returnIntent = new Intent();
                         returnIntent.putExtra("selectedTemplate", b);
+                        returnIntent.putExtra("templateId", templateId);
+                        returnIntent.putExtra("templateImageSource", imageSource);
                         setResult(1 ,returnIntent);
                         finish();
                     }

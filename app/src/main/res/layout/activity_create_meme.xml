@@ -18,57 +18,56 @@
         android:id="@+id/selectTemplateButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/select_template"
-        android:onClick="selectTemplateButtonClicked"
-        />
-    <FrameLayout
+        android:text="@string/select_template" />
+
+    <LinearLayout
+        android:id="@+id/editNewMemeFrame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/colorLightGrey">
-        <LinearLayout
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/topTextEdit"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-            <EditText
-                android:id="@+id/topTextEdit"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:hint="@string/meme_hint_top_text"
-                android:inputType="textPersonName" />
-            <ImageView
-                android:id="@+id/createMemeTemplateImage"
-                android:layout_width="match_parent"
-                android:layout_height="284dp"
-                android:scaleType="fitCenter"
-                android:src="@drawable/question_mark" />
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="@string/meme_hint_top_text"
+            android:inputType="text" />
 
-            <EditText
-                android:id="@+id/bottomTextEdit"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:hint="@string/meme_hint_bottom_text"
-                android:inputType="textPersonName" />
-            <EditText
-                android:id="@+id/memeTitleEdit"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:ems="10"
-                android:hint="@string/meme_title"
-                android:inputType="textPersonName" />
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="10" />
-            <Button
-                android:id="@+id/createMemeButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/meme_create" />
-        </LinearLayout>
+        <ImageView
+            android:id="@+id/createMemeTemplateImage"
+            android:layout_width="match_parent"
+            android:layout_height="284dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/question_mark" />
 
-    </FrameLayout>
+        <EditText
+            android:id="@+id/bottomTextEdit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="@string/meme_hint_bottom_text"
+            android:inputType="text" />
+
+        <EditText
+            android:id="@+id/memeTitleEdit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:ems="10"
+            android:hint="@string/meme_title"
+            android:inputType="text" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="10" />
+
+        <Button
+            android:id="@+id/createMemeButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/meme_create"/>
+    </LinearLayout>
 
 </LinearLayout>

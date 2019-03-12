@@ -23,4 +23,5 @@
     <string name="nav_sign_in">Logga in</string>
     <string name="nav_sign_up">Registrera dig</string>
     <string name="nav_sign_out">Logga ut</string>
+    <string name="meme_unable_to_create">Det gick inte att skapa mejmejn...</string>
 </resources>
