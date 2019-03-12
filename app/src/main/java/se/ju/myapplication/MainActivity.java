@@ -20,6 +20,7 @@ import java.util.ArrayList;
 
 import se.ju.myapplication.API.Connection;
 import se.ju.myapplication.Create.Meme.CreateMemeActivity;
+import se.ju.myapplication.Create.MemeTemplate.CreateMemeTemplateActivity;
 import se.ju.myapplication.Create.MemeTemplate.ListMemeTemplateActivity;
 
 
@@ -94,6 +95,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_templates:
                 Intent templatesIntent = new Intent(this, ListMemeTemplateActivity.class);
                 startActivity(templatesIntent);
+                break;
+            case R.id.nav_create_template:
+                Intent createTemplateIntent = new Intent(this, CreateMemeTemplateActivity.class);
+                startActivity(createTemplateIntent);
                 break;
             default:
                 Fragment fragment = fragmentFromItemId(itemId);

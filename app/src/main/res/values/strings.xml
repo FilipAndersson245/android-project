@@ -24,4 +24,8 @@
     <string name="nav_sign_in">Sign in</string>
     <string name="nav_sign_up">Register</string>
     <string name="nav_sign_out">Sign out</string>
+    <string name="create_template">Create template</string>
+    <string name="nav_create_template">Create template</string>
+    <string name="no_file_access">Acess to file system is required</string>
+    <string name="external_storage_explaination">Write External Storage permission allows us to do store images. Please allow this permission in App Settings.</string>
 </resources>

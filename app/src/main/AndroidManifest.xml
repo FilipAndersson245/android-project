@@ -3,7 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="se.ju.myapplication">
 
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
 
@@ -30,6 +32,7 @@
         <activity
             android:name=".Create.Meme.CreateMemeActivity"
             android:screenOrientation="portrait" />
+        <activity android:name=".Create.MemeTemplate.CreateMemeTemplateActivity" />
 
 
     </application>
