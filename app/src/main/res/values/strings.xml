@@ -27,6 +27,6 @@
     <string name="create_template">Create template</string>
     <string name="nav_create_template">Create template</string>
     <string name="no_file_access">Acess to file system is required</string>
-    <string name="external_storage_explaination">Write External Storage permission allows us to do store images. Please allow this permission in App Settings.</string>
+    <string name="external_storage_explaination">Please allow External Storage permission in App Settings.</string>
     <string name="meme_unable_to_create">Unable to create meme...</string>
 </resources>
