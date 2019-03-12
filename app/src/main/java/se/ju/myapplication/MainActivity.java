@@ -2,6 +2,7 @@ package se.ju.myapplication;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -21,6 +22,9 @@ import android.view.inputmethod.InputMethodManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import se.ju.myapplication.Create.Meme.CreateMemeActivity;
+import se.ju.myapplication.Create.MemeTemplate.ListMemeTemplateActivity;
 
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -87,10 +91,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Connection.getInstance().signOutUser();
                 updateUserSignedState();
                 break;
+            case R.id.nav_create_meme:
+                Intent createMemeIntent = new Intent(this, CreateMemeActivity.class);
+                startActivity(createMemeIntent);
+            case R.id.nav_templates:
+                Intent templatesIntent = new Intent(this, ListMemeTemplateActivity.class);
+                startActivity(templatesIntent);
             default:
                 Fragment fragment = fragmentFromItemId(itemId);
-                if (fragment == null)
+                if (fragment == null) {
+                    // No valid fragment
                     return false;
+                }
                 replaceFragment(fragment, false);
                 break;
         }
