@@ -36,7 +36,8 @@
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:hint="@string/username_hint"
-                android:inputType="textPersonName" />
+                android:inputType="textPersonName"
+                android:text="asdf" />
 
             <EditText
                 android:id="@+id/passwordField"
@@ -44,7 +45,8 @@
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:hint="@string/password_hint"
-                android:inputType="textPassword" />
+                android:inputType="textPassword"
+                android:text="asdf1234" />
 
             <Button
                 android:id="@+id/signInButton"

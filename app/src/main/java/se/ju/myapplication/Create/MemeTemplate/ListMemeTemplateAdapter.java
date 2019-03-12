@@ -44,13 +44,13 @@ public class ListMemeTemplateAdapter extends RecyclerView.Adapter<ListMemeTempla
 
     @Override
     public void onBindViewHolder(ListMemeTemplateViewHolder holder, int position) {
-
         holder.templateName.setText(mtDataset.get(position).getName());
         holder.templateUsername.setText(mtDataset.get(position).getUsername());
+        holder.templateId = mtDataset.get(position).getId();
+        holder.templateImageSource = mtDataset.get(position).getImageSource();
 
         Picasso.get()
                 .load(mtDataset.get(position).getImageSource())
-                .fit()
                 .into(holder.templateImage);
     }
 
@@ -66,7 +66,7 @@ public class ListMemeTemplateAdapter extends RecyclerView.Adapter<ListMemeTempla
 
 
     public interface ClickListener {
-        void onItemClick(int position, Drawable image);
+        void onItemClick(int templateId, String imageSrouce, Drawable image);
     }
 
 
@@ -74,6 +74,8 @@ public class ListMemeTemplateAdapter extends RecyclerView.Adapter<ListMemeTempla
         public TextView templateName;
         public TextView templateUsername;
         public ImageView templateImage;
+        private int templateId;
+        private String templateImageSource;
 
         public ListMemeTemplateViewHolder(View itemView) {
             super(itemView);
@@ -85,7 +87,7 @@ public class ListMemeTemplateAdapter extends RecyclerView.Adapter<ListMemeTempla
 
         @Override
         public void onClick(View v) {
-            clickListener.onItemClick(getAdapterPosition(), templateImage.getDrawable());
+            clickListener.onItemClick(this.templateId, this.templateImageSource, templateImage.getDrawable());
         }
     }
 }
