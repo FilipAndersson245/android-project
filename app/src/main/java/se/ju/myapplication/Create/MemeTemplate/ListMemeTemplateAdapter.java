@@ -13,7 +13,7 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
-import se.ju.myapplication.MemeTemplate;
+import se.ju.myapplication.Models.MemeTemplate;
 import se.ju.myapplication.R;
 
 public class ListMemeTemplateAdapter extends RecyclerView.Adapter<ListMemeTemplateAdapter.ListMemeTemplateViewHolder> {

@@ -14,6 +14,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import se.ju.myapplication.API.Connection;
+
 public class RegisterFragment extends Fragment {
     public static RegisterFragment newInstance() {
         RegisterFragment fragment = new RegisterFragment();

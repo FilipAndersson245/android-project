@@ -1,11 +1,10 @@
-package se.ju.myapplication;
+package se.ju.myapplication.Models;
 
 import android.support.annotation.NonNull;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.sql.Timestamp;
-import java.util.Comparator;
 
 public class Meme implements Comparable<Meme> {
     @JsonProperty("id")

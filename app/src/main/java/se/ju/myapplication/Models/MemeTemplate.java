@@ -1,4 +1,4 @@
-package se.ju.myapplication;
+package se.ju.myapplication.Models;
 
 import android.support.annotation.NonNull;
 

@@ -13,8 +13,8 @@ import android.support.v7.widget.RecyclerView;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 
-import se.ju.myapplication.Connection;
-import se.ju.myapplication.MemeTemplate;
+import se.ju.myapplication.API.Connection;
+import se.ju.myapplication.Models.MemeTemplate;
 import se.ju.myapplication.R;
 
 public class ListMemeTemplateActivity extends Activity {

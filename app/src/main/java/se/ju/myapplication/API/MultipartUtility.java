@@ -1,4 +1,4 @@
-package se.ju.myapplication;
+package se.ju.myapplication.API;
 
 
 // Class to easier use multipart/form-data
@@ -20,6 +20,9 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
+
+import se.ju.myapplication.Models.Error;
+import se.ju.myapplication.Models.MemeTemplate;
 
 public class MultipartUtility {
     private final String boundary;

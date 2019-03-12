@@ -1,6 +1,5 @@
-package se.ju.myapplication;
+package se.ju.myapplication.API;
 
-import android.net.Uri;
 import android.net.Uri.Builder;
 import android.support.v4.util.Consumer;
 
@@ -9,16 +8,22 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.function.Function;
+
+import se.ju.myapplication.Models.Error;
+import se.ju.myapplication.Models.Meme;
+import se.ju.myapplication.Models.MemeTemplate;
+import se.ju.myapplication.Models.NewMeme;
+import se.ju.myapplication.Models.NewVote;
+import se.ju.myapplication.Models.Session;
+import se.ju.myapplication.Models.SessionResponse;
+import se.ju.myapplication.Models.User;
+import se.ju.myapplication.Models.Vote;
 
 public class Connection {
     private static final Connection ourInstance = new Connection();

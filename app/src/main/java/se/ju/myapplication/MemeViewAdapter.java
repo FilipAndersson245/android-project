@@ -1,6 +1,5 @@
 package se.ju.myapplication;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -18,6 +17,9 @@ import com.squareup.picasso.Picasso;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+
+import se.ju.myapplication.API.Connection;
+import se.ju.myapplication.Models.Meme;
 
 // https://www.journaldev.com/10416/android-listview-with-custom-adapter-example-tutorial
 

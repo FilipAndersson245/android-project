@@ -1,4 +1,4 @@
-package se.ju.myapplication;
+package se.ju.myapplication.Models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

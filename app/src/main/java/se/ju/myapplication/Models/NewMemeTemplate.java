@@ -1,11 +1,9 @@
-package se.ju.myapplication;
+package se.ju.myapplication.Models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class NewMeme
+public class NewMemeTemplate
 {
-    @JsonProperty("templateId")
-    private Integer templateId;
     @JsonProperty("username")
     private String username;
     @JsonProperty("name")
@@ -21,16 +19,7 @@ public class NewMeme
         this.name = name;
     }
 
-    public void setTopText(String topText) {
-        this.topText = topText;
-    }
-
-    public void setBottomText(String bottomText) {
-        this.bottomText = bottomText;
-    }
-
-    public NewMeme(Integer templateId, String username, String imageSource) {
-        this.templateId = templateId;
+    public NewMemeTemplate(Integer templateId, String username, String imageSource) {
         this.username = username;
         this.imageSource = imageSource;
     }
