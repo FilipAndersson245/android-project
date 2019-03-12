@@ -5,8 +5,9 @@ import android.support.annotation.NonNull;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.sql.Timestamp;
+import java.util.Comparator;
 
-public class Meme {
+public class Meme implements Comparable<Meme> {
     @JsonProperty("id")
     private Integer id;
     @JsonProperty("templateId")
@@ -75,5 +76,10 @@ public class Meme {
 
     public Integer getVote() {
         return vote;
+    }
+
+    @Override
+    public int compareTo(Meme other) {
+        return other.votes-this.votes;
     }
 }

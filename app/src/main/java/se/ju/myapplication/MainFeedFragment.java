@@ -1,5 +1,6 @@
 package se.ju.myapplication;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -15,7 +16,13 @@ import android.widget.ListView;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Objects;
+
+import static java.util.Arrays.sort;
 
 public class MainFeedFragment extends Fragment {
     public static MainFeedFragment newInstance() {
@@ -49,6 +56,7 @@ public class MainFeedFragment extends Fragment {
 
     void loadMemes() {
         Connection.getInstance().getMemes(null, null, null, null, null, (memesResult) -> {
+            assert memesResult instanceof ArrayList;
             ArrayList<Meme> memes = (ArrayList<Meme>) memesResult;
 
             // Add votes if user is signed in
@@ -65,6 +73,7 @@ public class MainFeedFragment extends Fragment {
                 }
             }
 
+            Collections.sort(memes);
             ListView listView = Objects.requireNonNull(getView()).findViewById(R.id.feedListView);
 
             getView().post(() -> {
