@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -163,17 +164,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         fragmentStack.add(newFragment);
-        if (animate)
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .setCustomAnimations(android.R.anim.slide_out_right, android.R.anim.slide_in_left)
-                    .replace(R.id.flContent, newFragment)
-                    .commit();
-        else
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.flContent, newFragment)
-                    .commit();
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        if (animate) {
+            ft.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+        }
+        ft.replace(R.id.flContent, newFragment).commit();
     }
 
     public void removeAndReplaceWithFragment(int id) {

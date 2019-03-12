@@ -3,7 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="se.ju.myapplication">
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" />
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -33,6 +38,16 @@
             android:name=".Create.Meme.CreateMemeActivity"
             android:screenOrientation="portrait" />
         <activity android:name=".Create.MemeTemplate.CreateMemeTemplateActivity" />
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="se.ju.myapplication.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
 
 
     </application>
