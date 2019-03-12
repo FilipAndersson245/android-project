@@ -72,8 +72,6 @@ public class CreateMemeActivity extends Activity {
     }
 
     public void createMemeButtonClicked() {
-        System.out.println("###### Template id: " + this.templateId);
-
         String topText = ((EditText) findViewById(R.id.topTextEdit)).getText().toString();
         String bottomText = ((EditText) findViewById(R.id.bottomTextEdit)).getText().toString();
         String title = ((EditText) findViewById(R.id.memeTitleEdit)).getText().toString();
