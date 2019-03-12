@@ -22,6 +22,8 @@ import android.widget.TextView;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import java.util.Objects;
+
 public class SignInFragment extends Fragment {
     public static SignInFragment newInstance() {
         SignInFragment fragment = new SignInFragment();
@@ -36,7 +38,7 @@ public class SignInFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater,
+    public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container,
                              Bundle savedInstanceState) {
         return inflater.inflate(
@@ -48,8 +50,8 @@ public class SignInFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         if(Connection.getInstance().isSignedIn())
         {
-            getView().post(() -> {
-                getActivity().onBackPressed();
+            Objects.requireNonNull(getView()).post(() -> {
+                Objects.requireNonNull(getActivity()).onBackPressed();
             });
         }
 
@@ -71,6 +73,7 @@ public class SignInFragment extends Fragment {
                         dismissKeyboard(getActivity());
 
                         MainActivity mainActivity = (MainActivity) getActivity();
+                        assert mainActivity != null;
                         mainActivity.removeAndReplaceWithFragment(R.id.nav_home);
 
                     }, 700);

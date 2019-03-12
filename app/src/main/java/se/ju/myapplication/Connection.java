@@ -14,6 +14,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -41,45 +42,42 @@ public class Connection {
     }
 
     private void request(final String method, final Builder urlBuilder, final String body, final TypeReference returnType, final boolean authorization, final Consumer<Object> callback) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    URL url = new URL(urlBuilder.build().toString());
+        new Thread(() -> {
+            try {
+                URL url = new URL(urlBuilder.build().toString());
 
-                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                    conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-                    conn.setRequestMethod(method);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+                conn.setRequestMethod(method);
 
-                    if (authorization) {
-                        String a = "Bearer " + JWT;
-                        conn.setRequestProperty("Authorization", a);
-                    }
-
-                    if (body != null) {
-                        OutputStream os = conn.getOutputStream();
-                        os.write(body.getBytes("UTF-8"));
-                        os.close();
-                    }
-
-                    int resultRange = (conn.getResponseCode() / 100) * 100;
-
-                    if (resultRange == 200) {
-                        if (returnType.getType() == Void.class) {
-                            callback.accept(null);
-                        } else {
-                            callback.accept(mapper.readValue(conn.getInputStream(), returnType));
-                        }
-                    } else {
-                        if (resultRange == 400) {
-                            throw new Exception(mapper.readValue(conn.getErrorStream(), Error.class).getError());
-                        }
-                        throw new Exception("Error making request.");
-                    }
-                } catch (Exception e) {
-                    System.out.println(" XXXXXXXXXXXXXXXX Failed while doing a " + method + " request on " + urlBuilder.build().toString());
-                    e.printStackTrace();
+                if (authorization) {
+                    String a = "Bearer " + JWT;
+                    conn.setRequestProperty("Authorization", a);
                 }
+
+                if (body != null) {
+                    OutputStream os = conn.getOutputStream();
+                    os.write(body.getBytes(StandardCharsets.UTF_8));
+                    os.close();
+                }
+
+                int resultRange = (conn.getResponseCode() / 100) * 100;
+
+                if (resultRange == 200) {
+                    if (returnType.getType() == Void.class) {
+                        callback.accept(null);
+                    } else {
+                        callback.accept(mapper.readValue(conn.getInputStream(), returnType));
+                    }
+                } else {
+                    if (resultRange == 400) {
+                        throw new Exception(mapper.readValue(conn.getErrorStream(), Error.class).getError());
+                    }
+                    throw new Exception("Error making request.");
+                }
+            } catch (Exception e) {
+                System.out.println(" XXXXXXXXXXXXXXXX Failed while doing a " + method + " request on " + urlBuilder.build().toString());
+                e.printStackTrace();
             }
         }).start();
     }
@@ -91,38 +89,35 @@ public class Connection {
         Builder builder = newBuilder().appendPath("users");
         User user = new User(username, password);
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    URL url = new URL(builder.build().toString());
+        new Thread(() -> {
+            try {
+                URL url = new URL(builder.build().toString());
 
-                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                    conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-                    conn.setRequestMethod("POST");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+                conn.setRequestMethod("POST");
 
-                    OutputStream os = conn.getOutputStream();
-                    os.write(mapper.writeValueAsString(user).getBytes("UTF-8"));
-                    os.close();
+                OutputStream os = conn.getOutputStream();
+                os.write(mapper.writeValueAsString(user).getBytes(StandardCharsets.UTF_8));
+                os.close();
 
-                    StringBuilder sb = new StringBuilder();
-                    int resultRange = (conn.getResponseCode() / 100) * 100;
+                StringBuilder sb = new StringBuilder();
+                int resultRange = (conn.getResponseCode() / 100) * 100;
 
-                    if (resultRange == 200) {
-                        callback.accept(true);
-                    } else {
-                        if (resultRange == 400) {
-                            throw new Exception(mapper.readValue(conn.getErrorStream(), Error.class).getError());
-                        }
-                        throw new Exception("Error making request.");
+                if (resultRange == 200) {
+                    callback.accept(true);
+                } else {
+                    if (resultRange == 400) {
+                        throw new Exception(mapper.readValue(conn.getErrorStream(), Error.class).getError());
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
-
-                    registerError = e.getMessage();
-
-                    callback.accept(false);
+                    throw new Exception("Error making request.");
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
+
+                registerError = e.getMessage();
+
+                callback.accept(false);
             }
         }).start();
     }
@@ -156,7 +151,7 @@ public class Connection {
         }, true, callback);
     }
 
-    public void deleteUser(String username, Consumer<Object> callback) throws JsonProcessingException {
+    public void deleteUser(String username, Consumer<Object> callback) {
         Builder builder = newBuilder().appendPath("users");
         builder.appendPath(username);
 
@@ -170,44 +165,41 @@ public class Connection {
         final Session session = new Session("password", username, password);
 
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    System.out.println("START");
-                    System.out.println(builder.build().toString());
-                    URL url = new URL(builder.build().toString());
+        new Thread(() -> {
+            try {
+                System.out.println("START");
+                System.out.println(builder.build().toString());
+                URL url = new URL(builder.build().toString());
 
-                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                    conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-                    conn.setRequestMethod("POST");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+                conn.setRequestMethod("POST");
 
-                    OutputStream os = conn.getOutputStream();
-                    os.write(mapper.writeValueAsString(session).getBytes("UTF-8"));
-                    os.close();
+                OutputStream os = conn.getOutputStream();
+                os.write(mapper.writeValueAsString(session).getBytes(StandardCharsets.UTF_8));
+                os.close();
 
-                    StringBuilder sb = new StringBuilder();
-                    int resultRange = (conn.getResponseCode() / 100) * 100;
+                StringBuilder sb = new StringBuilder();
+                int resultRange = (conn.getResponseCode() / 100) * 100;
 
-                    if (resultRange == 200) {
-                        JWT = mapper.readValue(conn.getInputStream(), SessionResponse.class).getAccessToken();
-                        signedInUsername = username;
-                        callback.accept(true);
-                    } else {
-                        System.out.println("NO");
-                        JWT = null;
-                        if (resultRange == 400) {
-                            throw new Exception(mapper.readValue(conn.getErrorStream(), Error.class).getError());
-                        }
-                        throw new Exception("Error making request.");
+                if (resultRange == 200) {
+                    JWT = mapper.readValue(conn.getInputStream(), SessionResponse.class).getAccessToken();
+                    signedInUsername = username;
+                    callback.accept(true);
+                } else {
+                    System.out.println("NO");
+                    JWT = null;
+                    if (resultRange == 400) {
+                        throw new Exception(mapper.readValue(conn.getErrorStream(), Error.class).getError());
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
-
-                    signInError = e.getMessage();
-
-                    callback.accept(false);
+                    throw new Exception("Error making request.");
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
+
+                signInError = e.getMessage();
+
+                callback.accept(false);
             }
         }).start();
     }
@@ -281,7 +273,7 @@ public class Connection {
     // ========================== MEMETEMPLATES =========================
     // ==================================================================
 
-    public void createMemeTemplate(final String name, final String username, Integer pageSize, Integer page, final Consumer<Object> callback) throws MalformedURLException, ExecutionException, InterruptedException {
+    public void createMemeTemplate(final String name, final String username, Integer pageSize, Integer page, final Consumer<Object> callback) {
         Builder builder = newBuilder().appendPath("memetemplates");
 
         if (name != null) {
@@ -298,22 +290,19 @@ public class Connection {
         }
 
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    MultipartUtility multipart = new MultipartUtility(builder.build().toString(), "UTF-8", callback);
-                    multipart.addFormField("username", username);
-                    if (name != null) {
-                        multipart.addFormField("name", name);
-                    }
-                    multipart.addFilePart("image", new File("https://i.imgur.com/zNU9fe8.png"));
-                    multipart.addHeaderField("Authorization", "Bearer " + JWT);
-
-                    multipart.finish();
-                } catch (Exception e) {
-                    e.printStackTrace();
+        new Thread(() -> {
+            try {
+                MultipartUtility multipart = new MultipartUtility(builder.build().toString(), "UTF-8", callback);
+                multipart.addFormField("username", username);
+                if (name != null) {
+                    multipart.addFormField("name", name);
                 }
+                multipart.addFilePart("image", new File("https://i.imgur.com/zNU9fe8.png"));
+                multipart.addHeaderField("Authorization", "Bearer " + JWT);
+
+                multipart.finish();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }).start();
     }

@@ -15,6 +15,7 @@ import android.widget.ListView;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class MainFeedFragment extends Fragment {
     public static MainFeedFragment newInstance() {
@@ -25,7 +26,7 @@ public class MainFeedFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_main_feed, container, false);
     }
 
@@ -41,6 +42,8 @@ public class MainFeedFragment extends Fragment {
         super.onStart();
 
         MainActivity mainActivity = (MainActivity) getActivity();
+
+        assert mainActivity != null;
         mainActivity.updateDrawerMenu();
     }
 
@@ -62,11 +65,11 @@ public class MainFeedFragment extends Fragment {
                 }
             }
 
-            ListView listView = getView().findViewById(R.id.feedListView);
+            ListView listView = Objects.requireNonNull(getView()).findViewById(R.id.feedListView);
 
             getView().post(() -> {
                         listView.setAdapter(new MemeViewAdapter(memes, getActivity()));
-                        getView().postDelayed(() -> updateList(), 0);
+                        getView().postDelayed(this::updateList, 0);
                     }
             );
 
@@ -74,10 +77,8 @@ public class MainFeedFragment extends Fragment {
     }
 
     public void updateList() {
-        ListView listView = getView().findViewById(R.id.feedListView);
+        ListView listView = Objects.requireNonNull(getView()).findViewById(R.id.feedListView);
         ArrayAdapter<Meme> adapter = (ArrayAdapter<Meme>) listView.getAdapter();
-        getView().post(() -> {
-            adapter.notifyDataSetChanged();
-        });
+        getView().post(adapter::notifyDataSetChanged);
     }
 }

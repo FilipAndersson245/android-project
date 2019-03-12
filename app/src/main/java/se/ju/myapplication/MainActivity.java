@@ -125,23 +125,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    public Fragment getStackFragmentFromClassName(String fragmentClassName)
-    {
-        return fragmentStack.get(getFragmentStackIndexFromClassName(fragmentClassName));
+    public Fragment getStackFragmentFromClassName(String fragmentClassName) {
+        final Integer fragmentStackIndexFromClassName = getFragmentStackIndexFromClassName(fragmentClassName);
+        assert fragmentStackIndexFromClassName != null;
+        return fragmentStack.get(fragmentStackIndexFromClassName);
     }
 
     private Integer getFragmentStackIndexFromClassName(String fragmentClassName) {
-        for (int i = 0; i < fragmentStack.size(); i++) {
-            if (fragmentStack.get(i).getClass().getName() == fragmentClassName) {
-                // Fragment is in stack
-                return i;
-            }
-        }
+        for (int i = 0; i < fragmentStack.size(); i++)
+            if (fragmentStack.get(i).getClass().getName() == fragmentClassName) return i;
         return null;
     }
 
     private void replaceFragment(Fragment newFragment, boolean animate) {
-        Integer fragmentIndex = null;
+        Integer fragmentIndex;
 
         fragmentIndex = getFragmentStackIndexFromClassName(newFragment.getClass().getName());
 
@@ -179,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
             return;
@@ -202,19 +199,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private Fragment getCurrentFragment() {
-        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.flContent);
-        return currentFragment;
+        return getSupportFragmentManager().findFragmentById(R.id.flContent);
     }
 
     public void updateDrawerMenu() {
         NavigationView navView = findViewById(R.id.nvView);
         navView.getMenu().clear();
-        if (Connection.getInstance().isSignedIn()) {
-            navView.inflateMenu(R.menu.drawer_view_signed_in);
-        }
-        else
-        {
-            navView.inflateMenu(R.menu.drawer_view);
-        }
+        navView.inflateMenu(Connection.getInstance().isSignedIn() ? R.menu.drawer_view_signed_in : R.menu.drawer_view);
     }
 }

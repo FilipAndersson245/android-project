@@ -66,10 +66,10 @@ public class MultipartUtility {
      * @param value field value
      */
     public void addFormField(String name, String value) {
-        writer.append("--" + boundary).append(LINE_FEED);
-        writer.append("Content-Disposition: form-data; name=\"" + name + "\"")
+        writer.append("--").append(boundary).append(LINE_FEED);
+        writer.append("Content-Disposition: form-data; name=\"").append(name).append("\"")
                 .append(LINE_FEED);
-        writer.append("Content-Type: text/plain; charset=" + charset).append(
+        writer.append("Content-Type: text/plain; charset=").append(charset).append(
                 LINE_FEED);
         writer.append(LINE_FEED);
         writer.append(value).append(LINE_FEED);
@@ -86,7 +86,7 @@ public class MultipartUtility {
     public void addFilePart(String fieldName, File uploadFile)
             throws IOException {
         String fileName = uploadFile.getName();
-        writer.append("--" + boundary).append(LINE_FEED);
+        writer.append("--").append(boundary).append(LINE_FEED);
         writer.append(
                 "Content-Disposition: form-data; name=\"" + fieldName
                         + "\"; filename=\"" + fileName + "\"")
@@ -134,7 +134,6 @@ public class MultipartUtility {
         writer.append(LINE_FEED).flush();
         writer.append("--" + boundary + "--").append(LINE_FEED);
         writer.close();
-
 
 
         // checks server's status code first
