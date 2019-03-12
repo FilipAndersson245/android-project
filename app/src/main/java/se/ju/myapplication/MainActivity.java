@@ -90,9 +90,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_create_meme:
                 Intent createMemeIntent = new Intent(this, CreateMemeActivity.class);
                 startActivity(createMemeIntent);
+                break;
             case R.id.nav_templates:
                 Intent templatesIntent = new Intent(this, ListMemeTemplateActivity.class);
                 startActivity(templatesIntent);
+                break;
             default:
                 Fragment fragment = fragmentFromItemId(itemId);
                 if (fragment == null) {
