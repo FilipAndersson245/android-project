@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Objects;
 
 import se.ju.myapplication.API.Connection;
+import se.ju.myapplication.Models.MemeTemplate;
 import se.ju.myapplication.R;
 
 import static android.support.v4.content.FileProvider.getUriForFile;
@@ -54,7 +55,6 @@ public class CreateMemeTemplateActivity extends Activity {
     private static final int PERMISSION_CAMERA_CODE = 2;
 
     private String currentPhotoPath;
-    private Uri imageUri;
     private ImageView templateImage;
     private boolean validPicture;
 
@@ -143,7 +143,7 @@ public class CreateMemeTemplateActivity extends Activity {
                 // Error occurred while creating the File
             }
             if (photoFile != null) {
-                imageUri = FileProvider.getUriForFile(this,
+                Uri imageUri = FileProvider.getUriForFile(this,
                         "se.ju.myapplication.fileprovider",
                         photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
@@ -169,6 +169,7 @@ public class CreateMemeTemplateActivity extends Activity {
             return;
         }
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        currentPhotoPath = getRealPathFromURI(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, this);
         startActivityForResult(intent, PICK_PHOTO_FOR_TEMPLATE);
         // makeText(this, "Permission granted!", Toast.LENGTH_LONG).show();
     }
@@ -181,7 +182,6 @@ public class CreateMemeTemplateActivity extends Activity {
                 if (resultCode == RESULT_OK) {
 
                     File imgFile = new File(currentPhotoPath);
-
 
                     if (imgFile.exists()) {
                         Bitmap myBitmap = BitmapFactory.decodeFile(currentPhotoPath);
@@ -202,7 +202,10 @@ public class CreateMemeTemplateActivity extends Activity {
             case PICK_PHOTO_FOR_TEMPLATE:
                 if (resultCode == Activity.RESULT_OK) {
 //                    Uri selectedImage = data.getData();
-                    imageUri = data.getData();
+                    Uri imageUri = data.getData();
+
+                    boolean a = new File(imageUri.getPath()).exists();
+
                     String[] filePathColumn = {MediaStore.Images.Media.DATA};
 
                     Cursor cursor = getContentResolver().query(imageUri,
@@ -262,21 +265,48 @@ public class CreateMemeTemplateActivity extends Activity {
     public void createMemeTemplateButtonClicked() {
         String title = ((EditText) findViewById(R.id.editMemeTemplateTitle)).getText().toString();
 
-        File imgFile = new File(imageUri.getPath());
+        File imgFile = new File(currentPhotoPath);
+
+        boolean exists = imgFile.exists();
 
         try {
-            Connection.getInstance().createMemeTemplate(title, Connection.getInstance().getSignedInUsername(), imgFile, callback  -> {
-                Handler mainHandler = new Handler(getBaseContext().getMainLooper());
-
-                Runnable myRunnable = () -> { };
-
-                mainHandler.post(myRunnable);
+            Connection.getInstance().createMemeTemplate(title, Connection.getInstance().getSignedInUsername(), imgFile, returnedObject -> {
+                try {
+                    MemeTemplate template = (MemeTemplate) returnedObject;
+                } catch (Exception e)
+                {
+                    String error = (String) returnedObject;
+                    Toast.makeText(this, error, Toast.LENGTH_LONG).show();
+                }
+//                Handler mainHandler = new Handler(getBaseContext().getMainLooper());
+//
+//                Runnable myRunnable = () -> { };
+//
+//                mainHandler.post(myRunnable);
             });
-            System.out.println("###### UPLOAD TEMPLATE WORKS");
         } catch (JsonProcessingException e) {
+            System.out.println("uh oh");
             Toast.makeText(this, R.string.meme_template_unable_to_create, Toast.LENGTH_SHORT).show();
         }
         this.finish();
+    }
+
+    public String getRealPathFromURI(Uri contentURI, Activity context) {
+        String[] projection = { MediaStore.Images.Media.DATA };
+        @SuppressWarnings("deprecation")
+        Cursor cursor = context.managedQuery(contentURI, projection, null,
+                null, null);
+        if (cursor == null)
+            return null;
+        int column_index = cursor
+                .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        if (cursor.moveToFirst()) {
+            String s = cursor.getString(column_index);
+            // cursor.close();
+            return s;
+        }
+        // cursor.close();
+        return null;
     }
 
     @Override

@@ -6,6 +6,7 @@ package se.ju.myapplication.API;
 // https://stackoverflow.com/a/34409142
 
 import android.support.v4.util.Consumer;
+import android.util.Log;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -31,7 +32,6 @@ public class MultipartUtility {
     private String charset;
     private OutputStream outputStream;
     private PrintWriter writer;
-    private Consumer<Object> callback;
     private final ObjectMapper mapper = new ObjectMapper();
 
     /**
@@ -42,9 +42,8 @@ public class MultipartUtility {
      * @param charset
      * @throws IOException
      */
-    public MultipartUtility(String requestURL, String charset, Consumer<Object> callback)
-            throws IOException {
-        this.callback = callback;
+    public MultipartUtility(String requestURL, String charset)
+            throws Exception {
 
         this.charset = charset;
 
@@ -132,11 +131,15 @@ public class MultipartUtility {
      * status OK, otherwise an exception is thrown.
      * @throws IOException
      */
-    public void finish() throws Exception {
+    public void finish(Consumer<Object> callback) throws Exception {
+
+        Log.d("memereq", httpConn.getRequestProperties().toString());
+
         List<String> response = new ArrayList<String>();
         writer.append(LINE_FEED).flush();
         writer.append("--" + boundary + "--").append(LINE_FEED);
         writer.close();
+
 
 
         // checks server's status code first

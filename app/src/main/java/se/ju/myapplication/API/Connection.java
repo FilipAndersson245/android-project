@@ -3,6 +3,7 @@ package se.ju.myapplication.API;
 import android.media.Image;
 import android.net.Uri.Builder;
 import android.support.v4.util.Consumer;
+import android.util.Log;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -59,6 +60,7 @@ public class Connection {
                 if (authorization) {
                     String a = "Bearer " + JWT;
                     conn.setRequestProperty("Authorization", a);
+                    Log.d("memereq", conn.getRequestProperties().toString());
                 }
 
                 if (body != null) {
@@ -291,7 +293,7 @@ public class Connection {
 
         new Thread(() -> {
             try {
-                MultipartUtility multipart = new MultipartUtility(builder.build().toString(), "UTF-8", callback);
+                MultipartUtility multipart = new MultipartUtility(builder.build().toString(), "UTF-8");
                 multipart.addFormField("username", username);
                 if (name != null) {
                     multipart.addFormField("name", name);
@@ -299,8 +301,9 @@ public class Connection {
                 multipart.addFilePart("image", image);
                 multipart.addHeaderField("Authorization", "Bearer " + JWT);
 
-                multipart.finish();
+                multipart.finish(callback);
             } catch (Exception e) {
+                callback.accept(e.getMessage());
                 e.printStackTrace();
             }
         }).start();
