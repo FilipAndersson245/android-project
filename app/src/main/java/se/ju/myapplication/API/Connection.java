@@ -16,6 +16,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import se.ju.myapplication.Models.Error;
 import se.ju.myapplication.Models.Meme;
@@ -60,7 +61,6 @@ public class Connection {
                 if (authorization) {
                     String a = "Bearer " + JWT;
                     conn.setRequestProperty("Authorization", a);
-                    Log.d("memereq", conn.getRequestProperties().toString());
                 }
 
                 if (body != null) {
@@ -284,24 +284,18 @@ public class Connection {
     public void createMemeTemplate(final String name, final String username, final File image, final Consumer<Object> callback) throws JsonProcessingException {
         Builder builder = newBuilder().appendPath("memetemplates");
 
-        if (name != null) {
-            builder.appendQueryParameter("name", name);
-        }
-        if (username != null) {
-            builder.appendQueryParameter("username", username);
-        }
-
         new Thread(() -> {
             try {
-                MultipartUtility multipart = new MultipartUtility(builder.build().toString(), "UTF-8");
-                multipart.addFormField("username", username);
-                if (name != null) {
-                    multipart.addFormField("name", name);
+                Map<String, String> params = new HashMap<String, String>(2);
+                params.put("username", username);
+                if (name != null && name == "") {
+                    params.put("name", name);
                 }
-                multipart.addFilePart("image", image);
-                multipart.addHeaderField("Authorization", "Bearer " + JWT);
 
-                multipart.finish(callback);
+                MemeTemplate result = new MultipartRequest().multipartRequest(builder.build().toString(), params, image.getAbsolutePath(), "image", JWT);
+
+                callback.accept(result);
+
             } catch (Exception e) {
                 callback.accept(e.getMessage());
                 e.printStackTrace();

@@ -273,10 +273,16 @@ public class CreateMemeTemplateActivity extends Activity {
             Connection.getInstance().createMemeTemplate(title, Connection.getInstance().getSignedInUsername(), imgFile, returnedObject -> {
                 try {
                     MemeTemplate template = (MemeTemplate) returnedObject;
+                    this.finish();
                 } catch (Exception e)
                 {
                     String error = (String) returnedObject;
-                    Toast.makeText(this, error, Toast.LENGTH_LONG).show();
+
+                    new Handler(getBaseContext().getMainLooper()).post(() -> {
+                        Toast.makeText(this, error, Toast.LENGTH_LONG).show();
+                    });
+
+
                 }
 //                Handler mainHandler = new Handler(getBaseContext().getMainLooper());
 //
@@ -288,7 +294,6 @@ public class CreateMemeTemplateActivity extends Activity {
             System.out.println("uh oh");
             Toast.makeText(this, R.string.meme_template_unable_to_create, Toast.LENGTH_SHORT).show();
         }
-        this.finish();
     }
 
     public String getRealPathFromURI(Uri contentURI, Activity context) {
