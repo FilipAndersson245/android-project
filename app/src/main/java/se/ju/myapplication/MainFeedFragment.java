@@ -27,6 +27,7 @@ public class MainFeedFragment extends Fragment {
 
     private MemeViewAdapter memeViewAdapter;
     private int pageNumber = 0;
+    private Boolean scrollReady = true;
 
     public static MainFeedFragment newInstance() {
         MainFeedFragment fragment = new MainFeedFragment();
@@ -64,14 +65,10 @@ public class MainFeedFragment extends Fragment {
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 
-                int position = firstVisibleItem+visibleItemCount;
-                int limit = totalItemCount;
+                int position = firstVisibleItem + visibleItemCount;
 
-                // Check if bottom has been reached
-                if (position >= limit && totalItemCount > 0) {
-
-                    System.out.println("###### WE ARE ATT BOTTOM");
-                    System.out.println("###### PAGE: " + pageNumber);
+                if (scrollReady && position >= totalItemCount && totalItemCount > 0) {
+                    scrollReady = false;
                     loadMemes();
                 }
             }
@@ -110,20 +107,24 @@ public class MainFeedFragment extends Fragment {
                     getView().post(() -> {
                                 listView.setAdapter(new MemeViewAdapter(memes, getActivity()));
                                 this.memeViewAdapter = (MemeViewAdapter) listView.getAdapter();
-//                                memeViewAdapter.notifyDataSetChanged();
-                                getView().postDelayed(this::updateList, 0);
+                                memeViewAdapter.notifyDataSetChanged();
+//                                getView().postDelayed(this::updateList, 0);
                             }
                     );
+                    pageNumber++;
+                    scrollReady = true;
                 }
                 else {
                     getView().post(() -> {
                                 memeViewAdapter.addMemesToShow(memes);
-//                                memeViewAdapter.notifyDataSetChanged();
-                                getView().postDelayed(this::updateList, 0);
+                                memeViewAdapter.notifyDataSetChanged();
+//                                getView().postDelayed(this::updateList, 0);
                             }
                     );
+                    pageNumber++;
+                    scrollReady = true;
                 }
-                pageNumber++;
+
             }
         });
     }
