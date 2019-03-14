@@ -284,11 +284,6 @@ public class CreateMemeTemplateActivity extends Activity {
 
 
                 }
-//                Handler mainHandler = new Handler(getBaseContext().getMainLooper());
-//
-//                Runnable myRunnable = () -> { };
-//
-//                mainHandler.post(myRunnable);
             });
         } catch (JsonProcessingException e) {
             System.out.println("uh oh");

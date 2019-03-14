@@ -288,7 +288,7 @@ public class Connection {
             try {
                 Map<String, String> params = new HashMap<String, String>(2);
                 params.put("username", username);
-                if (name != null && name == "") {
+                if (name != null && name != "") {
                     params.put("name", name);
                 }
 
