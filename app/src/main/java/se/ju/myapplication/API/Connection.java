@@ -1,7 +1,9 @@
 package se.ju.myapplication.API;
 
+import android.media.Image;
 import android.net.Uri.Builder;
 import android.support.v4.util.Consumer;
+import android.util.Log;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -14,6 +16,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import se.ju.myapplication.Models.Error;
 import se.ju.myapplication.Models.Meme;
@@ -278,35 +281,23 @@ public class Connection {
     // ========================== MEMETEMPLATES =========================
     // ==================================================================
 
-    public void createMemeTemplate(final String name, final String username, Integer pageSize, Integer page, final Consumer<Object> callback) {
+    public void createMemeTemplate(final String name, final String username, final File image, final Consumer<Object> callback) throws JsonProcessingException {
         Builder builder = newBuilder().appendPath("memetemplates");
-
-        if (name != null) {
-            builder.appendQueryParameter("name", name);
-        }
-        if (username != null) {
-            builder.appendQueryParameter("username", username);
-        }
-        if (pageSize != null) {
-            builder.appendQueryParameter("pageSize", pageSize.toString());
-        }
-        if (page != null) {
-            builder.appendQueryParameter("page", page.toString());
-        }
-
 
         new Thread(() -> {
             try {
-                MultipartUtility multipart = new MultipartUtility(builder.build().toString(), "UTF-8", callback);
-                multipart.addFormField("username", username);
-                if (name != null) {
-                    multipart.addFormField("name", name);
+                Map<String, String> params = new HashMap<String, String>(2);
+                params.put("username", username);
+                if (name != null && name != "") {
+                    params.put("name", name);
                 }
-                multipart.addFilePart("image", new File("https://i.imgur.com/zNU9fe8.png"));
-                multipart.addHeaderField("Authorization", "Bearer " + JWT);
 
-                multipart.finish();
+                MemeTemplate result = new MultipartRequest().multipartRequest(builder.build().toString(), params, image.getAbsolutePath(), "image", JWT);
+
+                callback.accept(result);
+
             } catch (Exception e) {
+                callback.accept(e.getMessage());
                 e.printStackTrace();
             }
         }).start();

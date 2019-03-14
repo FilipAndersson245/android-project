@@ -11,10 +11,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -22,8 +24,11 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -34,6 +39,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
+import se.ju.myapplication.API.Connection;
+import se.ju.myapplication.Models.MemeTemplate;
 import se.ju.myapplication.R;
 
 import static android.support.v4.content.FileProvider.getUriForFile;
@@ -48,17 +55,21 @@ public class CreateMemeTemplateActivity extends Activity {
     private static final int PERMISSION_CAMERA_CODE = 2;
 
     private String currentPhotoPath;
-    private Uri imageUri;
     private ImageView templateImage;
     private boolean validPicture;
+
+    private Bitmap localBitmap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_meme_template);
 
-
         this.templateImage = findViewById(R.id.createMemeTemplateImage);
+
+        findViewById(R.id.createMemetemplateButton).setOnClickListener((View v) -> {
+            createMemeTemplateButtonClicked();
+        });
     }
 
     private boolean checkPermission(String permission) {
@@ -132,7 +143,7 @@ public class CreateMemeTemplateActivity extends Activity {
                 // Error occurred while creating the File
             }
             if (photoFile != null) {
-                imageUri = FileProvider.getUriForFile(this,
+                Uri imageUri = FileProvider.getUriForFile(this,
                         "se.ju.myapplication.fileprovider",
                         photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
@@ -158,6 +169,7 @@ public class CreateMemeTemplateActivity extends Activity {
             return;
         }
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        currentPhotoPath = getRealPathFromURI(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, this);
         startActivityForResult(intent, PICK_PHOTO_FOR_TEMPLATE);
         // makeText(this, "Permission granted!", Toast.LENGTH_LONG).show();
     }
@@ -171,14 +183,13 @@ public class CreateMemeTemplateActivity extends Activity {
 
                     File imgFile = new File(currentPhotoPath);
 
-
                     if (imgFile.exists()) {
                         Bitmap myBitmap = BitmapFactory.decodeFile(currentPhotoPath);
 
                         try {
                             myBitmap = rotateImageCorrectly(myBitmap, currentPhotoPath);
 
-                            ImageView myImage = (ImageView) findViewById(R.id.template_image_view);
+                            ImageView myImage = (ImageView) findViewById(R.id.createMemeTemplateImage);
                             myImage.setImageBitmap(myBitmap);
 
 
@@ -190,10 +201,14 @@ public class CreateMemeTemplateActivity extends Activity {
                 break;
             case PICK_PHOTO_FOR_TEMPLATE:
                 if (resultCode == Activity.RESULT_OK) {
-                    Uri selectedImage = data.getData();
+//                    Uri selectedImage = data.getData();
+                    Uri imageUri = data.getData();
+
+                    boolean a = new File(imageUri.getPath()).exists();
+
                     String[] filePathColumn = {MediaStore.Images.Media.DATA};
 
-                    Cursor cursor = getContentResolver().query(selectedImage,
+                    Cursor cursor = getContentResolver().query(imageUri,
                             filePathColumn, null, null, null);
                     cursor.moveToFirst();
 
@@ -202,8 +217,9 @@ public class CreateMemeTemplateActivity extends Activity {
                     cursor.close();
 
                     Bitmap bitmap = BitmapFactory.decodeFile(picturePath);
+                    localBitmap = bitmap;
 
-                    ImageView myImage = (ImageView) findViewById(R.id.template_image_view);
+                    ImageView myImage = (ImageView) findViewById(R.id.createMemeTemplateImage);
                     myImage.setImageBitmap(bitmap);
                 }
         }
@@ -244,5 +260,57 @@ public class CreateMemeTemplateActivity extends Activity {
         matrix.postRotate(angle);
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
                 matrix, true);
+    }
+
+    public void createMemeTemplateButtonClicked() {
+        String title = ((EditText) findViewById(R.id.editMemeTemplateTitle)).getText().toString();
+
+        File imgFile = new File(currentPhotoPath);
+
+        boolean exists = imgFile.exists();
+
+        try {
+            Connection.getInstance().createMemeTemplate(title, Connection.getInstance().getSignedInUsername(), imgFile, returnedObject -> {
+                try {
+                    MemeTemplate template = (MemeTemplate) returnedObject;
+                    this.finish();
+                } catch (Exception e)
+                {
+                    String error = (String) returnedObject;
+
+                    new Handler(getBaseContext().getMainLooper()).post(() -> {
+                        Toast.makeText(this, error, Toast.LENGTH_LONG).show();
+                    });
+
+
+                }
+            });
+        } catch (JsonProcessingException e) {
+            System.out.println("uh oh");
+            Toast.makeText(this, R.string.meme_template_unable_to_create, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public String getRealPathFromURI(Uri contentURI, Activity context) {
+        String[] projection = { MediaStore.Images.Media.DATA };
+        @SuppressWarnings("deprecation")
+        Cursor cursor = context.managedQuery(contentURI, projection, null,
+                null, null);
+        if (cursor == null)
+            return null;
+        int column_index = cursor
+                .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        if (cursor.moveToFirst()) {
+            String s = cursor.getString(column_index);
+            // cursor.close();
+            return s;
+        }
+        // cursor.close();
+        return null;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 }

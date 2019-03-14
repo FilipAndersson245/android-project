@@ -1,6 +1,7 @@
 package se.ju.myapplication.Create.MemeTemplate;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -9,6 +10,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
@@ -25,14 +27,18 @@ public class ListMemeTemplateActivity extends Activity {
 
     private int pageNumber = 0;
 
+    Context context;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_meme_template_list);
 
+        context = this;
+
         mtRecyclerView = (RecyclerView) findViewById(R.id.memeTemplateRecyclerView);
 
-        mtLayoutManager = new LinearLayoutManager(this);
+        mtLayoutManager = new LinearLayoutManager(context);
         mtRecyclerView.setLayoutManager(mtLayoutManager);
         mtRecyclerView.setHasFixedSize(true);
 
@@ -40,33 +46,77 @@ public class ListMemeTemplateActivity extends Activity {
 
             ArrayList<MemeTemplate> memeTemplates = (ArrayList<MemeTemplate>) memeTemplateResults;
 
-            Handler mainHandler = new Handler(getBaseContext().getMainLooper());
+            if (memeTemplates.size() > 0) {
+                Handler mainHandler = new Handler(getBaseContext().getMainLooper());
 
-            Runnable myRunnable = () -> {
-                this.mtAdapter = new ListMemeTemplateAdapter(this, memeTemplates);
-                this.mtAdapter.setOnItemClickListener(new ListMemeTemplateAdapter.ClickListener() {
-                    @Override
-                    public void onItemClick(int templateId, String imageSource, Drawable templateImage) {
-                        Bitmap bitmap = ((BitmapDrawable)templateImage).getBitmap();
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-                        byte[] b = baos.toByteArray();
+                Runnable myRunnable = () -> {
+                    this.mtAdapter = new ListMemeTemplateAdapter(context, memeTemplates);
+                    this.mtAdapter.setOnItemClickListener(new ListMemeTemplateAdapter.ClickListener() {
+                        @Override
+                        public void onItemClick(int templateId, String imageSource, Drawable templateImage) {
+                            Bitmap bitmap = ((BitmapDrawable)templateImage).getBitmap();
+                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                            bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+                            byte[] b = baos.toByteArray();
 
-                        Intent returnIntent = new Intent();
-                        returnIntent.putExtra("selectedTemplate", b);
-                        returnIntent.putExtra("templateId", templateId);
-                        returnIntent.putExtra("templateImageSource", imageSource);
-                        setResult(1 ,returnIntent);
-                        finish();
-                    }
-                });
+                            Intent returnIntent = new Intent();
+                            returnIntent.putExtra("selectedTemplate", b);
+                            returnIntent.putExtra("templateId", templateId);
+                            returnIntent.putExtra("templateImageSource", imageSource);
+                            setResult(1 ,returnIntent);
+                            finish();
+                        }
+                    });
 
-                mtRecyclerView.setAdapter(mtAdapter);
-            };
+                    mtRecyclerView.setAdapter(mtAdapter);
+                    pageNumber++;
+                };
+                mainHandler.post(myRunnable);
+            }
 
-            mainHandler.post(myRunnable);
+        });
 
-            pageNumber++;
+        mtRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+
+                if (!recyclerView.canScrollVertically(1)) {
+                    Connection.getInstance().getMemeTemplates(null, null, null, pageNumber, (memeTemplateResults) -> {
+
+                        ArrayList<MemeTemplate> memeTemplates = (ArrayList<MemeTemplate>) memeTemplateResults;
+
+                        if (memeTemplates.size() > 0){
+                            Handler mainHandler = new Handler(getBaseContext().getMainLooper());
+
+                            Runnable myRunnable = () -> {
+                                mtAdapter.addTemplatesToShow(memeTemplates);
+                                mtAdapter.setOnItemClickListener(new ListMemeTemplateAdapter.ClickListener() {
+                                    @Override
+                                    public void onItemClick(int templateId, String imageSource, Drawable templateImage) {
+                                        Bitmap bitmap = ((BitmapDrawable)templateImage).getBitmap();
+                                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+                                        byte[] b = baos.toByteArray();
+
+                                        Intent returnIntent = new Intent();
+                                        returnIntent.putExtra("selectedTemplate", b);
+                                        returnIntent.putExtra("templateId", templateId);
+                                        returnIntent.putExtra("templateImageSource", imageSource);
+                                        setResult(1 ,returnIntent);
+                                        finish();
+                                    }
+                                });
+                                mtAdapter.notifyDataSetChanged();
+                                pageNumber++;
+                            };
+
+                            mainHandler.post(myRunnable);
+                        }
+
+                    });
+                }
+            }
         });
 
     }
