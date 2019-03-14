@@ -1,17 +1,21 @@
 package se.ju.myapplication;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.util.Objects;
@@ -55,10 +59,17 @@ public class SignInFragment extends Fragment {
 
         signInButton.setOnClickListener(v1 -> {
 
-            Connection.getInstance().signInUser(usernameField.getText().toString(), passwordField.getText().toString(), didSignIn -> {
+            getView().post(() -> {
+                final LinearLayout hiddenLayout = view.findViewById(R.id.spinner_overlay_layout);
+                hiddenLayout.setVisibility(View.VISIBLE);
+            });
 
+            Connection.getInstance().signInUser(usernameField.getText().toString(), passwordField.getText().toString(), didSignIn -> {
                 if (didSignIn) {
                     getView().post(() -> {
+                        final LinearLayout hiddenLayout = view.findViewById(R.id.spinner_overlay_layout);
+                        hiddenLayout.setVisibility(View.INVISIBLE);
+                        
                         getView().findViewById(R.id.successText).setVisibility(View.VISIBLE);
                         getView().findViewById(R.id.errorText).setVisibility(View.INVISIBLE);
                     });
