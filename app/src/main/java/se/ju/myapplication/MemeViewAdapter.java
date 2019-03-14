@@ -178,8 +178,10 @@ public class MemeViewAdapter extends ArrayAdapter<Meme> {
         viewHolder.txtAuthor.setText(dataModel.getUsername());
 
         Picasso.get()
-                .load(dataModel.getImageSource())
-                .into(viewHolder.image);
+            .load(dataModel.getImageSource())
+            .placeholder(R.drawable.spinner)
+            .into(viewHolder.image);
+
 
         // Return the completed view to render on screen
 
