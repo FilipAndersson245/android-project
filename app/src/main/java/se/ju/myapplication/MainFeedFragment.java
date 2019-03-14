@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -23,6 +24,10 @@ import se.ju.myapplication.Models.Vote;
 import static java.util.Arrays.sort;
 
 public class MainFeedFragment extends Fragment {
+
+    private MemeViewAdapter memeViewAdapter;
+    private int pageNumber = 0;
+
     public static MainFeedFragment newInstance() {
         MainFeedFragment fragment = new MainFeedFragment();
         Bundle args = new Bundle();
@@ -48,44 +53,82 @@ public class MainFeedFragment extends Fragment {
 
         MainActivity mainActivity = (MainActivity) getActivity();
 
+        ListView listView = Objects.requireNonNull(getView()).findViewById(R.id.feedListView);
+
+        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+
+                int position = firstVisibleItem+visibleItemCount;
+                int limit = totalItemCount;
+
+                // Check if bottom has been reached
+                if (position >= limit && totalItemCount > 0) {
+
+                    System.out.println("###### WE ARE ATT BOTTOM");
+                    System.out.println("###### PAGE: " + pageNumber);
+                    loadMemes();
+                }
+            }
+        });
+
         assert mainActivity != null;
         mainActivity.updateDrawerMenu();
     }
 
+
     void loadMemes() {
-        Connection.getInstance().getMemes(null, null, null, null, null, (memesResult) -> {
+        Connection.getInstance().getMemes(null, null, null, null, pageNumber, (memesResult) -> {
             assert memesResult instanceof ArrayList;
+
             ArrayList<Meme> memes = (ArrayList<Meme>) memesResult;
 
-            // Add votes if user is signed in
-            if (Connection.getInstance().isSignedIn()) {
-                for (Meme meme : memes) {
-                    try {
-                        Connection.getInstance().getVote(meme.getId(), Connection.getInstance().getSignedInUsername(), (voteResult) -> {
-                            Vote vote = (Vote) voteResult;
-                            meme.setVote(vote.getVote());
-                        });
-                    } catch (JsonProcessingException e) {
-                        meme.setVote(0);
+            if (memes.size() > 0) {
+                // Add votes if user is signed in
+                if (Connection.getInstance().isSignedIn()) {
+                    for (Meme meme : memes) {
+                        try {
+                            Connection.getInstance().getVote(meme.getId(), Connection.getInstance().getSignedInUsername(), (voteResult) -> {
+                                Vote vote = (Vote) voteResult;
+                                meme.setVote(vote.getVote());
+                            });
+                        } catch (JsonProcessingException e) {
+                            meme.setVote(0);
+                        }
                     }
                 }
+
+                Collections.sort(memes);
+                ListView listView = Objects.requireNonNull(getView()).findViewById(R.id.feedListView);
+
+                if (listView.getAdapter() == null) {
+                    getView().post(() -> {
+                                listView.setAdapter(new MemeViewAdapter(memes, getActivity()));
+                                this.memeViewAdapter = (MemeViewAdapter) listView.getAdapter();
+//                                memeViewAdapter.notifyDataSetChanged();
+                                getView().postDelayed(this::updateList, 0);
+                            }
+                    );
+                }
+                else {
+                    getView().post(() -> {
+                                memeViewAdapter.addMemesToShow(memes);
+//                                memeViewAdapter.notifyDataSetChanged();
+                                getView().postDelayed(this::updateList, 0);
+                            }
+                    );
+                }
+                pageNumber++;
             }
-
-            Collections.sort(memes);
-            ListView listView = Objects.requireNonNull(getView()).findViewById(R.id.feedListView);
-
-            getView().post(() -> {
-                        listView.setAdapter(new MemeViewAdapter(memes, getActivity()));
-                        getView().postDelayed(this::updateList, 0);
-                    }
-            );
-
         });
     }
 
     public void updateList() {
-        ListView listView = Objects.requireNonNull(getView()).findViewById(R.id.feedListView);
-        ArrayAdapter<Meme> adapter = (ArrayAdapter<Meme>) listView.getAdapter();
-        getView().post(adapter::notifyDataSetChanged);
+        getView().post(memeViewAdapter::notifyDataSetChanged);
     }
 }

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 
 import se.ju.myapplication.API.Connection;
 import se.ju.myapplication.Models.Meme;
+import se.ju.myapplication.Models.MemeTemplate;
 
 // https://www.journaldev.com/10416/android-listview-with-custom-adapter-example-tutorial
 
@@ -44,6 +45,10 @@ public class MemeViewAdapter extends ArrayAdapter<Meme> {
         super(context, R.layout.meme_list_item, data);
         this.dataSet = data;
         this.mContext = context;
+    }
+
+    public void addMemesToShow(ArrayList<Meme> newMemes){
+        dataSet.addAll(newMemes);
     }
 
     private void updateButtonsAndVotes(ViewHolder viewHolder) {
