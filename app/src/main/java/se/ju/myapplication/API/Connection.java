@@ -1,5 +1,6 @@
 package se.ju.myapplication.API;
 
+import android.media.Image;
 import android.net.Uri.Builder;
 import android.support.v4.util.Consumer;
 
@@ -278,7 +279,7 @@ public class Connection {
     // ========================== MEMETEMPLATES =========================
     // ==================================================================
 
-    public void createMemeTemplate(final String name, final String username, Integer pageSize, Integer page, final Consumer<Object> callback) {
+    public void createMemeTemplate(final String name, final String username, final File image, final Consumer<Object> callback) throws JsonProcessingException {
         Builder builder = newBuilder().appendPath("memetemplates");
 
         if (name != null) {
@@ -287,13 +288,6 @@ public class Connection {
         if (username != null) {
             builder.appendQueryParameter("username", username);
         }
-        if (pageSize != null) {
-            builder.appendQueryParameter("pageSize", pageSize.toString());
-        }
-        if (page != null) {
-            builder.appendQueryParameter("page", page.toString());
-        }
-
 
         new Thread(() -> {
             try {
@@ -302,7 +296,7 @@ public class Connection {
                 if (name != null) {
                     multipart.addFormField("name", name);
                 }
-                multipart.addFilePart("image", new File("https://i.imgur.com/zNU9fe8.png"));
+                multipart.addFilePart("image", image);
                 multipart.addHeaderField("Authorization", "Bearer " + JWT);
 
                 multipart.finish();
