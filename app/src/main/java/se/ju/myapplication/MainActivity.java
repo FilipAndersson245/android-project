@@ -3,6 +3,7 @@ package se.ju.myapplication;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -38,6 +39,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.drawer);
 
+        Connection.getInstance().recreateSession(this);
 
         if (savedInstanceState == null) {
             // Adds first main instance
@@ -48,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             getSupportFragmentManager().beginTransaction().add(R.id.flContent, fragment).commit();
         }
+
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -87,6 +90,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.nav_sign_out:
                 Connection.getInstance().signOutUser();
+                Connection.getInstance().clearSession(this);
                 updateUserSignedState();
                 break;
             case R.id.nav_create_meme:

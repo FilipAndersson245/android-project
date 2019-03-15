@@ -3,6 +3,7 @@ package se.ju.myapplication;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -66,6 +67,7 @@ public class SignInFragment extends Fragment {
 
             Connection.getInstance().signInUser(usernameField.getText().toString(), passwordField.getText().toString(), didSignIn -> {
                 if (didSignIn) {
+                    Connection.getInstance().setSession(getActivity());
                     getView().post(() -> {
                         final LinearLayout hiddenLayout = view.findViewById(R.id.spinner_overlay_layout);
                         hiddenLayout.setVisibility(View.INVISIBLE);

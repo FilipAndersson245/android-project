@@ -1,5 +1,8 @@
 package se.ju.myapplication.API;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.media.Image;
 import android.net.Uri.Builder;
 import android.support.v4.util.Consumer;
@@ -28,6 +31,8 @@ import se.ju.myapplication.Models.SessionResponse;
 import se.ju.myapplication.Models.User;
 import se.ju.myapplication.Models.Vote;
 
+import static android.content.Context.MODE_PRIVATE;
+
 public class Connection {
     private static final Connection ourInstance = new Connection();
 
@@ -47,6 +52,36 @@ public class Connection {
 
     private Builder newBuilder() {
         return new Builder().scheme("http").authority("schpoop.eu-central-1.elasticbeanstalk.com");
+    }
+
+
+    private static final String TOKEN_ID = "JWT_TOKEN";
+    private static final String USERNAME_ID = "USERNAME";
+
+    public void recreateSession(Activity context) {
+        final SharedPreferences preferences = context.getPreferences(MODE_PRIVATE);
+        String token = preferences.getString(TOKEN_ID, null);
+        String username = preferences.getString(USERNAME_ID, null);
+        if (token != null && username != null) {
+            this.JWT = token;
+            this.signedInUsername = username;
+        }
+    }
+
+    public void setSession(Activity context) {
+        SharedPreferences sharedPref = context.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(TOKEN_ID, this.JWT);
+        editor.putString(USERNAME_ID, this.signedInUsername);
+        editor.apply();
+    }
+
+    public void clearSession(Activity context) {
+        SharedPreferences sharedPref = context.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.remove(TOKEN_ID);
+        editor.remove(USERNAME_ID);
+        editor.apply();
     }
 
     private void request(final String method, final Builder urlBuilder, final String body, final TypeReference returnType, final boolean authorization, final Consumer<Object> callback) {
