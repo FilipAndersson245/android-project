@@ -64,144 +64,93 @@ public class MainFeedFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setHasFixedSize(true);
 
-
         loadMemesOnStart();
+        addOnDownScrollListener();
+    }
+
+    private void addOnDownScrollListener() {
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+
+                if (!recyclerView.canScrollVertically(1)) {
+
+                    loadMemes();
+                }
+            }
+        });
     }
 
     private void loadMemesOnStart() {
         Connection.getInstance().getMemes(null, null, null, null, pageNumber, (memesResult) -> {
-            assert memesResult instanceof ArrayList;
 
             ArrayList<Meme> memes = (ArrayList<Meme>) memesResult;
             Collections.sort(memes);
 
             if (memes.size() > 0) {
-
-                System.out.println("###### WE LOAD START MEMES");
-
                 Handler mainHandler = new Handler(context.getMainLooper());
 
                 Runnable myRunnable = () -> {
                     this.mAdapter = new MemeViewAdapter(context, memes);
 
-                    // Code here
+//                    // Add votes if user is signed in
+//                    if (Connection.getInstance().isSignedIn()) {
+//                        for (Meme meme : memes) {
+//                            try {
+//                                Connection.getInstance().getVote(meme.getId(), Connection.getInstance().getSignedInUsername(), (voteResult) -> {
+//                                    Vote vote = (Vote) voteResult;
+//                                    meme.setVote(vote.getVote());
+//                                });
+//                            } catch (JsonProcessingException e) {
+//                                meme.setVote(0);
+//                            }
+//                        }
+//                    }
 
                     mRecyclerView.setAdapter(mAdapter);
                     pageNumber++;
                 };
-
                 mainHandler.post(myRunnable);
-
-
-
-
-
-
-
-
-
-
-
-
-
-//                // Add votes if user is signed in
-//                if (Connection.getInstance().isSignedIn()) {
-//                    for (Meme meme : memes) {
-//                        try {
-//                            Connection.getInstance().getVote(meme.getId(), Connection.getInstance().getSignedInUsername(), (voteResult) -> {
-//                                Vote vote = (Vote) voteResult;
-//                                meme.setVote(vote.getVote());
-//                            });
-//                        } catch (JsonProcessingException e) {
-//                            meme.setVote(0);
-//                        }
-//                    }
-//                }
-//
-//                Collections.sort(memes);
-//                ListView listView = Objects.requireNonNull(getView()).findViewById(R.id.feedRecyclerView);
-//
-//                if (listView.getAdapter() == null) {
-//                    getView().post(() -> {
-//                                listView.setAdapter(new MemeViewAdapter(memes, getActivity()));
-//                                this.memeViewAdapter = (MemeViewAdapter) listView.getAdapter();
-//                                memeViewAdapter.notifyDataSetChanged();
-////                                getView().postDelayed(this::updateList, 0);
-//                            }
-//                    );
-//                    pageNumber++;
-//                    scrollReady = true;
-//                }
-//                else {
-//                    getView().post(() -> {
-//                                memeViewAdapter.addMemesToShow(memes);
-//                                memeViewAdapter.notifyDataSetChanged();
-////                                getView().postDelayed(this::updateList, 0);
-//                            }
-//                    );
-//                    pageNumber++;
-//                    scrollReady = true;
-//                }
-//
             }
         });
     }
 
 
-//    private void loadMemes() {
-//        Connection.getInstance().getMemes(null, null, null, null, pageNumber, (memesResult) -> {
+    private void loadMemes() {
+        Connection.getInstance().getMemes(null, null, null, null, pageNumber, (memesResult) -> {
 //            assert memesResult instanceof ArrayList;
-//
-//            ArrayList<Meme> memes = (ArrayList<Meme>) memesResult;
-//
-//            if (memes.size() > 0) {
-//                // Add votes if user is signed in
-//                if (Connection.getInstance().isSignedIn()) {
-//                    for (Meme meme : memes) {
-//                        try {
-//                            Connection.getInstance().getVote(meme.getId(), Connection.getInstance().getSignedInUsername(), (voteResult) -> {
-//                                Vote vote = (Vote) voteResult;
-//                                meme.setVote(vote.getVote());
-//                            });
-//                        } catch (JsonProcessingException e) {
-//                            meme.setVote(0);
+
+            ArrayList<Meme> memes = (ArrayList<Meme>) memesResult;
+            Collections.sort(memes);
+
+            if (memes.size() > 0) {
+                Handler mainHandler = new Handler(context.getMainLooper());
+
+                Runnable myRunnable = () -> {
+
+                    mAdapter.addMemesToShow(memes);
+
+//                    // Add votes if user is signed in
+//                    if (Connection.getInstance().isSignedIn()) {
+//                        for (Meme meme : memes) {
+//                            try {
+//                                Connection.getInstance().getVote(meme.getId(), Connection.getInstance().getSignedInUsername(), (voteResult) -> {
+//                                    Vote vote = (Vote) voteResult;
+//                                    meme.setVote(vote.getVote());
+//                                });
+//                            } catch (JsonProcessingException e) {
+//                                meme.setVote(0);
+//                            }
 //                        }
 //                    }
-//                }
-//
-//                Collections.sort(memes);
-//                ListView listView = Objects.requireNonNull(getView()).findViewById(R.id.feedRecyclerView);
-//
-//                if (listView.getAdapter() == null) {
-//                    getView().post(() -> {
-//                                listView.setAdapter(new MemeViewAdapter(memes, getActivity()));
-//                                this.memeViewAdapter = (MemeViewAdapter) listView.getAdapter();
-//                                memeViewAdapter.notifyDataSetChanged();
-////                                getView().postDelayed(this::updateList, 0);
-//                            }
-//                    );
-//                    pageNumber++;
-//                    scrollReady = true;
-//                }
-//                else {
-//                    getView().post(() -> {
-//                                memeViewAdapter.addMemesToShow(memes);
-//                                memeViewAdapter.notifyDataSetChanged();
-////                                getView().postDelayed(this::updateList, 0);
-//                            }
-//                    );
-//                    pageNumber++;
-//                    scrollReady = true;
-//                }
-//
-//            }
-//        });
-//    }
 
+                    mAdapter.notifyDataSetChanged();
+                    pageNumber++;
+                };
+                mainHandler.post(myRunnable);
+            }
+        });
+    }
 
-
-
-//    public void updateList() {
-//        getView().post(memeViewAdapter::notifyDataSetChanged);
-//    }
 }

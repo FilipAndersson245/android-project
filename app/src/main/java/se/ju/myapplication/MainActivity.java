@@ -121,7 +121,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void updateUserSignedState() {
         MainFeedFragment mainFeedFragment = (MainFeedFragment) getStackFragmentFromClassName(MainFeedFragment.class.getName());
+
+        // CODE TO UPDATE THE VOTES HERE!!!!!!!!!! <------------------------------------------------------
 //        mainFeedFragment.updateList();
+
         updateDrawerMenu();
     }
 

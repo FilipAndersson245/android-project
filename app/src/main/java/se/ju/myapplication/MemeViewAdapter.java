@@ -8,11 +8,14 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
+import se.ju.myapplication.API.Connection;
 import se.ju.myapplication.Models.Meme;
+import se.ju.myapplication.Models.Vote;
 
 
 public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeViewHolder> {
@@ -50,13 +53,27 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
             .into(holder.memeImage);
     }
 
-
-
-
-
     @Override
     public int getItemCount() {
         return mDataSet.size();
+    }
+
+    public void updateVotesForLogin() {
+
+        // Add votes if user is signed in
+
+        if (Connection.getInstance().isSignedIn()) {
+            for (Meme meme : mDataSet) {
+                try {
+                    Connection.getInstance().getVote(meme.getId(), Connection.getInstance().getSignedInUsername(), (voteResult) -> {
+                        Vote vote = (Vote) voteResult;
+                        meme.setVote(vote.getVote());
+                    });
+                } catch (JsonProcessingException e) {
+                    meme.setVote(0);
+                }
+            }
+        }
     }
 
 
@@ -71,7 +88,7 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
 
 
 
-    
+
 //    public static class MemeViewViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
     public static class MemeViewHolder extends RecyclerView.ViewHolder {
         public TextView title;
