@@ -29,16 +29,11 @@ import static java.util.Arrays.sort;
 
 public class MainFeedFragment extends Fragment {
 
-    private MemeViewAdapter memeViewAdapter;
-    private Boolean scrollReady = true;
-
     private RecyclerView mRecyclerView;
     private MemeViewAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
     private int pageNumber = 0;
-
-    Context context;
 
     public static MainFeedFragment newInstance() {
         MainFeedFragment fragment = new MainFeedFragment();
@@ -56,16 +51,16 @@ public class MainFeedFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        context = view.getContext();
-
         mRecyclerView = view.findViewById(R.id.feedRecyclerView);
 
-        mLayoutManager = new LinearLayoutManager(context);
+        mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setHasFixedSize(true);
 
         loadMemesOnStart();
         addOnDownScrollListener();
+        MainActivity mainActivity = (MainActivity) getActivity();
+        mainActivity.updateDrawerMenu();
     }
 
     private void addOnDownScrollListener() {
@@ -89,10 +84,10 @@ public class MainFeedFragment extends Fragment {
             Collections.sort(memes);
 
             if (memes.size() > 0) {
-                Handler mainHandler = new Handler(context.getMainLooper());
+                Handler mainHandler = new Handler(getActivity().getMainLooper());
 
                 Runnable myRunnable = () -> {
-                    this.mAdapter = new MemeViewAdapter(context, memes);
+                    this.mAdapter = new MemeViewAdapter(getActivity(), memes);
 
 //                    // Add votes if user is signed in
 //                    if (Connection.getInstance().isSignedIn()) {
@@ -125,7 +120,7 @@ public class MainFeedFragment extends Fragment {
             Collections.sort(memes);
 
             if (memes.size() > 0) {
-                Handler mainHandler = new Handler(context.getMainLooper());
+                Handler mainHandler = new Handler(getActivity().getMainLooper());
 
                 Runnable myRunnable = () -> {
 
@@ -153,4 +148,10 @@ public class MainFeedFragment extends Fragment {
         });
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        pageNumber = 0;
+    }
+    
 }

@@ -103,6 +103,5 @@ public class SignInFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        System.out.println("SignInFragment.onDestroy");
     }
 }
