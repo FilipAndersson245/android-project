@@ -32,7 +32,14 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
     }
 
     public void addMemesToShow(ArrayList<Meme> newMemes){
-        mDataSet.addAll(newMemes);
+
+        for (Meme newMeme : newMemes) {
+            if (!mDataSet.contains(newMeme)) {
+                mDataSet.add(newMeme);
+            }
+        }
+
+//        mDataSet.addAll(newMemes);
     }
 
     @Override

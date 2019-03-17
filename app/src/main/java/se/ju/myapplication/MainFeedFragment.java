@@ -25,6 +25,7 @@ public class MainFeedFragment extends Fragment {
     private RecyclerView.LayoutManager mLayoutManager;
 
     private int pageNumber = 0;
+    private Boolean preventSpamScroll = true;
 
     public static MainFeedFragment newInstance() {
         MainFeedFragment fragment = new MainFeedFragment();
@@ -60,7 +61,6 @@ public class MainFeedFragment extends Fragment {
 
             Runnable myRunnable = () -> {
                 mAdapter.updateVotesForLogin();
-//                mAdapter.notifyDataSetChanged();
             };
             mainHandler.post(myRunnable);
         }
@@ -75,10 +75,22 @@ public class MainFeedFragment extends Fragment {
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
 
-                if (!recyclerView.canScrollVertically(1)) {
-
+                if (preventSpamScroll && !recyclerView.canScrollVertically(1)) {
+                    System.out.println("###### SCROLL DOWN ");
                     loadMemes();
                 }
+//                else if (preventSpamScroll && !recyclerView.canScrollVertically(-1)) {
+//                    System.out.println("###### SCROLL UP ");
+//                    loadMemesOnStart();
+//
+//                    final Handler handler = new Handler();
+//                    handler.postDelayed(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            preventSpamScroll = true;
+//                        }
+//                    }, 150);
+//                }
             }
         });
     }
@@ -88,6 +100,9 @@ public class MainFeedFragment extends Fragment {
 
             ArrayList<Meme> memes = (ArrayList<Meme>) memesResult;
             Collections.sort(memes);
+            pageNumber = 0;
+
+            System.out.println("###### PAGESIZE: " + pageNumber);
 
             if (memes.size() > 0) {
                 Handler mainHandler = new Handler(getActivity().getMainLooper());
@@ -104,12 +119,13 @@ public class MainFeedFragment extends Fragment {
         });
     }
 
-
     private void loadMemes() {
         Connection.getInstance().getMemes(null, null, null, null, pageNumber, (memesResult) -> {
 
             ArrayList<Meme> memes = (ArrayList<Meme>) memesResult;
             Collections.sort(memes);
+
+            System.out.println("###### PAGESIZE: " + pageNumber);
 
             if (memes.size() > 0) {
                 Handler mainHandler = new Handler(getActivity().getMainLooper());
@@ -117,7 +133,7 @@ public class MainFeedFragment extends Fragment {
                 Runnable myRunnable = () -> {
                     mAdapter.addMemesToShow(memes);
                     signInVotesUpdater();
-//                    mAdapter.notifyDataSetChanged();
+                    mAdapter.notifyDataSetChanged();
                     pageNumber++;
                 };
                 mainHandler.post(myRunnable);
