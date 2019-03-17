@@ -54,21 +54,19 @@ public class MainFeedFragment extends Fragment {
         mainActivity.updateDrawerMenu();
     }
 
-
-    private void signInVotes() {
+    public void signInVotesUpdater() {
         if (Connection.getInstance().isSignedIn()) {
             Handler mainHandler = new Handler(getActivity().getMainLooper());
 
             Runnable myRunnable = () -> {
                 mAdapter.updateVotesForLogin();
-                mAdapter.notifyDataSetChanged();
+//                mAdapter.notifyDataSetChanged();
             };
             mainHandler.post(myRunnable);
         }
-    }
-
-    public void signOutVotes() {
-        mAdapter.notifyDataSetChanged();
+        else {
+            mAdapter.notifyDataSetChanged();
+        }
     }
 
     private void addOnDownScrollListener() {
@@ -98,7 +96,7 @@ public class MainFeedFragment extends Fragment {
                     this.mAdapter = new MemeViewAdapter(getActivity(), memes);
 
                     mRecyclerView.setAdapter(mAdapter);
-                    signInVotes();
+                    signInVotesUpdater();
                     pageNumber++;
                 };
                 mainHandler.post(myRunnable);
@@ -118,8 +116,8 @@ public class MainFeedFragment extends Fragment {
 
                 Runnable myRunnable = () -> {
                     mAdapter.addMemesToShow(memes);
-                    signInVotes();
-                    mAdapter.notifyDataSetChanged();
+                    signInVotesUpdater();
+//                    mAdapter.notifyDataSetChanged();
                     pageNumber++;
                 };
                 mainHandler.post(myRunnable);
