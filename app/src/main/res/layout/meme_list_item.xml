@@ -1,4 +1,4 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,7 +7,7 @@
     android:padding="10dp">
 
     <TextView
-        android:id="@+id/name"
+        android:id="@+id/memeName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
@@ -15,61 +15,92 @@
         android:text="Title"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="@android:color/black"
-        android:textSize="32sp" />
+        android:textSize="32sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/memeImage"
         android:layout_width="321dp"
         android:layout_height="216dp"
-        android:layout_below="@+id/name"
+        android:layout_below="@+id/memeName"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="4dp"
         android:contentDescription="Meme"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/memeAuthor"
+        app:layout_constraintVertical_bias="0.0"
         tools:srcCompat="@tools:sample/backgrounds/scenic" />
 
     <TextView
-        android:id="@+id/author"
+        android:id="@+id/memeAuthor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/name"
-        android:layout_alignStart="@+id/name"
-        android:layout_marginStart="0dp"
-        android:layout_marginTop="2dp"
+        android:layout_below="@+id/memeName"
+        android:layout_alignStart="@+id/memeName"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:text="Author"
-        android:textColor="@android:color/black" />
+        android:textColor="@android:color/black"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/memeName" />
 
     <TextView
-        android:id="@+id/votesLabel"
+        android:id="@+id/memeVotes"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/memeImage"
         android:layout_alignBottom="@id/downVote"
         android:layout_centerHorizontal="true"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+
+        android:layout_marginBottom="8dp"
         android:gravity="center"
         android:text="Votes"
-
         android:textColor="@android:color/black"
-        android:textSize="24dp" />
+        android:textSize="24dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.486"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/memeImage"
+        app:layout_constraintVertical_bias="0.0" />
 
     <Button
         android:id="@+id/upVote"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/memeImage"
-        android:layout_toRightOf="@id/votesLabel"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="8dp"
+        android:layout_toRightOf="@id/memeVotes"
         android:minWidth="0dp"
         android:minHeight="0dp"
         android:text="↑"
-        android:textSize="20dp" />
+        android:textSize="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/memeVotes"
+        app:layout_constraintTop_toBottomOf="@+id/memeImage" />
 
     <Button
         android:id="@+id/downVote"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/memeImage"
-        android:layout_toLeftOf="@id/votesLabel"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="8dp"
+        android:layout_toLeftOf="@id/memeVotes"
         android:minWidth="0dp"
         android:minHeight="0dp"
         android:text="↓"
-        android:textSize="20dp" />
-</RelativeLayout>
+        android:textSize="20dp"
+        app:layout_constraintEnd_toStartOf="@+id/memeVotes"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/memeImage" />
+
+</android.support.constraint.ConstraintLayout>

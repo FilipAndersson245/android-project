@@ -121,12 +121,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void updateUserSignedState() {
         MainFeedFragment mainFeedFragment = (MainFeedFragment) getStackFragmentFromClassName(MainFeedFragment.class.getName());
-        mainFeedFragment.updateList();
+
+        // CODE TO UPDATE THE VOTES HERE!!!!!!!!!! <------------------------------------------------------
+        mainFeedFragment.signInVotesUpdater();
+
+        System.out.println("###### SIGN IN/OUT");
+
         updateDrawerMenu();
     }
 
     // This code is used to select which item is clicked in the drawer. Done switch case style.
-    public static Fragment fragmentFromItemId(int itemId) {
+    public Fragment fragmentFromItemId(int itemId) {
         switch (itemId) {
             case R.id.nav_home:
                 return MainFeedFragment.newInstance();
@@ -138,6 +143,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             //                startActivity(k);
             //                return true;
             case R.id.nav_sign_in:
+                updateUserSignedState();
                 return SignInFragment.newInstance();
             default:
                 System.out.println("No handler was found for drawer item!");

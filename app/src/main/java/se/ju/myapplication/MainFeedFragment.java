@@ -1,33 +1,30 @@
 package se.ju.myapplication;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Objects;
 
 import se.ju.myapplication.API.Connection;
 import se.ju.myapplication.Models.Meme;
-import se.ju.myapplication.Models.Vote;
 
-import static java.util.Arrays.sort;
 
 public class MainFeedFragment extends Fragment {
 
-    private MemeViewAdapter memeViewAdapter;
+    private RecyclerView mRecyclerView;
+    private MemeViewAdapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
+
     private int pageNumber = 0;
-    private Boolean scrollReady = true;
 
     public static MainFeedFragment newInstance() {
         MainFeedFragment fragment = new MainFeedFragment();
@@ -43,93 +40,95 @@ public class MainFeedFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+        super.onCreate(savedInstanceState);
 
-        loadMemes();
+        mRecyclerView = view.findViewById(R.id.feedRecyclerView);
+
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.setHasFixedSize(true);
+
+        loadMemesOnStart();
+        addOnDownScrollListener();
+        MainActivity mainActivity = (MainActivity) getActivity();
+        mainActivity.updateDrawerMenu();
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
+    public void signInVotesUpdater() {
+        if (Connection.getInstance().isSignedIn()) {
+            Handler mainHandler = new Handler(getActivity().getMainLooper());
 
-        MainActivity mainActivity = (MainActivity) getActivity();
+            Runnable myRunnable = () -> {
+                mAdapter.updateVotesForLogin();
+//                mAdapter.notifyDataSetChanged();
+            };
+            mainHandler.post(myRunnable);
+        }
+        else {
+            mAdapter.notifyDataSetChanged();
+        }
+    }
 
-        ListView listView = Objects.requireNonNull(getView()).findViewById(R.id.feedListView);
-
-        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+    private void addOnDownScrollListener() {
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
 
-            }
+                if (!recyclerView.canScrollVertically(1)) {
 
-            @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-
-                int position = firstVisibleItem + visibleItemCount;
-
-                if (scrollReady && position >= totalItemCount && totalItemCount > 0) {
-                    scrollReady = false;
                     loadMemes();
                 }
             }
         });
-
-        assert mainActivity != null;
-        mainActivity.updateDrawerMenu();
     }
 
-
-    void loadMemes() {
+    private void loadMemesOnStart() {
         Connection.getInstance().getMemes(null, null, null, null, pageNumber, (memesResult) -> {
-            assert memesResult instanceof ArrayList;
 
             ArrayList<Meme> memes = (ArrayList<Meme>) memesResult;
+            Collections.sort(memes);
 
             if (memes.size() > 0) {
-                // Add votes if user is signed in
-                if (Connection.getInstance().isSignedIn()) {
-                    for (Meme meme : memes) {
-                        try {
-                            Connection.getInstance().getVote(meme.getId(), Connection.getInstance().getSignedInUsername(), (voteResult) -> {
-                                Vote vote = (Vote) voteResult;
-                                meme.setVote(vote.getVote());
-                            });
-                        } catch (JsonProcessingException e) {
-                            meme.setVote(0);
-                        }
-                    }
-                }
+                Handler mainHandler = new Handler(getActivity().getMainLooper());
 
-                Collections.sort(memes);
-                ListView listView = Objects.requireNonNull(getView()).findViewById(R.id.feedListView);
+                Runnable myRunnable = () -> {
+                    this.mAdapter = new MemeViewAdapter(getActivity(), memes);
 
-                if (listView.getAdapter() == null) {
-                    getView().post(() -> {
-                                listView.setAdapter(new MemeViewAdapter(memes, getActivity()));
-                                this.memeViewAdapter = (MemeViewAdapter) listView.getAdapter();
-                                memeViewAdapter.notifyDataSetChanged();
-//                                getView().postDelayed(this::updateList, 0);
-                            }
-                    );
+                    mRecyclerView.setAdapter(mAdapter);
+                    signInVotesUpdater();
                     pageNumber++;
-                    scrollReady = true;
-                }
-                else {
-                    getView().post(() -> {
-                                memeViewAdapter.addMemesToShow(memes);
-                                memeViewAdapter.notifyDataSetChanged();
-//                                getView().postDelayed(this::updateList, 0);
-                            }
-                    );
-                    pageNumber++;
-                    scrollReady = true;
-                }
-
+                };
+                mainHandler.post(myRunnable);
             }
         });
     }
 
-    public void updateList() {
-        getView().post(memeViewAdapter::notifyDataSetChanged);
+
+    private void loadMemes() {
+        Connection.getInstance().getMemes(null, null, null, null, pageNumber, (memesResult) -> {
+
+            ArrayList<Meme> memes = (ArrayList<Meme>) memesResult;
+            Collections.sort(memes);
+
+            if (memes.size() > 0) {
+                Handler mainHandler = new Handler(getActivity().getMainLooper());
+
+                Runnable myRunnable = () -> {
+                    mAdapter.addMemesToShow(memes);
+                    signInVotesUpdater();
+//                    mAdapter.notifyDataSetChanged();
+                    pageNumber++;
+                };
+                mainHandler.post(myRunnable);
+            }
+        });
     }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        pageNumber = 0;
+    }
+
 }
