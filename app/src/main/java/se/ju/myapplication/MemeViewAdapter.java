@@ -1,10 +1,13 @@
 package se.ju.myapplication;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -44,13 +47,28 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
     @Override
     public void onBindViewHolder(MemeViewHolder holder, int position) {
 
+        Picasso.get()
+                .load(mDataSet.get(position).getImageSource())
+                .into(holder.memeImage);
+
         holder.title.setText(mDataSet.get(position).getName());
         holder.memeAuthor.setText(mDataSet.get(position).getUsername());
         holder.votes.setText(mDataSet.get(position).getVotes().toString());
 
-        Picasso.get()
-            .load(mDataSet.get(position).getImageSource())
-            .into(holder.memeImage);
+        holder.upVote.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
+        holder.downVote.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
+
+
+        if (Connection.getInstance().isSignedIn()) {
+            switch (mDataSet.get(position).getVote()) {
+                case 1:
+                    holder.upVote.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
+                    break;
+                case -1:
+                    holder.downVote.setBackgroundTintList(ColorStateList.valueOf(Color.BLUE));
+                    break;
+            }
+        }
     }
 
     @Override
@@ -58,20 +76,18 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
         return mDataSet.size();
     }
 
+
+
     public void updateVotesForLogin() {
 
-        // Add votes if user is signed in
-
-        if (Connection.getInstance().isSignedIn()) {
-            for (Meme meme : mDataSet) {
-                try {
-                    Connection.getInstance().getVote(meme.getId(), Connection.getInstance().getSignedInUsername(), (voteResult) -> {
-                        Vote vote = (Vote) voteResult;
-                        meme.setVote(vote.getVote());
-                    });
-                } catch (JsonProcessingException e) {
-                    meme.setVote(0);
-                }
+        for (Meme meme : mDataSet) {
+            try {
+                Connection.getInstance().getVote(meme.getId(), Connection.getInstance().getSignedInUsername(), (voteResult) -> {
+                    Vote vote = (Vote) voteResult;
+                    meme.setVote(vote.getVote());
+                });
+            } catch (JsonProcessingException e) {
+                meme.setVote(0);
             }
         }
     }
@@ -95,6 +111,8 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
         public TextView memeAuthor;
         public TextView votes;
         public ImageView memeImage;
+        public Button upVote;
+        public Button downVote;
 
         public MemeViewHolder(View itemView) {
             super(itemView);
@@ -102,6 +120,8 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
             memeAuthor = itemView.findViewById(R.id.memeAuthor);
             votes = itemView.findViewById(R.id.memeVotes);
             memeImage = itemView.findViewById(R.id.memeImage);
+            upVote = itemView.findViewById(R.id.upVote);
+            downVote = itemView.findViewById(R.id.downVote);
         }
 
 //        @Override

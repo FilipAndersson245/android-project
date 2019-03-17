@@ -63,6 +63,23 @@ public class MainFeedFragment extends Fragment {
         mainActivity.updateDrawerMenu();
     }
 
+
+    private void signInVotes() {
+        if (Connection.getInstance().isSignedIn()) {
+            Handler mainHandler = new Handler(getActivity().getMainLooper());
+
+            Runnable myRunnable = () -> {
+                mAdapter.updateVotesForLogin();
+                mAdapter.notifyDataSetChanged();
+            };
+            mainHandler.post(myRunnable);
+        }
+    }
+
+    public void signOutVotes() {
+        mAdapter.notifyDataSetChanged();
+    }
+
     private void addOnDownScrollListener() {
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -89,21 +106,8 @@ public class MainFeedFragment extends Fragment {
                 Runnable myRunnable = () -> {
                     this.mAdapter = new MemeViewAdapter(getActivity(), memes);
 
-//                    // Add votes if user is signed in
-//                    if (Connection.getInstance().isSignedIn()) {
-//                        for (Meme meme : memes) {
-//                            try {
-//                                Connection.getInstance().getVote(meme.getId(), Connection.getInstance().getSignedInUsername(), (voteResult) -> {
-//                                    Vote vote = (Vote) voteResult;
-//                                    meme.setVote(vote.getVote());
-//                                });
-//                            } catch (JsonProcessingException e) {
-//                                meme.setVote(0);
-//                            }
-//                        }
-//                    }
-
                     mRecyclerView.setAdapter(mAdapter);
+                    signInVotes();
                     pageNumber++;
                 };
                 mainHandler.post(myRunnable);
@@ -123,23 +127,8 @@ public class MainFeedFragment extends Fragment {
                 Handler mainHandler = new Handler(getActivity().getMainLooper());
 
                 Runnable myRunnable = () -> {
-
                     mAdapter.addMemesToShow(memes);
-
-//                    // Add votes if user is signed in
-//                    if (Connection.getInstance().isSignedIn()) {
-//                        for (Meme meme : memes) {
-//                            try {
-//                                Connection.getInstance().getVote(meme.getId(), Connection.getInstance().getSignedInUsername(), (voteResult) -> {
-//                                    Vote vote = (Vote) voteResult;
-//                                    meme.setVote(vote.getVote());
-//                                });
-//                            } catch (JsonProcessingException e) {
-//                                meme.setVote(0);
-//                            }
-//                        }
-//                    }
-
+                    signInVotes();
                     mAdapter.notifyDataSetChanged();
                     pageNumber++;
                 };
@@ -153,5 +142,5 @@ public class MainFeedFragment extends Fragment {
         super.onDestroyView();
         pageNumber = 0;
     }
-    
+
 }
