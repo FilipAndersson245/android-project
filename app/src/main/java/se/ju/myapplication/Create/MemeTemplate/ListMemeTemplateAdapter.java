@@ -51,6 +51,7 @@ public class ListMemeTemplateAdapter extends RecyclerView.Adapter<ListMemeTempla
 
         Picasso.get()
                 .load(mtDataset.get(position).getImageSource())
+                .placeholder(R.drawable.spinner)
                 .into(holder.templateImage);
     }
 
