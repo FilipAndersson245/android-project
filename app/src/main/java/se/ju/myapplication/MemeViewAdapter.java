@@ -58,7 +58,6 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
         holder.upVote.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
         holder.downVote.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
 
-
         if (Connection.getInstance().isSignedIn()) {
             switch (mDataSet.get(position).getVote()) {
                 case 1:
@@ -69,6 +68,56 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
                     break;
             }
         }
+
+        holder.currentVotes = mDataSet.get(position).getVotes();
+
+        holder.upVote.setOnClickListener(v -> {
+            if (!Connection.getInstance().isSignedIn()) {
+                return;
+            }
+
+            switch (mDataSet.get(position).getVote()) {
+                case 0:
+                    voteHandle(holder, position, 1);
+                    holder.currentVotes++;
+                    holder.votes.setText(holder.currentVotes.toString());
+                    break;
+                case 1:
+                    voteHandle(holder, position, 0);
+                    holder.currentVotes--;
+                    holder.votes.setText(holder.currentVotes.toString());
+                    break;
+                case -1:
+                    voteHandle(holder, position, 1);
+                    holder.currentVotes += 2;
+                    holder.votes.setText(holder.currentVotes.toString());
+                    break;
+            }
+        });
+
+        holder.downVote.setOnClickListener(v -> {
+            if (!Connection.getInstance().isSignedIn()) {
+                return;
+            }
+
+            switch (mDataSet.get(position).getVote()) {
+                case 0:
+                    voteHandle(holder, position, -1);
+                    holder.currentVotes--;
+                    holder.votes.setText(holder.currentVotes.toString());
+                    break;
+                case 1:
+                    voteHandle(holder, position, -1);
+                    holder.currentVotes -= 2;
+                    holder.votes.setText(holder.currentVotes.toString());
+                    break;
+                case -1:
+                    voteHandle(holder, position, 0);
+                    holder.currentVotes++;
+                    holder.votes.setText(holder.currentVotes.toString());
+                    break;
+            }
+        });
     }
 
     @Override
@@ -76,7 +125,41 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
         return mDataSet.size();
     }
 
+    public void voteHandle(MemeViewHolder holder, Integer position, Integer vote) {
+        if (vote == 0) {
+            try {
+                Connection.getInstance().removeVote(mDataSet.get(position).getId(), Connection.getInstance().getSignedInUsername(), (nothing) -> {
+                    mDataSet.get(position).setVote(vote);
 
+                    holder.upVote.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
+                    holder.downVote.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
+                });
+            } catch (JsonProcessingException e) {
+                // Voting failed
+            }
+        }
+        else {
+            try {
+                Connection.getInstance().vote(mDataSet.get(position).getId(), Connection.getInstance().getSignedInUsername(), vote, (nothing) -> {
+
+                    mDataSet.get(position).setVote(vote);
+
+                    switch (mDataSet.get(position).getVote()) {
+                        case 1:
+                            holder.upVote.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
+                            holder.downVote.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
+                            break;
+                        case -1:
+                            holder.downVote.setBackgroundTintList(ColorStateList.valueOf(Color.BLUE));
+                            holder.upVote.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
+                            break;
+                    }
+                });
+            } catch (JsonProcessingException e) {
+                // Voting failed
+            }
+        }
+    }
 
     public void updateVotesForLogin() {
 
@@ -92,20 +175,6 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
         }
     }
 
-
-//    public void setOnItemClickListener(ClickListener clickListener) {
-//        MemeViewAdapter.clickListener = clickListener;
-//    }
-//
-//
-//    public interface ClickListener {
-//        void onItemClick(int templateId, String imageSrouce, Drawable image);
-//    }
-
-
-
-
-//    public static class MemeViewViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
     public static class MemeViewHolder extends RecyclerView.ViewHolder {
         public TextView title;
         public TextView memeAuthor;
@@ -113,6 +182,7 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
         public ImageView memeImage;
         public Button upVote;
         public Button downVote;
+        public Integer currentVotes;
 
         public MemeViewHolder(View itemView) {
             super(itemView);
@@ -123,159 +193,7 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
             upVote = itemView.findViewById(R.id.upVote);
             downVote = itemView.findViewById(R.id.downVote);
         }
-
-//        @Override
-//        public void onClick(View v) {
-//            clickListener.onItemClick(this.templateId, this.templateImageSource, templateImage.getDrawable());
-//        }
     }
-
-
-
-//    private void updateButtonsAndVotes(ViewHolder viewHolder) {
-//        boolean isSignedIn = Connection.getInstance().isSignedIn();
-//
-//        viewHolder.upVote.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
-//        viewHolder.downVote.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
-//
-//        if (isSignedIn) {
-//            viewHolder.votesLabel.setText(String.valueOf(viewHolder.votesWithoutUserVote + viewHolder.userVote));
-//        } else {
-//            viewHolder.votesLabel.setText(String.valueOf(viewHolder.votes));
-//        }
-//
-//        if (isSignedIn) {
-//            switch (viewHolder.userVote) {
-//                case 1:
-//                    viewHolder.upVote.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
-//                    break;
-//                case -1:
-//                    viewHolder.downVote.setBackgroundTintList(ColorStateList.valueOf(Color.BLUE));
-//                    break;
-//            }
-//        }
-//    }
-
-//    @NotNull
-//    @Override
-//    public View getView(int position, View convertView, ViewGroup parent) {
-//        // Get the data item for this position
-//        Meme dataModel = dataSet.get(position);
-//        // Check if an existing view is being reused, otherwise inflate the view
-//        ViewHolder viewHolder; // view lookup cache stored in tag
-//
-//        if (convertView == null) {
-//
-//            viewHolder = new ViewHolder();
-//            LayoutInflater inflater = LayoutInflater.from(getContext());
-//            convertView = inflater.inflate(R.layout.meme_list_item, parent, false);
-//            viewHolder.txtName = (TextView) convertView.findViewById(R.id.name);
-//            viewHolder.image = (ImageView) convertView.findViewById(R.id.memeImage);
-//            viewHolder.votesLabel = (TextView) convertView.findViewById(R.id.votesLabel);
-//            viewHolder.txtAuthor = (TextView) convertView.findViewById(R.id.author);
-//            viewHolder.downVote = (Button) convertView.findViewById(R.id.downVote);
-//            viewHolder.upVote = (Button) convertView.findViewById(R.id.upVote);
-//            viewHolder.position = position;
-//            viewHolder.userVote = dataModel.getVote();
-//            viewHolder.votes = dataModel.getVotes();
-//            viewHolder.votesWithoutUserVote = dataModel.getVotes() - viewHolder.userVote;
-//
-//            convertView.setTag(viewHolder);
-//        } else {
-//            viewHolder = (ViewHolder) convertView.getTag();
-//            viewHolder.votes = dataModel.getVotes();
-//            viewHolder.votesWithoutUserVote = dataModel.getVotes() - viewHolder.userVote;
-//
-//            viewHolder.userVote = dataModel.getVote();
-//        }
-//
-//        viewHolder.downVote.setOnClickListener(v -> {
-//            if (!Connection.getInstance().isSignedIn()) {
-//                return;
-//            }
-//
-//            if (viewHolder.userVote == -1) {
-//                try {
-//                    Connection.getInstance().removeVote(dataSet.get(position).getId(), Connection.getInstance().getSignedInUsername(), (nothing) -> {
-//                        v.post(() -> {
-//                            viewHolder.userVote = 0;
-//                            dataSet.get(position).setVote(0);
-//                            updateButtonsAndVotes(viewHolder);
-//                        });
-//
-//                    });
-//                } catch (JsonProcessingException e) {
-//                    // Voting failed
-//                }
-//            } else {
-//                try {
-//                    Connection.getInstance().vote(dataSet.get(position).getId(), Connection.getInstance().getSignedInUsername(), -1, (vote) -> {
-//                        System.out.println("-1");
-//
-//                        v.post(() -> {
-//                            viewHolder.userVote = -1;
-//                            dataSet.get(position).setVote(-1);
-//                            updateButtonsAndVotes(viewHolder);
-//                        });
-//
-//                    });
-//                } catch (JsonProcessingException e) {
-//                    // Voting failed
-//                }
-//            }
-//        });
-//
-//        viewHolder.upVote.setOnClickListener(v -> {
-//            if (!Connection.getInstance().isSignedIn()) {
-//                return;
-//            }
-//
-//            if (viewHolder.userVote == 1) {
-//                try {
-//                    Connection.getInstance().removeVote(dataSet.get(position).getId(), Connection.getInstance().getSignedInUsername(), (nothing) -> {
-//                        v.post(() -> {
-//                            viewHolder.userVote = 0;
-//                            dataSet.get(position).setVote(0);
-//                            updateButtonsAndVotes(viewHolder);
-//                        });
-//
-//                    });
-//                } catch (JsonProcessingException e) {
-//                    // Voting failed
-//                }
-//            } else {
-//                try {
-//                    Connection.getInstance().vote(dataSet.get(position).getId(), Connection.getInstance().getSignedInUsername(), 1, (vote) -> {
-//                        System.out.println("+1");
-//                        v.post(() -> {
-//                            viewHolder.userVote = 1;
-//                            dataSet.get(position).setVote(1);
-//                            updateButtonsAndVotes(viewHolder);
-//                        });
-//
-//                    });
-//                } catch (JsonProcessingException e) {
-//                    // Voting failed
-//                }
-//            }
-//        });
-//
-//        viewHolder.txtName.setText(dataModel.getName());
-//        viewHolder.txtAuthor.setText(dataModel.getUsername());
-//
-//        Picasso.get()
-//            .load(dataModel.getImageSource())
-//            .placeholder(R.drawable.spinner)
-//            .into(viewHolder.image);
-//
-//
-//        // Return the completed view to render on screen
-//
-//        convertView.post(() -> updateButtonsAndVotes(viewHolder));
-//
-//        return convertView;
-//    }
-
 
 }
 

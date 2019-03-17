@@ -1,6 +1,5 @@
 package se.ju.myapplication;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -11,21 +10,13 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Objects;
 
 import se.ju.myapplication.API.Connection;
 import se.ju.myapplication.Models.Meme;
-import se.ju.myapplication.Models.Vote;
 
-import static java.util.Arrays.sort;
 
 public class MainFeedFragment extends Fragment {
 
@@ -118,7 +109,6 @@ public class MainFeedFragment extends Fragment {
 
     private void loadMemes() {
         Connection.getInstance().getMemes(null, null, null, null, pageNumber, (memesResult) -> {
-//            assert memesResult instanceof ArrayList;
 
             ArrayList<Meme> memes = (ArrayList<Meme>) memesResult;
             Collections.sort(memes);
