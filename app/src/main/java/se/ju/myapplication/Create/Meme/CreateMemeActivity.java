@@ -13,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.squareup.picasso.Picasso;
 
 import se.ju.myapplication.API.Connection;
 import se.ju.myapplication.Create.MemeTemplate.ListMemeTemplateActivity;
@@ -60,9 +61,12 @@ public class CreateMemeActivity extends Activity {
             if (resultCode == 1) {
                 this.templateId = data.getIntExtra("templateId", 0);
                 this.templateImageSource = data.getStringExtra("templateImageSource");
-                byte[] b = data.getByteArrayExtra("selectedTemplate");
-                Bitmap bmp = BitmapFactory.decodeByteArray(b, 0, b.length);
-                templateImage.setImageBitmap(bmp);
+
+
+                Picasso.get()
+                        .load(templateImageSource)
+                        .placeholder(R.drawable.spinner)
+                        .into(templateImage);
 
                 for (int i = 0; i < layout.getChildCount() ; i++){
                     layout.getChildAt(i).setEnabled(true);
