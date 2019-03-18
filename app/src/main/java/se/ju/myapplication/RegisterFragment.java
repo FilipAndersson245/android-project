@@ -81,6 +81,7 @@ public class RegisterFragment extends Fragment {
                 } else {
                     getView().post(() -> {
                         ((TextView) getView().findViewById(R.id.errorText)).setText("Error: " + Connection.getInstance().registerError);
+                        view.findViewById(R.id.layoutProgressBar).setVisibility(View.INVISIBLE);
                         getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                     });
                 }
