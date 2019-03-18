@@ -73,13 +73,14 @@ public class SignInFragment extends Fragment {
                     getView().post(() -> {
                         view.findViewById(R.id.layoutProgressBar).setVisibility(View.INVISIBLE);
 
-
                         getView().findViewById(R.id.successText).setVisibility(View.VISIBLE);
                         getView().findViewById(R.id.errorText).setVisibility(View.INVISIBLE);
                     });
 
                     getView().postDelayed(() -> {
                         dismissKeyboard(getActivity());
+
+                        getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
                         MainActivity mainActivity = (MainActivity) getActivity();
                         assert mainActivity != null;

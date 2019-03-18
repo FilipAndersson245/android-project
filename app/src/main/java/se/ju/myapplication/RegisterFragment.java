@@ -73,6 +73,8 @@ public class RegisterFragment extends Fragment {
                     getView().postDelayed(() -> {
                         dismissKeyboard(getActivity());
 
+                        getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+
                         MainActivity mainActivity = (MainActivity) getActivity();
                         mainActivity.removeAndReplaceWithFragment(R.id.nav_sign_in);
                     }, 700);
