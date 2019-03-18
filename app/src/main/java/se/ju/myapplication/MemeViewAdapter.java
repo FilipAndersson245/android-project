@@ -79,15 +79,12 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
                 Connection.getInstance().getVote(mDataSet.get(position).getId(), Connection.getInstance().getSignedInUsername(), (voteResult) -> {
                     Vote vote = (Vote) voteResult;
                     mDataSet.get(position).setVote(vote.getVote());
-                    holder.currentVotes += vote.getVote();
 
                     switch (vote.getVote()) {
                         case 1:
-                            System.out.println("###### GÖR GRÖN");
                             holder.upVote.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
                             break;
                         case -1:
-                            System.out.println("###### GÖR BLÅ");
                             holder.downVote.setBackgroundTintList(ColorStateList.valueOf(Color.BLUE));
                             break;
                     }
@@ -181,6 +178,8 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
                 Connection.getInstance().removeVote(mDataSet.get(position).getId(), Connection.getInstance().getSignedInUsername(), (nothing) -> {
                     mDataSet.get(position).setVote(vote);
 
+                    System.out.println("###### GÖR GRÅ");
+
                     holder.upVote.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
                     holder.downVote.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
                 });
@@ -206,34 +205,6 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
             } catch (JsonProcessingException e) {
                 // Voting failed
             }
-        }
-    }
-
-    public void updateVotesForLogin() {
-
-        for (Meme meme : mDataSet) {
-            try {
-                Connection.getInstance().getVote(meme.getId(), Connection.getInstance().getSignedInUsername(), (voteResult) -> {
-                    Vote vote = (Vote) voteResult;
-                    meme.setVote(vote.getVote());
-                });
-            } catch (JsonProcessingException e) {
-                meme.setVote(0);
-            }
-        }
-    }
-
-    public void updateViewforVotes(MemeViewHolder holder) {
-
-        switch (holder.currentVotes) {
-            case 1:
-                System.out.println("###### GÖR GRÖN");
-                holder.upVote.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
-                break;
-            case -1:
-                System.out.println("###### GÖR BLÅ");
-                holder.downVote.setBackgroundTintList(ColorStateList.valueOf(Color.BLUE));
-                break;
         }
     }
 

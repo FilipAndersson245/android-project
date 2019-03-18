@@ -57,46 +57,7 @@ public class MainFeedFragment extends Fragment {
     }
 
     public void signInVotesUpdater() {
-
-
-
-
-
-//        if (Connection.getInstance().isSignedIn()) {
-//            Handler mainHandler = new Handler(getActivity().getMainLooper());
-//
-//            Runnable myRunnable = () -> {
-//                mAdapter.updateVotesForLogin();
-//                mAdapter.notifyDataSetChanged();
-//            };
-//            mainHandler.post(myRunnable);
-//        } else {
-//            mAdapter.notifyDataSetChanged();
-//        }
-
-
-
-//        mAdapter.updateVotesForLogin();
-//
-//        System.out.println("###### KOMMER DEN HIT?");
-//
-//        for (int childCount = mRecyclerView.getChildCount(), i = 0; i < childCount; ++i) {
-//            final MemeViewAdapter.MemeViewHolder holder = (MemeViewAdapter.MemeViewHolder) mRecyclerView.getChildViewHolder(mRecyclerView.getChildAt(i));
-//            getView().post(() -> {
-//                System.out.println("###### KÖR UI?");
-//                mAdapter.updateViewforVotes(holder);
-//            });
-//
-//        }
-//        mAdapter.notifyDataSetChanged();
-
-
-//        getView().post(() -> {
-//            mAdapter.updateVotesForLogin();
-//            mAdapter.notifyDataSetChanged();
-//
-//
-//        });
+        mAdapter.notifyDataSetChanged();
     }
 
     private void addOnDownScrollListener() {
@@ -106,55 +67,30 @@ public class MainFeedFragment extends Fragment {
                 super.onScrollStateChanged(recyclerView, newState);
 
                 if (preventSpamScroll && !recyclerView.canScrollVertically(1)) {
-                    System.out.println("###### SCROLL DOWN ");
                     loadMemes();
                 }
-//                else if (preventSpamScroll && !recyclerView.canScrollVertically(-1)) {
-//                    System.out.println("###### SCROLL UP ");
-//                    loadMemesOnStart();
-//
-//                    final Handler handler = new Handler();
-//                    handler.postDelayed(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            preventSpamScroll = true;
-//                        }
-//                    }, 150);
-//                }
             }
         });
     }
 
     private void loadMemesOnStart() {
-        Connection.getInstance().getMemes(null, null, null, null, pageNumber, (memesResult) -> {
+        Connection.getInstance().getMemes(null, null, null, 5, pageNumber, (memesResult) -> {
 
             ArrayList<Meme> memes = clearRemovedMemes((ArrayList<Meme>) memesResult);
             pageNumber = 0;
 
-            System.out.println("###### PAGESIZE: " + pageNumber);
-
             if (memes.size() > 0) {
                 getView().post(() -> {
                     this.mAdapter = new MemeViewAdapter(getActivity(), memes);
-
                     mRecyclerView.setAdapter(mAdapter);
                 });
                 pageNumber++;
-                signInVotesUpdater();
-
-//                Handler mainHandler = new Handler(getActivity().getMainLooper());
-
-//                Runnable myRunnable = () -> {
-////                    signInVotesUpdater();
-////                    pageNumber++;
-//                };
-//                mainHandler.post(myRunnable);
             }
         });
     }
 
     private void loadMemes() {
-        Connection.getInstance().getMemes(null, null, null, null, pageNumber, (memesResult) -> {
+        Connection.getInstance().getMemes(null, null, null, 5, pageNumber, (memesResult) -> {
 
             ArrayList<Meme> memes = clearRemovedMemes((ArrayList<Meme>) memesResult);
 
@@ -167,16 +103,6 @@ public class MainFeedFragment extends Fragment {
                     mAdapter.notifyDataSetChanged();
                 });
                 pageNumber++;
-
-//                Handler mainHandler = new Handler(getActivity().getMainLooper());
-//
-//                Runnable myRunnable = () -> {
-//                    mAdapter.addMemesToShow(memes);
-//                    signInVotesUpdater();
-//                    mAdapter.notifyDataSetChanged();
-//                    pageNumber++;
-//                };
-//                mainHandler.post(myRunnable);
             }
         });
     }

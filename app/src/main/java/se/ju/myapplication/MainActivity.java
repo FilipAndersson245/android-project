@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         MainFeedFragment mainFeedFragment = (MainFeedFragment) getStackFragmentFromClassName(MainFeedFragment.class.getName());
 
         // CODE TO UPDATE THE VOTES HERE!!!!!!!!!! <------------------------------------------------------
-//        mainFeedFragment.signInVotesUpdater();
+        mainFeedFragment.signInVotesUpdater();
 
         System.out.println("###### SIGN IN/OUT");
         updateDrawerMenu();
