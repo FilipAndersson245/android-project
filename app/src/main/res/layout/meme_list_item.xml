@@ -111,7 +111,7 @@
         android:layout_marginEnd="2dp"
         android:drawableStart="@android:drawable/ic_menu_delete"
         android:text="@string/remove"
-        android:visibility="visible"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
