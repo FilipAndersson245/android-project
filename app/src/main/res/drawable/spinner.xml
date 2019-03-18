@@ -28,6 +28,7 @@
         <aapt:attr name="android:animation">
             <set>
                 <objectAnimator
+                    android:repeatCount="infinite"
                     android:duration="2000"
                     android:pivotX="50%"
                     android:pivotY="50%"

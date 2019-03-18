@@ -51,21 +51,12 @@ public class ListMemeTemplateActivity extends Activity {
 
                 Runnable myRunnable = () -> {
                     this.mtAdapter = new ListMemeTemplateAdapter(context, memeTemplates);
-                    this.mtAdapter.setOnItemClickListener(new ListMemeTemplateAdapter.ClickListener() {
-                        @Override
-                        public void onItemClick(int templateId, String imageSource, Drawable templateImage) {
-                            Bitmap bitmap = ((BitmapDrawable)templateImage).getBitmap();
-                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                            bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-                            byte[] b = baos.toByteArray();
-
-                            Intent returnIntent = new Intent();
-                            returnIntent.putExtra("selectedTemplate", b);
-                            returnIntent.putExtra("templateId", templateId);
-                            returnIntent.putExtra("templateImageSource", imageSource);
-                            setResult(1 ,returnIntent);
-                            finish();
-                        }
+                    this.mtAdapter.setOnItemClickListener((templateId, imageSource, templateImage) -> {
+                        Intent returnIntent = new Intent();
+                        returnIntent.putExtra("templateId", templateId);
+                        returnIntent.putExtra("templateImageSource", imageSource);
+                        setResult(1 ,returnIntent);
+                        finish();
                     });
 
                     mtRecyclerView.setAdapter(mtAdapter);
@@ -91,21 +82,12 @@ public class ListMemeTemplateActivity extends Activity {
 
                             Runnable myRunnable = () -> {
                                 mtAdapter.addTemplatesToShow(memeTemplates);
-                                mtAdapter.setOnItemClickListener(new ListMemeTemplateAdapter.ClickListener() {
-                                    @Override
-                                    public void onItemClick(int templateId, String imageSource, Drawable templateImage) {
-                                        Bitmap bitmap = ((BitmapDrawable)templateImage).getBitmap();
-                                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-                                        byte[] b = baos.toByteArray();
-
-                                        Intent returnIntent = new Intent();
-                                        returnIntent.putExtra("selectedTemplate", b);
-                                        returnIntent.putExtra("templateId", templateId);
-                                        returnIntent.putExtra("templateImageSource", imageSource);
-                                        setResult(1 ,returnIntent);
-                                        finish();
-                                    }
+                                mtAdapter.setOnItemClickListener((templateId, imageSource, templateImage) -> {
+                                    Intent returnIntent = new Intent();
+                                    returnIntent.putExtra("templateId", templateId);
+                                    returnIntent.putExtra("templateImageSource", imageSource);
+                                    setResult(1 ,returnIntent);
+                                    finish();
                                 });
                                 mtAdapter.notifyDataSetChanged();
                                 pageNumber++;

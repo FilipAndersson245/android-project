@@ -5,28 +5,28 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 import se.ju.myapplication.API.Connection;
 import se.ju.myapplication.Models.Meme;
 
 
-public class MainFeedFragment extends Fragment {
+public class MainFeedFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
     private RecyclerView mRecyclerView;
     private MemeViewAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    SwipeRefreshLayout swipeLayout;
 
+    private int pageSize = 5;
     private int pageNumber = 0;
-    private Boolean preventSpamScroll = true;
 
     public static MainFeedFragment newInstance() {
         MainFeedFragment fragment = new MainFeedFragment();
@@ -50,6 +50,9 @@ public class MainFeedFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setHasFixedSize(true);
 
+        swipeLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_container);
+        swipeLayout.setOnRefreshListener(this);
+
         loadMemesOnStart();
         addOnDownScrollListener();
         MainActivity mainActivity = (MainActivity) getActivity();
@@ -66,7 +69,7 @@ public class MainFeedFragment extends Fragment {
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
 
-                if (preventSpamScroll && !recyclerView.canScrollVertically(1)) {
+                if (!recyclerView.canScrollVertically(1)) {
                     loadMemes();
                 }
             }
@@ -74,7 +77,7 @@ public class MainFeedFragment extends Fragment {
     }
 
     private void loadMemesOnStart() {
-        Connection.getInstance().getMemes(null, null, null, 5, pageNumber, (memesResult) -> {
+        Connection.getInstance().getMemes(null, null, null, pageSize, pageNumber, (memesResult) -> {
 
             ArrayList<Meme> memes = clearRemovedMemes((ArrayList<Meme>) memesResult);
             pageNumber = 0;
@@ -90,7 +93,7 @@ public class MainFeedFragment extends Fragment {
     }
 
     private void loadMemes() {
-        Connection.getInstance().getMemes(null, null, null, 5, pageNumber, (memesResult) -> {
+        Connection.getInstance().getMemes(null, null, null, pageSize, pageNumber, (memesResult) -> {
 
             ArrayList<Meme> memes = clearRemovedMemes((ArrayList<Meme>) memesResult);
 
@@ -123,4 +126,13 @@ public class MainFeedFragment extends Fragment {
         pageNumber = 0;
     }
 
+    @Override
+    public void onRefresh() {
+        mAdapter = null;
+        pageNumber = 0;
+        canScoll = true;
+        onViewCreated(getView(), null);
+
+        swipeLayout.setRefreshing(false);
+    }
 }
