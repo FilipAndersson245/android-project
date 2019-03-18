@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.sql.Timestamp;
 
 
-public class Meme implements Comparable<Meme> {
+public class Meme {
     public static final int SCHPOOP_EPOCH = 1543622400;
 
     @JsonProperty("id")
@@ -34,10 +34,10 @@ public class Meme implements Comparable<Meme> {
     ;
 
     public Meme(@NonNull Integer id,
-                @NonNull Integer templateId,
-                @NonNull String username,
+                Integer templateId,
+                String username,
                 String name,
-                @NonNull String imageSource,
+                String imageSource,
                 @NonNull Integer votes,
                 @NonNull Timestamp postDate) {
         this.id = id;
@@ -83,17 +83,5 @@ public class Meme implements Comparable<Meme> {
 
     public Integer getVote() {
         return vote;
-    }
-
-    public int getHotness() {
-        double order = Math.log10(Math.max(Math.abs(this.votes), 1));
-        double sign = this.votes == 0 ? 0 : (this.votes > 0 ? 1 : -1);
-        double seconds = (postDate.getTime() / 1000) - SCHPOOP_EPOCH;
-        return (int) Math.round(7 * ((sign * order) + (seconds / 45000)));
-    }
-
-    @Override
-    public int compareTo(Meme other) {
-        return other.getHotness() - this.getHotness();
     }
 }

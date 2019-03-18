@@ -204,8 +204,6 @@ public class CreateMemeTemplateActivity extends Activity {
 //                    Uri selectedImage = data.getData();
                     Uri imageUri = data.getData();
 
-                    boolean a = new File(imageUri.getPath()).exists();
-
                     String[] filePathColumn = {MediaStore.Images.Media.DATA};
 
                     Cursor cursor = getContentResolver().query(imageUri,
@@ -213,10 +211,10 @@ public class CreateMemeTemplateActivity extends Activity {
                     cursor.moveToFirst();
 
                     int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                    String picturePath = cursor.getString(columnIndex);
+                    currentPhotoPath = cursor.getString(columnIndex);
                     cursor.close();
 
-                    Bitmap bitmap = BitmapFactory.decodeFile(picturePath);
+                    Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath);
                     localBitmap = bitmap;
 
                     ImageView myImage = (ImageView) findViewById(R.id.createMemeTemplateImage);
