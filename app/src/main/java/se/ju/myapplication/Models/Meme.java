@@ -24,6 +24,8 @@ public class Meme implements Comparable<Meme> {
     private Integer votes;
     @JsonProperty("postDate")
     private Timestamp postDate;
+    @JsonProperty("hotness")
+    private Integer hotness;
     private Integer vote = 0;
 
     public Meme() {
