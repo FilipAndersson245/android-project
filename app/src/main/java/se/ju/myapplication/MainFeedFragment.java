@@ -77,10 +77,10 @@ public class MainFeedFragment extends Fragment implements SwipeRefreshLayout.OnR
     }
 
     private void loadMemesOnStart() {
+        pageNumber = 0;
         Connection.getInstance().getMemes(null, null, null, pageSize, pageNumber, (memesResult) -> {
 
             ArrayList<Meme> memes = clearRemovedMemes((ArrayList<Meme>) memesResult);
-            pageNumber = 0;
 
             if (memes.size() > 0) {
                 getView().post(() -> {
@@ -123,14 +123,10 @@ public class MainFeedFragment extends Fragment implements SwipeRefreshLayout.OnR
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        pageNumber = 0;
     }
 
     @Override
     public void onRefresh() {
-//        mAdapter = null;
-        pageNumber = 0;
-//        onViewCreated(getView(), null);
         loadMemesOnStart();
 
         swipeLayout.setRefreshing(false);
