@@ -37,14 +37,11 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
     }
 
     public void addMemesToShow(ArrayList<Meme> newMemes) {
-
         for (Meme newMeme : newMemes) {
             if (!mDataSet.contains(newMeme)) {
                 mDataSet.add(newMeme);
             }
         }
-
-//        mDataSet.addAll(newMemes);
     }
 
     @Override
@@ -70,20 +67,35 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
         holder.upVote.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
         holder.downVote.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
 
+        holder.currentVotes = mDataSet.get(position).getVotes();
+
         if (Connection.getInstance().isSignedIn()) {
 
             if (Connection.getInstance().getSignedInUsername().equals(mDataSet.get(position).getUsername())) {
                 holder.remove.setVisibility(View.VISIBLE);
             }
 
-            switch (mDataSet.get(position).getVote()) {
-                case 1:
-                    holder.upVote.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
-                    break;
-                case -1:
-                    holder.downVote.setBackgroundTintList(ColorStateList.valueOf(Color.BLUE));
-                    break;
+            try {
+                Connection.getInstance().getVote(mDataSet.get(position).getId(), Connection.getInstance().getSignedInUsername(), (voteResult) -> {
+                    Vote vote = (Vote) voteResult;
+                    mDataSet.get(position).setVote(vote.getVote());
+                    holder.currentVotes += vote.getVote();
+
+                    switch (vote.getVote()) {
+                        case 1:
+                            System.out.println("###### GÖR GRÖN");
+                            holder.upVote.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
+                            break;
+                        case -1:
+                            System.out.println("###### GÖR BLÅ");
+                            holder.downVote.setBackgroundTintList(ColorStateList.valueOf(Color.BLUE));
+                            break;
+                    }
+                });
+            } catch (JsonProcessingException e) {
+                mDataSet.get(position).setVote(0);
             }
+
         }
 
         holder.currentVotes = mDataSet.get(position).getVotes();
@@ -140,24 +152,21 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
             if (!Connection.getInstance().isSignedIn()) {
                 return;
             }
-
-
-
-                new AlertDialog.Builder(context)
-                        .setTitle(R.string.remove_meme)
-                        .setMessage(R.string.remove_meme_message)
-                        .setPositiveButton(
-                                R.string.yes,
-                                (dialog, whichButton) -> Connection.getInstance().deleteMeme(mDataSet.get(position).getId(), nothing -> {
-                                    mDataSet.remove(position);
-                                    v.post(() -> notifyDataSetChanged());
-                                })
-                        ).setNegativeButton(
-                        R.string.no,
-                        (dialog, whichButton) -> {
-                            // Do not delete it.
-                        }
-                ).show();
+            new AlertDialog.Builder(context)
+                    .setTitle(R.string.remove_meme)
+                    .setMessage(R.string.remove_meme_message)
+                    .setPositiveButton(
+                            R.string.yes,
+                            (dialog, whichButton) -> Connection.getInstance().deleteMeme(mDataSet.get(position).getId(), nothing -> {
+                                mDataSet.remove(position);
+                                v.post(() -> notifyDataSetChanged());
+                            })
+                    ).setNegativeButton(
+                    R.string.no,
+                    (dialog, whichButton) -> {
+                        // Do not delete it.
+                    }
+            ).show();
         });
     }
 
@@ -181,7 +190,6 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
         } else {
             try {
                 Connection.getInstance().vote(mDataSet.get(position).getId(), Connection.getInstance().getSignedInUsername(), vote, (nothing) -> {
-
                     mDataSet.get(position).setVote(vote);
 
                     switch (mDataSet.get(position).getVote()) {
@@ -212,6 +220,20 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
             } catch (JsonProcessingException e) {
                 meme.setVote(0);
             }
+        }
+    }
+
+    public void updateViewforVotes(MemeViewHolder holder) {
+
+        switch (holder.currentVotes) {
+            case 1:
+                System.out.println("###### GÖR GRÖN");
+                holder.upVote.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
+                break;
+            case -1:
+                System.out.println("###### GÖR BLÅ");
+                holder.downVote.setBackgroundTintList(ColorStateList.valueOf(Color.BLUE));
+                break;
         }
     }
 
