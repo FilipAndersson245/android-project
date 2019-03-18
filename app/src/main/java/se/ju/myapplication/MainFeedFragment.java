@@ -128,10 +128,10 @@ public class MainFeedFragment extends Fragment implements SwipeRefreshLayout.OnR
 
     @Override
     public void onRefresh() {
-        mAdapter = null;
+//        mAdapter = null;
         pageNumber = 0;
-        canScoll = true;
-        onViewCreated(getView(), null);
+//        onViewCreated(getView(), null);
+        loadMemesOnStart();
 
         swipeLayout.setRefreshing(false);
     }
