@@ -1,19 +1,24 @@
 package se.ju.myapplication;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.squareup.picasso.Picasso;
 
+import java.time.Duration;
 import java.util.ArrayList;
 
 import se.ju.myapplication.API.Connection;
@@ -31,7 +36,7 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
         this.context = context;
     }
 
-    public void addMemesToShow(ArrayList<Meme> newMemes){
+    public void addMemesToShow(ArrayList<Meme> newMemes) {
 
         for (Meme newMeme : newMemes) {
             if (!mDataSet.contains(newMeme)) {
@@ -66,6 +71,11 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
         holder.downVote.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
 
         if (Connection.getInstance().isSignedIn()) {
+
+            if (Connection.getInstance().getSignedInUsername().equals(mDataSet.get(position).getUsername())) {
+                holder.remove.setVisibility(View.VISIBLE);
+            }
+
             switch (mDataSet.get(position).getVote()) {
                 case 1:
                     holder.upVote.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
@@ -125,6 +135,30 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
                     break;
             }
         });
+
+        holder.remove.setOnClickListener(v -> {
+            if (!Connection.getInstance().isSignedIn()) {
+                return;
+            }
+
+
+
+                new AlertDialog.Builder(context)
+                        .setTitle(R.string.remove_meme)
+                        .setMessage(R.string.remove_meme_message)
+                        .setPositiveButton(
+                                R.string.yes,
+                                (dialog, whichButton) -> Connection.getInstance().deleteMeme(mDataSet.get(position).getId(), nothing -> {
+                                    mDataSet.remove(position);
+                                    v.post(() -> notifyDataSetChanged());
+                                })
+                        ).setNegativeButton(
+                        R.string.no,
+                        (dialog, whichButton) -> {
+                            // Do not delete it.
+                        }
+                ).show();
+        });
     }
 
     @Override
@@ -144,8 +178,7 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
             } catch (JsonProcessingException e) {
                 // Voting failed
             }
-        }
-        else {
+        } else {
             try {
                 Connection.getInstance().vote(mDataSet.get(position).getId(), Connection.getInstance().getSignedInUsername(), vote, (nothing) -> {
 
@@ -190,6 +223,7 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
         public Button upVote;
         public Button downVote;
         public Integer currentVotes;
+        public Button remove;
 
         public MemeViewHolder(View itemView) {
             super(itemView);
@@ -199,6 +233,7 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
             memeImage = itemView.findViewById(R.id.memeImage);
             upVote = itemView.findViewById(R.id.upVote);
             downVote = itemView.findViewById(R.id.downVote);
+            remove = itemView.findViewById(R.id.removeButton);
         }
     }
 

@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,8 +64,7 @@ public class MainFeedFragment extends Fragment {
                 mAdapter.updateVotesForLogin();
             };
             mainHandler.post(myRunnable);
-        }
-        else {
+        } else {
             mAdapter.notifyDataSetChanged();
         }
     }
@@ -98,8 +98,7 @@ public class MainFeedFragment extends Fragment {
     private void loadMemesOnStart() {
         Connection.getInstance().getMemes(null, null, null, null, pageNumber, (memesResult) -> {
 
-            ArrayList<Meme> memes = (ArrayList<Meme>) memesResult;
-            Collections.sort(memes);
+            ArrayList<Meme> memes = clearRemovedMemes((ArrayList<Meme>) memesResult);
             pageNumber = 0;
 
             System.out.println("###### PAGESIZE: " + pageNumber);
@@ -122,8 +121,7 @@ public class MainFeedFragment extends Fragment {
     private void loadMemes() {
         Connection.getInstance().getMemes(null, null, null, null, pageNumber, (memesResult) -> {
 
-            ArrayList<Meme> memes = (ArrayList<Meme>) memesResult;
-            Collections.sort(memes);
+            ArrayList<Meme> memes = clearRemovedMemes((ArrayList<Meme>) memesResult);
 
             System.out.println("###### PAGESIZE: " + pageNumber);
 
@@ -139,6 +137,16 @@ public class MainFeedFragment extends Fragment {
                 mainHandler.post(myRunnable);
             }
         });
+    }
+
+    private ArrayList<Meme> clearRemovedMemes(ArrayList<Meme> memeList) {
+        ArrayList<Meme> clearedList = new ArrayList<Meme>();
+        for (Meme meme : memeList) {
+            if (meme.getImageSource() != null) {
+                clearedList.add(meme);
+            }
+        }
+        return clearedList;
     }
 
     @Override

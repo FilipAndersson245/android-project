@@ -35,4 +35,9 @@
     <string name="author_default_text">Författare</string>
     <string name="nav_create_template">Skapa mall</string>
     <string name="upvote_btn_text">▲</string>
+    <string name="remove">Ta bort</string>
+    <string name="remove_meme">Ta bort mem</string>
+    <string name="remove_meme_message">Vill du verkligen ta bort denna memen?</string>
+    <string name="yes">Japp</string>
+    <string name="no">Nepp</string>
 </resources>
