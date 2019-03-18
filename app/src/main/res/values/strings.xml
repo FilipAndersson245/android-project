@@ -30,4 +30,10 @@
     <string name="external_storage_explaination">Please allow External Storage permission in App Settings.</string>
     <string name="meme_unable_to_create">Unable to create meme...</string>
     <string name="meme_template_unable_to_create">Unable to create meme template...</string>
+    <string name="permission_granted_local_drive">Permission Granted, Now you can use local drive .</string>
+    <string name="permision_denied_local_drive">Permission Denied, You cannot use local drive .</string>
+    <string name="meme_description">Meme</string>
+    <string name="author_default_text">Author</string>
+    <string name="upvote_btn_text">▲</string>
+    <string name="downvote_btn_text">▼</string>
 </resources>

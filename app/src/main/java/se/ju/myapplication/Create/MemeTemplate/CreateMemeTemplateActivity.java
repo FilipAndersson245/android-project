@@ -92,16 +92,16 @@ public class CreateMemeTemplateActivity extends Activity {
         switch (requestCode) {
             case PERMISSION_FILES_CODE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.e("value", "Permission Granted, Now you can use local drive .");
+                    Log.e("value", getString(R.string.permission_granted_local_drive));
                 } else {
-                    Log.e("value", "Permission Denied, You cannot use local drive .");
+                    Log.e("value", getString(R.string.permision_denied_local_drive));
                 }
                 break;
             case PERMISSION_CAMERA_CODE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.e("value", "Permission Granted, Now you can use local drive .");
+                    Log.e("value", getString(R.string.permission_granted_local_drive));
                 } else {
-                    Log.e("value", "Permission Denied, You cannot use local drive .");
+                    Log.e("value", getString(R.string.permision_denied_local_drive));
                 }
                 break;
         }
