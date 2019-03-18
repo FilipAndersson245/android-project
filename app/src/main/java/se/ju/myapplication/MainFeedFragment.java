@@ -27,7 +27,6 @@ public class MainFeedFragment extends Fragment implements SwipeRefreshLayout.OnR
 
     private int pageSize = 5;
     private int pageNumber = 0;
-    private Boolean canScoll = true;
 
     public static MainFeedFragment newInstance() {
         MainFeedFragment fragment = new MainFeedFragment();
@@ -61,16 +60,7 @@ public class MainFeedFragment extends Fragment implements SwipeRefreshLayout.OnR
     }
 
     public void signInVotesUpdater() {
-        if (Connection.getInstance().isSignedIn()) {
-            Handler mainHandler = new Handler(getActivity().getMainLooper());
-
-            Runnable myRunnable = () -> {
-                mAdapter.updateVotesForLogin();
-            };
-            mainHandler.post(myRunnable);
-        } else {
-            mAdapter.notifyDataSetChanged();
-        }
+        mAdapter.notifyDataSetChanged();
     }
 
     private void addOnDownScrollListener() {
@@ -79,9 +69,7 @@ public class MainFeedFragment extends Fragment implements SwipeRefreshLayout.OnR
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
 
-                if (canScoll && !recyclerView.canScrollVertically(1)) {
-                    canScoll = false;
-                    System.out.println("###### SCROLL DOWN ");
+                if (!recyclerView.canScrollVertically(1)) {
                     loadMemes();
                 }
             }
@@ -89,24 +77,17 @@ public class MainFeedFragment extends Fragment implements SwipeRefreshLayout.OnR
     }
 
     private void loadMemesOnStart() {
+        pageNumber = 0;
         Connection.getInstance().getMemes(null, null, null, pageSize, pageNumber, (memesResult) -> {
 
             ArrayList<Meme> memes = clearRemovedMemes((ArrayList<Meme>) memesResult);
-            pageNumber = 0;
-
-            System.out.println("###### PAGESIZE: " + pageNumber);
 
             if (memes.size() > 0) {
-                Handler mainHandler = new Handler(getActivity().getMainLooper());
-
-                Runnable myRunnable = () -> {
+                getView().post(() -> {
                     this.mAdapter = new MemeViewAdapter(getActivity(), memes);
-
                     mRecyclerView.setAdapter(mAdapter);
-                    signInVotesUpdater();
-                    pageNumber++;
-                };
-                mainHandler.post(myRunnable);
+                });
+                pageNumber++;
             }
         });
     }
@@ -119,16 +100,12 @@ public class MainFeedFragment extends Fragment implements SwipeRefreshLayout.OnR
             System.out.println("###### PAGESIZE: " + pageNumber);
 
             if (memes.size() > 0) {
-                Handler mainHandler = new Handler(getActivity().getMainLooper());
 
-                Runnable myRunnable = () -> {
+                getView().post(() -> {
                     mAdapter.addMemesToShow(memes);
-                    signInVotesUpdater();
                     mAdapter.notifyDataSetChanged();
-                    pageNumber++;
-                    canScoll = true;
-                };
-                mainHandler.post(myRunnable);
+                });
+                pageNumber++;
             }
         });
     }
@@ -146,15 +123,11 @@ public class MainFeedFragment extends Fragment implements SwipeRefreshLayout.OnR
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        pageNumber = 0;
     }
 
     @Override
     public void onRefresh() {
-        mAdapter = null;
-        pageNumber = 0;
-        canScoll = true;
-        onViewCreated(getView(), null);
+        loadMemesOnStart();
 
         swipeLayout.setRefreshing(false);
     }

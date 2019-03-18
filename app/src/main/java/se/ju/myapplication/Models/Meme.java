@@ -57,6 +57,10 @@ public class Meme {
         return votes;
     }
 
+    public void changeVotes(Integer newVote) {
+        this.votes += newVote;
+    }
+
     public String getImageSource() {
         return imageSource;
     }
