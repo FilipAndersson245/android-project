@@ -157,8 +157,8 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
                             holder.downVote.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
                             break;
                         case -1:
-                            holder.downVote.setBackgroundTintList(ColorStateList.valueOf(Color.BLUE));
                             holder.upVote.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
+                            holder.downVote.setBackgroundTintList(ColorStateList.valueOf(Color.BLUE));
                             break;
                     }
                 });

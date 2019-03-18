@@ -61,6 +61,7 @@ public class MainFeedFragment extends Fragment {
 
             Runnable myRunnable = () -> {
                 mAdapter.updateVotesForLogin();
+                mAdapter.notifyDataSetChanged();
             };
             mainHandler.post(myRunnable);
         }
