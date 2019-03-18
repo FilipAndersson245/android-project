@@ -84,18 +84,6 @@ public class MainFeedFragment extends Fragment implements SwipeRefreshLayout.OnR
                     System.out.println("###### SCROLL DOWN ");
                     loadMemes();
                 }
-//                else if (canScoll && !recyclerView.canScrollVertically(-1)) {
-//                    System.out.println("###### SCROLL UP ");
-//                    loadMemesOnStart();
-//
-//                    final Handler handler = new Handler();
-//                    handler.postDelayed(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            canScoll = true;
-//                        }
-//                    }, 150);
-//                }
             }
         });
     }

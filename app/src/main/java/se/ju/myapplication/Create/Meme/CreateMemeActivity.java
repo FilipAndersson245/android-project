@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -34,7 +35,7 @@ public class CreateMemeActivity extends Activity {
 
         this.layout = findViewById(R.id.editNewMemeFrame);
 
-        for (int i = 0; i < layout.getChildCount() ; i++){
+        for (int i = 0; i < layout.getChildCount(); i++) {
             layout.getChildAt(i).setEnabled(false);
         }
 
@@ -68,7 +69,7 @@ public class CreateMemeActivity extends Activity {
                         .placeholder(R.drawable.spinner)
                         .into(templateImage);
 
-                for (int i = 0; i < layout.getChildCount() ; i++){
+                for (int i = 0; i < layout.getChildCount(); i++) {
                     layout.getChildAt(i).setEnabled(true);
                 }
             }
@@ -76,22 +77,28 @@ public class CreateMemeActivity extends Activity {
     }
 
     public void createMemeButtonClicked() {
+        findViewById(R.id.layoutProgressBar).setVisibility(View.VISIBLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+
+
         String topText = ((EditText) findViewById(R.id.topTextEdit)).getText().toString();
         String bottomText = ((EditText) findViewById(R.id.bottomTextEdit)).getText().toString();
         String title = ((EditText) findViewById(R.id.memeTitleEdit)).getText().toString();
 
         try {
-            Connection.getInstance().createMeme(templateId, Connection.getInstance().getSignedInUsername(), title, this.templateImageSource, topText, bottomText, callback  -> {
-                Handler mainHandler = new Handler(getBaseContext().getMainLooper());
-
-                Runnable myRunnable = () -> { };
-
-                mainHandler.post(myRunnable);
+            Connection.getInstance().createMeme(templateId, Connection.getInstance().getSignedInUsername(), title, this.templateImageSource, topText, bottomText, callback -> {
+                new Handler(getBaseContext().getMainLooper()).post(() -> {
+                    findViewById(R.id.layoutProgressBar).setVisibility(View.GONE);
+                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                });
             });
+            this.finish();
         } catch (JsonProcessingException e) {
             Toast.makeText(this, R.string.meme_unable_to_create, Toast.LENGTH_SHORT).show();
+            findViewById(R.id.layoutProgressBar).setVisibility(View.GONE);
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         }
-        this.finish();
     }
 
     @Override

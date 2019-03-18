@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -52,10 +53,19 @@ public class RegisterFragment extends Fragment {
         EditText passwordField = getView().findViewById(R.id.passwordField);
 
         registerButton.setOnClickListener(v1 -> {
+            getView().post(() -> {
+                view.findViewById(R.id.layoutProgressBar).setVisibility(View.VISIBLE);
+                getActivity().getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+
+            });
+
             Connection.getInstance().createUser(usernameField.getText().toString(), passwordField.getText().toString(), didRegister -> {
 
                 if (didRegister) {
                     getView().post(() -> {
+                        view.findViewById(R.id.layoutProgressBar).setVisibility(View.INVISIBLE);
+
                         getView().findViewById(R.id.successText).setVisibility(View.VISIBLE);
                         getView().findViewById(R.id.errorText).setVisibility(View.INVISIBLE);
                     });
@@ -69,6 +79,7 @@ public class RegisterFragment extends Fragment {
                 } else {
                     getView().post(() -> {
                         ((TextView) getView().findViewById(R.id.errorText)).setText("Error: " + Connection.getInstance().registerError);
+                        getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                     });
                 }
             });

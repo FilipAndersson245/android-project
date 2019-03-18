@@ -24,6 +24,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -261,6 +262,11 @@ public class CreateMemeTemplateActivity extends Activity {
     }
 
     public void createMemeTemplateButtonClicked() {
+
+        findViewById(R.id.layoutProgressBar).setVisibility(View.VISIBLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+
         String title = ((EditText) findViewById(R.id.editMemeTemplateTitle)).getText().toString();
 
         File imgFile = new File(currentPhotoPath);
@@ -277,15 +283,17 @@ public class CreateMemeTemplateActivity extends Activity {
                     String error = (String) returnedObject;
 
                     new Handler(getBaseContext().getMainLooper()).post(() -> {
+                        findViewById(R.id.layoutProgressBar).setVisibility(View.GONE);
+                        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                         Toast.makeText(this, error, Toast.LENGTH_LONG).show();
                     });
-
-
                 }
             });
         } catch (JsonProcessingException e) {
             System.out.println("uh oh");
             Toast.makeText(this, R.string.meme_template_unable_to_create, Toast.LENGTH_SHORT).show();
+            findViewById(R.id.layoutProgressBar).setVisibility(View.GONE);
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         }
     }
 

@@ -12,6 +12,7 @@ import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -61,17 +62,18 @@ public class SignInFragment extends Fragment {
         signInButton.setOnClickListener(v1 -> {
 
             getView().post(() -> {
-                final LinearLayout hiddenLayout = view.findViewById(R.id.spinner_overlay_layout);
-                hiddenLayout.setVisibility(View.VISIBLE);
+                view.findViewById(R.id.layoutProgressBar).setVisibility(View.VISIBLE);
+                getActivity().getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
             });
 
             Connection.getInstance().signInUser(usernameField.getText().toString(), passwordField.getText().toString(), didSignIn -> {
                 if (didSignIn) {
                     Connection.getInstance().setSession(getActivity());
                     getView().post(() -> {
-                        final LinearLayout hiddenLayout = view.findViewById(R.id.spinner_overlay_layout);
-                        hiddenLayout.setVisibility(View.INVISIBLE);
-                        
+                        view.findViewById(R.id.layoutProgressBar).setVisibility(View.INVISIBLE);
+
+
                         getView().findViewById(R.id.successText).setVisibility(View.VISIBLE);
                         getView().findViewById(R.id.errorText).setVisibility(View.INVISIBLE);
                     });
@@ -87,6 +89,7 @@ public class SignInFragment extends Fragment {
                 } else {
                     getView().post(() -> {
                         ((TextView) getView().findViewById(R.id.errorText)).setText("Error: " + Connection.getInstance().signInError);
+                        getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                     });
                 }
             });

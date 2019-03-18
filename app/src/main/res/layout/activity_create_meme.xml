@@ -1,73 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="?attr/actionBarTheme" />
 
-    <Button
-        android:id="@+id/selectTemplateButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/select_template" />
 
     <LinearLayout
-        android:id="@+id/editNewMemeFrame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <EditText
-            android:id="@+id/topTextEdit"
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="@string/meme_hint_top_text"
-            android:inputType="text" />
+            android:background="?attr/colorPrimary"
+            android:minHeight="?attr/actionBarSize"
+            android:theme="?attr/actionBarTheme" />
 
-        <ImageView
-            android:id="@+id/createMemeTemplateImage"
-            android:layout_width="match_parent"
-            android:layout_height="284dp"
-            android:scaleType="fitCenter"
-            android:src="@drawable/question_mark" />
-
-        <EditText
-            android:id="@+id/bottomTextEdit"
+        <Button
+            android:id="@+id/selectTemplateButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="@string/meme_hint_bottom_text"
-            android:inputType="text" />
+            android:text="@string/select_template" />
 
-        <EditText
-            android:id="@+id/memeTitleEdit"
+        <LinearLayout
+            android:id="@+id/editNewMemeFrame"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:ems="10"
-            android:hint="@string/meme_title"
-            android:inputType="text" />
+            android:orientation="vertical">
 
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="10" />
+            <EditText
+                android:id="@+id/topTextEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/meme_hint_top_text"
+                android:inputType="text" />
+
+            <ImageView
+                android:id="@+id/createMemeTemplateImage"
+                android:layout_width="match_parent"
+                android:layout_height="284dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/question_mark" />
+
+            <EditText
+                android:id="@+id/bottomTextEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/meme_hint_bottom_text"
+                android:inputType="text" />
+
+            <EditText
+                android:id="@+id/memeTitleEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:ems="10"
+                android:hint="@string/meme_title"
+                android:inputType="text" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="0dp"
+        android:gravity="bottom"
+        android:orientation="vertical">
 
         <Button
             android:id="@+id/createMemeButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/meme_create"/>
+            android:layout_gravity="bottom"
+            android:text="@string/meme_create" />
     </LinearLayout>
 
-</LinearLayout>
+    <FrameLayout
+        android:id="@+id/layoutProgressBar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/tintBlack"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+    </FrameLayout>
+
+</RelativeLayout>

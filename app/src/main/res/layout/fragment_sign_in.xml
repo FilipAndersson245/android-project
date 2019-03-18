@@ -67,19 +67,17 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/spinner_overlay_layout"
+    <FrameLayout
+        android:id="@+id/layoutProgressBar"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/colorLightGrey"
-        android:orientation="vertical"
-        android:visibility="invisible">
+        android:background="@color/tintBlack"
+        android:visibility="gone">
 
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            app:srcCompat="@drawable/spinner" />
-    </LinearLayout>
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+    </FrameLayout>
 
 </FrameLayout>
