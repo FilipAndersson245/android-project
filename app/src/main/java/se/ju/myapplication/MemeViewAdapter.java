@@ -30,6 +30,7 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
 
     private ArrayList<Meme> mDataSet;
     Context context;
+    Boolean isVoting = false;
 
     public MemeViewAdapter(Context context, ArrayList<Meme> data) {
         mDataSet = data;
@@ -101,9 +102,11 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
         holder.currentVotes = mDataSet.get(position).getVotes();
 
         holder.upVote.setOnClickListener(v -> {
-            if (!Connection.getInstance().isSignedIn()) {
+            if (!Connection.getInstance().isSignedIn() || isVoting) {
                 return;
             }
+
+            isVoting = true;
 
             switch (mDataSet.get(position).getVote()) {
                 case 0:
@@ -125,9 +128,11 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
         });
 
         holder.downVote.setOnClickListener(v -> {
-            if (!Connection.getInstance().isSignedIn()) {
+            if (!Connection.getInstance().isSignedIn() || isVoting) {
                 return;
             }
+
+            isVoting = true;
 
             switch (mDataSet.get(position).getVote()) {
                 case 0:
@@ -185,9 +190,11 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
 
                     holder.upVote.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
                     holder.downVote.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
+                    isVoting = false;
                 });
             } catch (JsonProcessingException e) {
                 // Voting failed
+                isVoting = false;
             }
         } else {
             try {
@@ -204,9 +211,11 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
                             holder.downVote.setBackgroundTintList(ColorStateList.valueOf(Color.BLUE));
                             break;
                     }
+                    isVoting = false;
                 });
             } catch (JsonProcessingException e) {
                 // Voting failed
+                isVoting = false;
             }
         }
     }
