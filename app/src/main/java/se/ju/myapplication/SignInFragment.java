@@ -90,6 +90,7 @@ public class SignInFragment extends Fragment {
                 } else {
                     getView().post(() -> {
                         ((TextView) getView().findViewById(R.id.errorText)).setText("Error: " + Connection.getInstance().signInError);
+                        view.findViewById(R.id.layoutProgressBar).setVisibility(View.INVISIBLE);
                         getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                     });
                 }

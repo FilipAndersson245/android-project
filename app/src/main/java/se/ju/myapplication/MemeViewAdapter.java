@@ -94,6 +94,9 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
             }
 
         }
+        else {
+            holder.remove.setVisibility(View.GONE);
+        }
 
         holder.currentVotes = mDataSet.get(position).getVotes();
 
