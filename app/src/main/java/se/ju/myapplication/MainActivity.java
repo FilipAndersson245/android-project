@@ -3,7 +3,6 @@ package se.ju.myapplication;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -17,6 +16,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.app.Activity;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_sign_out:
                 Connection.getInstance().signOutUser();
                 Connection.getInstance().clearSession(this);
-                updateUserSignedState();
+                updateUserSignedOut();
                 break;
             case R.id.nav_create_meme:
                 Intent createMemeIntent = new Intent(this, CreateMemeActivity.class);
@@ -119,13 +119,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return false;
     }
 
-    public void updateUserSignedState() {
+    private void updateUserSignedOut() {
         MainFeedFragment mainFeedFragment = (MainFeedFragment) getStackFragmentFromClassName(MainFeedFragment.class.getName());
 
-        // CODE TO UPDATE THE VOTES HERE!!!!!!!!!! <------------------------------------------------------
         mainFeedFragment.signInVotesUpdater();
 
-        System.out.println("###### SIGN IN/OUT");
         updateDrawerMenu();
     }
 
@@ -224,5 +222,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationView navView = findViewById(R.id.nvView);
         navView.getMenu().clear();
         navView.inflateMenu(Connection.getInstance().isSignedIn() ? R.menu.drawer_view_signed_in : R.menu.drawer_view);
+
+        ((TextView) findViewById(R.id.toolbarUsername)).setText(Connection.getInstance().isSignedIn() ? Connection.getInstance().getSignedInUsername() : "");
     }
 }
