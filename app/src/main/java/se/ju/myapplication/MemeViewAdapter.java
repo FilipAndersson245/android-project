@@ -87,10 +87,8 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
                     switch (vote.getVote()) {
                         case 1:
                             holder.upVote.setBackgroundTintList(context.getResources().getColorStateList(R.color.upvoteClicked));
-                            holder.downVote.setBackgroundTintList(context.getResources().getColorStateList(R.color.defaultButton));
                             break;
                         case -1:
-                            holder.upVote.setBackgroundTintList(context.getResources().getColorStateList(R.color.defaultButton));
                             holder.downVote.setBackgroundTintList(context.getResources().getColorStateList(R.color.downvoteClicked));
                             break;
                     }
