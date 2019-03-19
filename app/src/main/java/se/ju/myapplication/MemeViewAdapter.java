@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.support.annotation.ColorInt;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -67,9 +68,6 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
         holder.memeAuthor.setText(mDataSet.get(position).getUsername());
         holder.votes.setText(mDataSet.get(position).getVotes().toString());
 
-        holder.upVote.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
-        holder.downVote.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
-
         holder.currentVotes = mDataSet.get(position).getVotes();
 
         if (Connection.getInstance().isSignedIn()) {
@@ -88,10 +86,12 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
 
                     switch (vote.getVote()) {
                         case 1:
-                            holder.upVote.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
+                            holder.upVote.setBackgroundTintList(context.getResources().getColorStateList(R.color.upvoteClicked));
+                            holder.downVote.setBackgroundTintList(context.getResources().getColorStateList(R.color.defaultButton));
                             break;
                         case -1:
-                            holder.downVote.setBackgroundTintList(ColorStateList.valueOf(Color.BLUE));
+                            holder.upVote.setBackgroundTintList(context.getResources().getColorStateList(R.color.defaultButton));
+                            holder.downVote.setBackgroundTintList(context.getResources().getColorStateList(R.color.downvoteClicked));
                             break;
                     }
                 });
@@ -101,6 +101,8 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
 
         }
         else {
+            holder.upVote.setBackgroundTintList(context.getResources().getColorStateList(R.color.defaultButton));
+            holder.downVote.setBackgroundTintList(context.getResources().getColorStateList(R.color.defaultButton));
             holder.remove.setVisibility(View.GONE);
         }
 
@@ -193,8 +195,8 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
 
                     System.out.println("###### GÖR GRÅ");
 
-                    holder.upVote.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
-                    holder.downVote.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
+                    holder.upVote.setBackgroundTintList(context.getResources().getColorStateList(R.color.defaultButton));
+                    holder.downVote.setBackgroundTintList(context.getResources().getColorStateList(R.color.defaultButton));
                     isVoting = false;
                 });
             } catch (JsonProcessingException e) {
@@ -208,12 +210,12 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
 
                     switch (mDataSet.get(position).getVote()) {
                         case 1:
-                            holder.upVote.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
-                            holder.downVote.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
+                            holder.upVote.setBackgroundTintList(context.getResources().getColorStateList(R.color.upvoteClicked));
+                            holder.downVote.setBackgroundTintList(context.getResources().getColorStateList(R.color.defaultButton));
                             break;
                         case -1:
-                            holder.upVote.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
-                            holder.downVote.setBackgroundTintList(ColorStateList.valueOf(Color.BLUE));
+                            holder.upVote.setBackgroundTintList(context.getResources().getColorStateList(R.color.defaultButton));
+                            holder.downVote.setBackgroundTintList(context.getResources().getColorStateList(R.color.downvoteClicked));
                             break;
                     }
                     isVoting = false;

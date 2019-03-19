@@ -5,4 +5,9 @@
     <color name="colorAccent">#D81B60</color>
     <color name="colorLightGrey">#78FFFFFF</color>
     <color name="tintBlack">#78000000</color>
+    <color name="mainfeedBackground">#EEEEEE</color>
+    <color name="listItemBackground">#FFFFFF</color>
+    <color name="upvoteClicked">#4FC3F7</color>
+    <color name="downvoteClicked">#FF6E40</color>
+    <color name="defaultButton">#E0E0E0</color>
 </resources>
