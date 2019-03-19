@@ -33,8 +33,8 @@
                     android:pivotX="50%"
                     android:pivotY="50%"
                     android:propertyName="rotation"
-                    android:valueFrom="0"
-                    android:valueTo="360" />
+                    android:valueFrom="360"
+                    android:valueTo="0" />
             </set>
         </aapt:attr>
     </target>
