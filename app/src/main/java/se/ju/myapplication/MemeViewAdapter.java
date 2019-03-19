@@ -47,6 +47,8 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
 
     @Override
     public MemeViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        isVoting = false;
+
         LayoutInflater inflater = LayoutInflater.from(context);
 
         View templateListItem = inflater.inflate(R.layout.meme_list_item, parent, false);
