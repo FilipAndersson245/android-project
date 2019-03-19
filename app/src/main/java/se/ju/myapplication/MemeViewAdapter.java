@@ -75,6 +75,9 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
             if (Connection.getInstance().getSignedInUsername().equals(mDataSet.get(position).getUsername())) {
                 holder.remove.setVisibility(View.VISIBLE);
             }
+            else {
+                holder.remove.setVisibility(View.GONE);
+            }
 
             try {
                 Connection.getInstance().getVote(mDataSet.get(position).getId(), Connection.getInstance().getSignedInUsername(), (voteResult) -> {
