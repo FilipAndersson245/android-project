@@ -62,6 +62,7 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
 
         Picasso.get()
                 .load(mDataSet.get(position).getImageSource())
+                .placeholder(R.drawable.spinner)
                 .into(holder.memeImage);
 
         holder.title.setText(mDataSet.get(position).getName());
