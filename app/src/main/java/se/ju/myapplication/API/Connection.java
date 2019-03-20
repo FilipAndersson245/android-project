@@ -3,10 +3,8 @@ package se.ju.myapplication.API;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.media.Image;
 import android.net.Uri.Builder;
 import android.support.v4.util.Consumer;
-import android.util.Log;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -34,45 +32,44 @@ import se.ju.myapplication.Models.Vote;
 import static android.content.Context.MODE_PRIVATE;
 
 public class Connection {
+    private static final String TOKEN_ID = "JWT_TOKEN";
+    private static final String USERNAME_ID = "USERNAME";
+
     private static final Connection ourInstance = new Connection();
+
+    private final ObjectMapper mMapper = new ObjectMapper();
+    private String mJsonWebToken;
+    private String mSignedInUsername;
+
+    public String signInError;
+    public String registerError;
+
+    private Connection() {
+    }
 
     public static Connection getInstance() {
         return ourInstance;
-    }
-
-    private final ObjectMapper mapper = new ObjectMapper();
-    private String JWT = null;
-    private String signedInUsername = null;
-
-    public String signInError = null;
-    public String registerError = null;
-
-    Connection() {
     }
 
     private Builder newBuilder() {
         return new Builder().scheme("http").authority("schpoop.eu-central-1.elasticbeanstalk.com");
     }
 
-
-    private static final String TOKEN_ID = "JWT_TOKEN";
-    private static final String USERNAME_ID = "USERNAME";
-
     public void recreateSession(Activity context) {
         final SharedPreferences preferences = context.getPreferences(MODE_PRIVATE);
         String token = preferences.getString(TOKEN_ID, null);
         String username = preferences.getString(USERNAME_ID, null);
         if (token != null && username != null) {
-            this.JWT = token;
-            this.signedInUsername = username;
+            this.mJsonWebToken = token;
+            this.mSignedInUsername = username;
         }
     }
 
     public void setSession(Activity context) {
         SharedPreferences sharedPref = context.getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(TOKEN_ID, this.JWT);
-        editor.putString(USERNAME_ID, this.signedInUsername);
+        editor.putString(TOKEN_ID, this.mJsonWebToken);
+        editor.putString(USERNAME_ID, this.mSignedInUsername);
         editor.apply();
     }
 
@@ -94,8 +91,8 @@ public class Connection {
                 conn.setRequestMethod(method);
 
                 if (authorization) {
-                    String a = "Bearer " + JWT;
-                    conn.setRequestProperty("Authorization", a);
+                    String bearerToken = "Bearer " + mJsonWebToken;
+                    conn.setRequestProperty("Authorization", bearerToken);
                 }
 
                 if (body != null) {
@@ -110,16 +107,15 @@ public class Connection {
                     if (returnType.getType() == Void.class) {
                         callback.accept(null);
                     } else {
-                        callback.accept(mapper.readValue(conn.getInputStream(), returnType));
+                        callback.accept(mMapper.readValue(conn.getInputStream(), returnType));
                     }
                 } else {
                     if (resultRange == 400) {
-                        throw new Exception(mapper.readValue(conn.getErrorStream(), Error.class).getError());
+                        throw new Exception(mMapper.readValue(conn.getErrorStream(), Error.class).getError());
                     }
                     throw new Exception("Error making request.");
                 }
             } catch (Exception e) {
-                System.out.println(" XXXXXXXXXXXXXXXX Failed while doing a " + method + " request on " + urlBuilder.build().toString());
                 e.printStackTrace();
             }
         }).start();
@@ -141,17 +137,16 @@ public class Connection {
                 conn.setRequestMethod("POST");
 
                 OutputStream os = conn.getOutputStream();
-                os.write(mapper.writeValueAsString(user).getBytes(StandardCharsets.UTF_8));
+                os.write(mMapper.writeValueAsString(user).getBytes(StandardCharsets.UTF_8));
                 os.close();
 
-                StringBuilder sb = new StringBuilder();
                 int resultRange = (conn.getResponseCode() / 100) * 100;
 
                 if (resultRange == 200) {
                     callback.accept(true);
                 } else {
                     if (resultRange == 400) {
-                        throw new Exception(mapper.readValue(conn.getErrorStream(), Error.class).getError());
+                        throw new Exception(mMapper.readValue(conn.getErrorStream(), Error.class).getError());
                     }
                     throw new Exception("Error making request.");
                 }
@@ -165,53 +160,13 @@ public class Connection {
         }).start();
     }
 
-    public void getUsers(String username, Integer pageSize, Integer page, Consumer<Object> callback) {
-        Builder builder = newBuilder().appendPath("users");
-
-        if (username != null) {
-            builder.appendQueryParameter("username", username);
-        }
-        if (pageSize != null) {
-            builder.appendQueryParameter("pageSize", pageSize.toString());
-        }
-        if (page != null) {
-            builder.appendQueryParameter("page", page.toString());
-        }
-
-        request("GET", builder, null, new TypeReference<String>() {
-        }, false, callback);
-    }
-
-    public void updateUserPassword(String username, final String newPassword, Consumer<Object> callback) throws JsonProcessingException {
-        Builder builder = newBuilder().appendPath("users");
-        builder.appendPath(username);
-
-        HashMap<String, String> body = new HashMap<String, String>() {{
-            put("password", newPassword);
-        }};
-
-        request("PATCH", builder, mapper.writeValueAsString(body), new TypeReference<Void>() {
-        }, true, callback);
-    }
-
-    public void deleteUser(String username, Consumer<Object> callback) {
-        Builder builder = newBuilder().appendPath("users");
-        builder.appendPath(username);
-
-        request("DELETE", builder, null, new TypeReference<Void>() {
-        }, true, callback);
-    }
-
     public void signInUser(final String username, String password, Consumer<Boolean> callback) {
         Builder builder = newBuilder().appendPath("sessions");
 
         final Session session = new Session("password", username, password);
 
-
         new Thread(() -> {
             try {
-                System.out.println("START");
-                System.out.println(builder.build().toString());
                 URL url = new URL(builder.build().toString());
 
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -219,37 +174,33 @@ public class Connection {
                 conn.setRequestMethod("POST");
 
                 OutputStream os = conn.getOutputStream();
-                os.write(mapper.writeValueAsString(session).getBytes(StandardCharsets.UTF_8));
+                os.write(mMapper.writeValueAsString(session).getBytes(StandardCharsets.UTF_8));
                 os.close();
 
-                StringBuilder sb = new StringBuilder();
                 int resultRange = (conn.getResponseCode() / 100) * 100;
 
                 if (resultRange == 200) {
-                    JWT = mapper.readValue(conn.getInputStream(), SessionResponse.class).getAccessToken();
-                    signedInUsername = username;
+                    mJsonWebToken = mMapper.readValue(conn.getInputStream(), SessionResponse.class).getAccessToken();
+                    mSignedInUsername = username;
                     callback.accept(true);
                 } else {
-                    System.out.println("NO");
-                    JWT = null;
+                    mJsonWebToken = null;
                     if (resultRange == 400) {
-                        throw new Exception(mapper.readValue(conn.getErrorStream(), Error.class).getError());
+                        throw new Exception(mMapper.readValue(conn.getErrorStream(), Error.class).getError());
                     }
                     throw new Exception("Error making request.");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-
                 signInError = e.getMessage();
-
                 callback.accept(false);
             }
         }).start();
     }
 
     public void signOutUser() {
-        JWT = null;
-        signedInUsername = null;
+        mJsonWebToken = null;
+        mSignedInUsername = null;
     }
 
     // ============================== MEMES =============================
@@ -270,7 +221,7 @@ public class Connection {
             newMeme.setBottomText(bottomText);
         }
 
-        request("POST", builder, mapper.writeValueAsString(newMeme), new TypeReference<Void>() {
+        request("POST", builder, mMapper.writeValueAsString(newMeme), new TypeReference<Void>() {
         }, true, callback);
     }
 
@@ -297,14 +248,6 @@ public class Connection {
         }, false, callback);
     }
 
-    public void getMeme(Integer memeId, Consumer<Object> callback) {
-        Builder builder = newBuilder().appendPath("memes");
-        builder.appendPath(memeId.toString());
-
-        request("GET", builder, null, new TypeReference<Meme>() {
-        }, false, callback);
-    }
-
     public void deleteMeme(Integer memeId, Consumer<Object> callback) {
         Builder builder = newBuilder().appendPath("memes");
         builder.appendPath(memeId.toString());
@@ -327,7 +270,7 @@ public class Connection {
                     params.put("name", name);
                 }
 
-                MemeTemplate result = new MultipartRequest().multipartRequest(builder.build().toString(), params, image.getAbsolutePath(), "image", JWT);
+                MemeTemplate result = new MultipartRequest().multipartRequest(builder.build().toString(), params, image.getAbsolutePath(), "image", mJsonWebToken);
 
                 callback.accept(result);
 
@@ -358,22 +301,6 @@ public class Connection {
         }, false, callback);
     }
 
-    public void getMemeTemplate(Integer templateId, Consumer<Object> callback) {
-        Builder builder = newBuilder().appendPath("memetemplates");
-        builder.appendPath(templateId.toString());
-
-        request("GET", builder, null, new TypeReference<MemeTemplate>() {
-        }, false, callback);
-    }
-
-    public void deleteMemeTemplate(Integer templateId, Consumer<Object> callback) {
-        Builder builder = newBuilder().appendPath("memetemplates");
-        builder.appendPath(templateId.toString());
-
-        request("DELETE", builder, null, new TypeReference<Void>() {
-        }, true, callback);
-    }
-
     // ============================== VOTES =============================
     // ==================================================================
 
@@ -383,9 +310,7 @@ public class Connection {
 
         NewVote newVote = new NewVote(username, vote);
 
-        System.out.println(builder.toString());
-
-        request("PUT", builder, mapper.writeValueAsString(newVote), new TypeReference<Vote>() {
+        request("PUT", builder, mMapper.writeValueAsString(newVote), new TypeReference<Vote>() {
         }, true, callback);
     }
 
@@ -406,22 +331,16 @@ public class Connection {
             put("username", username);
         }};
 
-        request("DELETE", builder, mapper.writeValueAsString(body), new TypeReference<Void>() {
+        request("DELETE", builder, mMapper.writeValueAsString(body), new TypeReference<Void>() {
         }, true, callback);
     }
 
 
     public String getSignedInUsername() {
-        return signedInUsername;
+        return mSignedInUsername;
     }
 
     public Boolean isSignedIn() {
-        return signedInUsername != null;
-    }
-
-
-    static String convertStreamToString(java.io.InputStream is) {
-        java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
-        return s.hasNext() ? s.next() : "";
+        return mSignedInUsername != null;
     }
 }

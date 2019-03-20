@@ -28,10 +28,8 @@ import se.ju.myapplication.Create.MemeTemplate.ListMemeTemplateActivity;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout mDrawer;
-    private Toolbar toolbar;
-    private NavigationView nvDrawer;
 
-    private ArrayList<Fragment> fragmentStack = new ArrayList<Fragment>();
+    private ArrayList<Fragment> mFragmentStack = new ArrayList<>();
 
     @SuppressLint("ResourceType")
     @Override
@@ -44,15 +42,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (savedInstanceState == null) {
             // Adds first main instance
 
-            Fragment fragment = fragmentFromItemId(R.id.nav_home);
+            Fragment fragment = fragmentFromItemId(R.id.navHome);
 
-            fragmentStack.add(fragment);
+            mFragmentStack.add(fragment);
 
             getSupportFragmentManager().beginTransaction().add(R.id.flContent, fragment).commit();
         }
 
 
-        toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionbar = getSupportActionBar();
         assert actionbar != null;
@@ -60,8 +58,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         actionbar.setDisplayHomeAsUpEnabled(true);
         actionbar.setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp);
 
-        mDrawer = findViewById(R.id.drawer_layout);
-        nvDrawer = findViewById(R.id.nvView);
+        mDrawer = findViewById(R.id.drawerLayout);
+        NavigationView nvDrawer = findViewById(R.id.nvView);
         nvDrawer.setNavigationItemSelectedListener(this);
     }
 
@@ -86,22 +84,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Integer itemId = menuItem.getItemId();
 
         switch (itemId) {
-            case R.id.close_drawer_button:
+            case R.id.closeDrawerButton:
                 break;
-            case R.id.nav_sign_out:
+            case R.id.navSignOut:
                 Connection.getInstance().signOutUser();
                 Connection.getInstance().clearSession(this);
                 updateUserSignedOut();
                 break;
-            case R.id.nav_create_meme:
+            case R.id.navCreateMeme:
                 Intent createMemeIntent = new Intent(this, CreateMemeActivity.class);
                 startActivity(createMemeIntent);
                 break;
-            case R.id.nav_templates:
+            case R.id.navTemplates:
                 Intent templatesIntent = new Intent(this, ListMemeTemplateActivity.class);
                 startActivity(templatesIntent);
                 break;
-            case R.id.nav_create_template:
+            case R.id.navCreateTemplate:
                 Intent createTemplateIntent = new Intent(this, CreateMemeTemplateActivity.class);
                 startActivity(createTemplateIntent);
                 break;
@@ -130,19 +128,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     // This code is used to select which item is clicked in the drawer. Done switch case style.
     public Fragment fragmentFromItemId(int itemId) {
         switch (itemId) {
-            case R.id.nav_home:
+            case R.id.navHome:
                 return MainFeedFragment.newInstance();
-            case R.id.nav_register:
+            case R.id.navRegister:
                 return RegisterFragment.newInstance();
-            // Remake this to a fragment pls!!
-            //            case R.id.nav_create_meme:
-            //                Intent k = new Intent(MainActivity.this, CreateMemeActivity.class);
-            //                startActivity(k);
-            //                return true;
-            case R.id.nav_sign_in:
+            case R.id.navSignIn:
                 return SignInFragment.newInstance();
             default:
-                System.out.println("No handler was found for drawer item!");
                 return null;
         }
     }
@@ -150,12 +142,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public Fragment getStackFragmentFromClassName(String fragmentClassName) {
         final Integer fragmentStackIndexFromClassName = getFragmentStackIndexFromClassName(fragmentClassName);
         assert fragmentStackIndexFromClassName != null;
-        return fragmentStack.get(fragmentStackIndexFromClassName);
+        return mFragmentStack.get(fragmentStackIndexFromClassName);
     }
 
     private Integer getFragmentStackIndexFromClassName(String fragmentClassName) {
-        for (int i = 0; i < fragmentStack.size(); i++)
-            if (fragmentStack.get(i).getClass().getName() == fragmentClassName) return i;
+        for (int i = 0; i < mFragmentStack.size(); i++)
+            if (mFragmentStack.get(i).getClass().getName().equals(fragmentClassName)) return i;
         return null;
     }
 
@@ -165,11 +157,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fragmentIndex = getFragmentStackIndexFromClassName(newFragment.getClass().getName());
 
         if (fragmentIndex != null) {
-            newFragment = fragmentStack.get(fragmentIndex);
-            fragmentStack.remove(fragmentIndex.intValue());
+            newFragment = mFragmentStack.get(fragmentIndex);
+            mFragmentStack.remove(fragmentIndex.intValue());
         }
 
-        fragmentStack.add(newFragment);
+        mFragmentStack.add(newFragment);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         if (animate) {
             ft.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
@@ -178,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void removeAndReplaceWithFragment(int id) {
-        fragmentStack.remove(fragmentStack.size() - 1);
+        mFragmentStack.remove(mFragmentStack.size() - 1);
         replaceFragment(fragmentFromItemId(id), true);
     }
 
@@ -192,22 +184,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawerLayout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
             return;
         }
 
         Fragment currentFragment = getCurrentFragment();
-        boolean isMainFragment = MainFeedFragment.class.getName() == currentFragment.getClass().getName();
+        boolean isMainFragment = MainFeedFragment.class.getName().equals(currentFragment.getClass().getName());
         if (isMainFragment) {
             finish();
-        } else if (fragmentStack.size() > 1) {
-            fragmentStack.remove(fragmentStack.size() - 1);
+        } else if (mFragmentStack.size() > 1) {
+            mFragmentStack.remove(mFragmentStack.size() - 1);
             getSupportFragmentManager()
                     .beginTransaction()
                     .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
-                    .replace(R.id.flContent, fragmentStack.get(fragmentStack.size() - 1))
+                    .replace(R.id.flContent, mFragmentStack.get(mFragmentStack.size() - 1))
                     .commit();
         } else {
             super.onBackPressed();

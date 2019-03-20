@@ -34,8 +34,6 @@
     <string name="permision_denied_local_drive">Permission Denied, You cannot use local drive .</string>
     <string name="meme_description">Meme</string>
     <string name="author_default_text">Author</string>
-    <string name="upvote_btn_text">▲</string>
-    <string name="downvote_btn_text">▼</string>
     <string name="remove">Remove</string>
     <string name="remove_meme">Remove meme</string>
     <string name="remove_meme_message">Are you sure you want to remove this meme?</string>

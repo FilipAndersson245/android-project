@@ -5,23 +5,23 @@
     <group
         android:checkableBehavior="single">
         <item
-            android:id="@+id/close_drawer_button"
+            android:id="@+id/closeDrawerButton"
             android:title=""
             android:icon="@drawable/backbutton" />
         <item
-            android:id="@+id/nav_home"
+            android:id="@+id/navHome"
             android:title="@string/nav_home" />
         <item
-            android:id="@+id/nav_templates"
+            android:id="@+id/navTemplates"
             android:title="@string/nav_template" />
         <item
-            android:id="@+id/nav_create_template"
+            android:id="@+id/navCreateTemplate"
             android:title="@string/nav_create_template"/>
         <item
-            android:id="@+id/nav_create_meme"
+            android:id="@+id/navCreateMeme"
             android:title="@string/nav_create_meme" />
         <item
-            android:id="@+id/nav_sign_out"
+            android:id="@+id/navSignOut"
             android:title="@string/nav_sign_out" />
     </group>
 </menu>

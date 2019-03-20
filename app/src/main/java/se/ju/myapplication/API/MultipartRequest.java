@@ -19,17 +19,16 @@ import se.ju.myapplication.Models.MemeTemplate;
 
 public class MultipartRequest {
     public MemeTemplate multipartRequest(String urlTo, Map<String, String> parmas, String filepath, String filefield, String JWT) throws Exception {
-        HttpURLConnection connection = null;
-        DataOutputStream outputStream = null;
-        InputStream inputStream = null;
+        HttpURLConnection connection;
+        DataOutputStream outputStream;
+        InputStream inputStream;
 
         String twoHyphens = "--";
         String boundary = "*****" + Long.toString(System.currentTimeMillis()) + "*****";
         String lineEnd = "\r\n";
 
-        int bytesRead, bytesAvailable, bufferSize;
         byte[] buffer;
-        int maxBufferSize = 1 * 1024 * 1024;
+        int maxBufferSize = 1024 * 1024;
 
         String[] q = filepath.split("/");
         int idx = q.length - 1;
@@ -46,7 +45,7 @@ public class MultipartRequest {
             connection.setUseCaches(false);
 
             connection.setRequestMethod("POST");
-            connection.setRequestProperty("Authorization", "Bearer "+ JWT);
+            connection.setRequestProperty("Authorization", "Bearer " + JWT);
             connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
 
             outputStream = new DataOutputStream(connection.getOutputStream());
@@ -57,11 +56,11 @@ public class MultipartRequest {
 
             outputStream.writeBytes(lineEnd);
 
-            bytesAvailable = fileInputStream.available();
-            bufferSize = Math.min(bytesAvailable, maxBufferSize);
+            int bytesAvailable = fileInputStream.available();
+            int bufferSize = Math.min(bytesAvailable, maxBufferSize);
             buffer = new byte[bufferSize];
 
-            bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+            int bytesRead = fileInputStream.read(buffer, 0, bufferSize);
             while (bytesRead > 0) {
                 outputStream.write(buffer, 0, bufferSize);
                 bytesAvailable = fileInputStream.available();
@@ -72,9 +71,7 @@ public class MultipartRequest {
             outputStream.writeBytes(lineEnd);
 
             // Upload POST Data
-            Iterator<String> keys = parmas.keySet().iterator();
-            while (keys.hasNext()) {
-                String key = keys.next();
+            for (String key : parmas.keySet()) {
                 String value = parmas.get(key);
 
                 outputStream.writeBytes(twoHyphens + boundary + lineEnd);
@@ -104,30 +101,8 @@ public class MultipartRequest {
 
             return result;
         } catch (Exception e) {
-            System.err.println(e);
             throw new Exception(e);
         }
 
-    }
-
-    private String convertStreamToString(InputStream is) {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        StringBuilder sb = new StringBuilder();
-
-        String line = null;
-        try {
-            while ((line = reader.readLine()) != null) {
-                sb.append(line);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                is.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return sb.toString();
     }
 }

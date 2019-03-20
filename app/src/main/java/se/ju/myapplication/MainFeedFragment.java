@@ -1,7 +1,6 @@
 package se.ju.myapplication;
 
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -9,7 +8,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -21,13 +19,14 @@ import se.ju.myapplication.Models.Meme;
 
 public class MainFeedFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
+    private static final int PAGE_SIZE = 5;
+
     private RecyclerView mRecyclerView;
     private MemeViewAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-    SwipeRefreshLayout swipeLayout;
+    private SwipeRefreshLayout mSwipeLayout;
 
-    private int pageSize = 5;
-    private int pageNumber = 0;
+    private int mPageNumber = 0;
 
     public static MainFeedFragment newInstance() {
         MainFeedFragment fragment = new MainFeedFragment();
@@ -51,13 +50,15 @@ public class MainFeedFragment extends Fragment implements SwipeRefreshLayout.OnR
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setHasFixedSize(true);
 
-        swipeLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_container);
-        swipeLayout.setOnRefreshListener(this);
+        mSwipeLayout = view.findViewById(R.id.swipeContainer);
+        mSwipeLayout.setOnRefreshListener(this);
 
         loadMemesOnStart();
         addOnDownScrollListener();
         MainActivity mainActivity = (MainActivity) getActivity();
-        mainActivity.updateDrawerMenu();
+        if (mainActivity != null) {
+            mainActivity.updateDrawerMenu();
+        }
     }
 
     public void signInVotesUpdater() {
@@ -78,9 +79,8 @@ public class MainFeedFragment extends Fragment implements SwipeRefreshLayout.OnR
     }
 
     private void loadMemesOnStart() {
-        pageNumber = 0;
-        Connection.getInstance().getMemes(null, null, null, pageSize, pageNumber, (memesResult) -> {
-
+        mPageNumber = 0;
+        Connection.getInstance().getMemes(null, null, null, PAGE_SIZE, mPageNumber, (memesResult) -> {
             ArrayList<Meme> memes = clearRemovedMemes((ArrayList<Meme>) memesResult);
 
             if (memes.size() > 0) {
@@ -88,17 +88,14 @@ public class MainFeedFragment extends Fragment implements SwipeRefreshLayout.OnR
                     this.mAdapter = new MemeViewAdapter(getActivity(), memes);
                     mRecyclerView.setAdapter(mAdapter);
                 });
-                pageNumber++;
+                mPageNumber++;
             }
         });
     }
 
     private void loadMemes() {
-        Connection.getInstance().getMemes(null, null, null, pageSize, pageNumber, (memesResult) -> {
-
+        Connection.getInstance().getMemes(null, null, null, PAGE_SIZE, mPageNumber, (memesResult) -> {
             ArrayList<Meme> memes = clearRemovedMemes((ArrayList<Meme>) memesResult);
-
-            System.out.println("###### PAGESIZE: " + pageNumber);
 
             if (memes.size() > 0) {
 
@@ -106,7 +103,7 @@ public class MainFeedFragment extends Fragment implements SwipeRefreshLayout.OnR
                     mAdapter.addMemesToShow(memes);
                     mAdapter.notifyDataSetChanged();
                 });
-                pageNumber++;
+                mPageNumber++;
             }
         });
     }
@@ -130,6 +127,6 @@ public class MainFeedFragment extends Fragment implements SwipeRefreshLayout.OnR
     public void onRefresh() {
         loadMemesOnStart();
 
-        swipeLayout.setRefreshing(false);
+        mSwipeLayout.setRefreshing(false);
     }
 }

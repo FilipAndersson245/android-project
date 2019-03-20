@@ -15,6 +15,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.util.Objects;
+
 import se.ju.myapplication.API.Connection;
 
 public class RegisterFragment extends Fragment {
@@ -31,7 +33,7 @@ public class RegisterFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater,
+    public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container,
                              Bundle savedInstanceState) {
         return inflater.inflate(
@@ -43,9 +45,7 @@ public class RegisterFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         if(Connection.getInstance().isSignedIn())
         {
-            getView().post(() -> {
-                getActivity().onBackPressed();
-            });
+            Objects.requireNonNull(getView()).post(() -> Objects.requireNonNull(getActivity()).onBackPressed());
         }
 
         Button registerButton = getView().findViewById(R.id.registerButton);
@@ -76,7 +76,7 @@ public class RegisterFragment extends Fragment {
                         getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
                         MainActivity mainActivity = (MainActivity) getActivity();
-                        mainActivity.removeAndReplaceWithFragment(R.id.nav_sign_in);
+                        mainActivity.removeAndReplaceWithFragment(R.id.navSignIn);
                     }, 700);
                 } else {
                     getView().post(() -> {

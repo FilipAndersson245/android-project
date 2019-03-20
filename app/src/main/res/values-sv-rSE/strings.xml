@@ -25,7 +25,6 @@
     <string name="nav_sign_out">Logga ut</string>
     <string name="meme_unable_to_create">Det gick inte att skapa mejmejn...</string>
     <string name="meme_template_unable_to_create">Det gick inte att skapa mallen för mejmejs...</string>
-    <string name="downvote_btn_text">▼</string>
     <string name="create_template">Skapa mall</string>
     <string name="no_file_access">Tillgång till file system krävs</string>
     <string name="external_storage_explaination">Var vänlig och tillåt extern lagring i app inställningar</string>
@@ -34,7 +33,6 @@
     <string name="meme_description">Mem</string>
     <string name="author_default_text">Författare</string>
     <string name="nav_create_template">Skapa mall</string>
-    <string name="upvote_btn_text">▲</string>
     <string name="remove">Ta bort</string>
     <string name="remove_meme">Ta bort mem</string>
     <string name="remove_meme_message">Vill du verkligen ta bort denna memen?</string>

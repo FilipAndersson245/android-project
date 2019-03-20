@@ -28,10 +28,7 @@ public class Meme {
     private Integer hotness;
     private Integer vote = 0;
 
-    public Meme() {
-    }
-
-    ;
+    public Meme() {};
 
     public Meme(@NonNull Integer id,
                 Integer templateId,
@@ -49,16 +46,8 @@ public class Meme {
         this.postDate = postDate;
     }
 
-    public Timestamp getPostDate() {
-        return postDate;
-    }
-
     public Integer getVotes() {
         return votes;
-    }
-
-    public void changeVotes(Integer newVote) {
-        this.votes += newVote;
     }
 
     public String getImageSource() {
@@ -73,9 +62,6 @@ public class Meme {
         return username;
     }
 
-    public Integer getTemplateId() {
-        return templateId;
-    }
 
     public Integer getId() {
         return id;

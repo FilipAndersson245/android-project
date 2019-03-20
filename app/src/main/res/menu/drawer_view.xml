@@ -6,17 +6,17 @@
     <group
         android:checkableBehavior="single">
         <item
-            android:id="@+id/close_drawer_button"
+            android:id="@+id/closeDrawerButton"
             android:title=""
             android:icon="@drawable/backbutton"/>
         <item
-            android:id="@+id/nav_home"
+            android:id="@+id/navHome"
             android:title="@string/nav_home" />
         <item
-            android:id="@+id/nav_sign_in"
+            android:id="@+id/navSignIn"
             android:title="@string/nav_sign_in" />
         <item
-            android:id="@+id/nav_register"
+            android:id="@+id/navRegister"
             android:title="@string/nav_sign_up" />
     </group>
 </menu>

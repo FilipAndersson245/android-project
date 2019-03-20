@@ -2,6 +2,7 @@ package se.ju.myapplication.Create.MemeTemplate;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,24 +19,46 @@ import se.ju.myapplication.R;
 
 public class ListMemeTemplateAdapter extends RecyclerView.Adapter<ListMemeTemplateAdapter.ListMemeTemplateViewHolder> {
 
-    private ArrayList<MemeTemplate> mtDataset;
-    private Context context;
+    private ArrayList<MemeTemplate> mDataset;
+    private Context mContext;
 
     private static ClickListener clickListener;
 
+    public static class ListMemeTemplateViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        public TextView mTemplateName;
+        public TextView mTemplateUsername;
+        public ImageView mTemplateImage;
+        private int mTemplateId;
+        private String mTemplateImageSource;
+
+        public ListMemeTemplateViewHolder(View itemView) {
+            super(itemView);
+            mTemplateName = itemView.findViewById(R.id.templateName);
+            mTemplateUsername = itemView.findViewById(R.id.templateUsername);
+            mTemplateImage = itemView.findViewById(R.id.templateImage);
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            clickListener.onItemClick(this.mTemplateId, this.mTemplateImageSource, mTemplateImage.getDrawable());
+        }
+    }
+
     public ListMemeTemplateAdapter(Context context, ArrayList<MemeTemplate> templates) {
-        mtDataset = templates;
-        this.context = context;
+        mDataset = templates;
+        this.mContext = context;
     }
 
     public void addTemplatesToShow(ArrayList<MemeTemplate> newMemeTemplates){
-        mtDataset.addAll(newMemeTemplates);
+        mDataset.addAll(newMemeTemplates);
     }
 
 
+    @NonNull
     @Override
-    public ListMemeTemplateViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        LayoutInflater inflater = LayoutInflater.from(context);
+    public ListMemeTemplateViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(mContext);
 
         View templateListItem = inflater.inflate(R.layout.meme_template_list_item, parent, false);
 
@@ -43,21 +66,21 @@ public class ListMemeTemplateAdapter extends RecyclerView.Adapter<ListMemeTempla
     }
 
     @Override
-    public void onBindViewHolder(ListMemeTemplateViewHolder holder, int position) {
-        holder.templateName.setText(mtDataset.get(position).getName());
-        holder.templateUsername.setText(mtDataset.get(position).getUsername());
-        holder.templateId = mtDataset.get(position).getId();
-        holder.templateImageSource = mtDataset.get(position).getImageSource();
+    public void onBindViewHolder(@NonNull ListMemeTemplateViewHolder holder, int position) {
+        holder.mTemplateName.setText(mDataset.get(position).getName());
+        holder.mTemplateUsername.setText(mDataset.get(position).getUsername());
+        holder.mTemplateId = mDataset.get(position).getId();
+        holder.mTemplateImageSource = mDataset.get(position).getImageSource();
 
         Picasso.get()
-                .load(mtDataset.get(position).getImageSource())
+                .load(mDataset.get(position).getImageSource())
                 .placeholder(R.drawable.spinner)
-                .into(holder.templateImage);
+                .into(holder.mTemplateImage);
     }
 
     @Override
     public int getItemCount() {
-        return mtDataset.size();
+        return mDataset.size();
     }
 
 
@@ -68,27 +91,5 @@ public class ListMemeTemplateAdapter extends RecyclerView.Adapter<ListMemeTempla
 
     public interface ClickListener {
         void onItemClick(int templateId, String imageSrouce, Drawable image);
-    }
-
-
-    public static class ListMemeTemplateViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        public TextView templateName;
-        public TextView templateUsername;
-        public ImageView templateImage;
-        private int templateId;
-        private String templateImageSource;
-
-        public ListMemeTemplateViewHolder(View itemView) {
-            super(itemView);
-            templateName = itemView.findViewById(R.id.templateName);
-            templateUsername = itemView.findViewById(R.id.templateUsername);
-            templateImage = itemView.findViewById(R.id.templateImage);
-            itemView.setOnClickListener(this);
-        }
-
-        @Override
-        public void onClick(View v) {
-            clickListener.onItemClick(this.templateId, this.templateImageSource, templateImage.getDrawable());
-        }
     }
 }
